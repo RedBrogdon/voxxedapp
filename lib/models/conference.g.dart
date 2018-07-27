@@ -14,7 +14,7 @@
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'voxxed_day.dart';
+part of 'conference.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -28,16 +28,16 @@ part of 'voxxed_day.dart';
 // ignore_for_file: prefer_expression_function_bodies
 // ignore_for_file: sort_constructors_first
 
-Serializer<VoxxedDay> _$voxxedDaySerializer = new _$VoxxedDaySerializer();
+Serializer<Conference> _$conferenceSerializer = new _$ConferenceSerializer();
 
-class _$VoxxedDaySerializer implements StructuredSerializer<VoxxedDay> {
+class _$ConferenceSerializer implements StructuredSerializer<Conference> {
   @override
-  final Iterable<Type> types = const [VoxxedDay, _$VoxxedDay];
+  final Iterable<Type> types = const [Conference, _$Conference];
   @override
-  final String wireName = 'VoxxedDay';
+  final String wireName = 'Conference';
 
   @override
-  Iterable serialize(Serializers serializers, VoxxedDay object,
+  Iterable serialize(Serializers serializers, Conference object,
       {FullType specifiedType: FullType.unspecified}) {
     final result = <Object>[
       'id',
@@ -65,9 +65,9 @@ class _$VoxxedDaySerializer implements StructuredSerializer<VoxxedDay> {
   }
 
   @override
-  VoxxedDay deserialize(Serializers serializers, Iterable serialized,
+  Conference deserialize(Serializers serializers, Iterable serialized,
       {FullType specifiedType: FullType.unspecified}) {
-    final result = new VoxxedDayBuilder();
+    final result = new ConferenceBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -110,7 +110,7 @@ class _$VoxxedDaySerializer implements StructuredSerializer<VoxxedDay> {
   }
 }
 
-class _$VoxxedDay extends VoxxedDay {
+class _$Conference extends Conference {
   @override
   final int id;
   @override
@@ -126,10 +126,10 @@ class _$VoxxedDay extends VoxxedDay {
   @override
   final String website;
 
-  factory _$VoxxedDay([void updates(VoxxedDayBuilder b)]) =>
-      (new VoxxedDayBuilder()..update(updates)).build();
+  factory _$Conference([void updates(ConferenceBuilder b)]) =>
+      (new ConferenceBuilder()..update(updates)).build();
 
-  _$VoxxedDay._(
+  _$Conference._(
       {this.id,
       this.name,
       this.eventType,
@@ -138,31 +138,31 @@ class _$VoxxedDay extends VoxxedDay {
       this.imageURL,
       this.website})
       : super._() {
-    if (id == null) throw new BuiltValueNullFieldError('VoxxedDay', 'id');
-    if (name == null) throw new BuiltValueNullFieldError('VoxxedDay', 'name');
+    if (id == null) throw new BuiltValueNullFieldError('Conference', 'id');
+    if (name == null) throw new BuiltValueNullFieldError('Conference', 'name');
     if (eventType == null)
-      throw new BuiltValueNullFieldError('VoxxedDay', 'eventType');
+      throw new BuiltValueNullFieldError('Conference', 'eventType');
     if (fromDate == null)
-      throw new BuiltValueNullFieldError('VoxxedDay', 'fromDate');
+      throw new BuiltValueNullFieldError('Conference', 'fromDate');
     if (endDate == null)
-      throw new BuiltValueNullFieldError('VoxxedDay', 'endDate');
+      throw new BuiltValueNullFieldError('Conference', 'endDate');
     if (imageURL == null)
-      throw new BuiltValueNullFieldError('VoxxedDay', 'imageURL');
+      throw new BuiltValueNullFieldError('Conference', 'imageURL');
     if (website == null)
-      throw new BuiltValueNullFieldError('VoxxedDay', 'website');
+      throw new BuiltValueNullFieldError('Conference', 'website');
   }
 
   @override
-  VoxxedDay rebuild(void updates(VoxxedDayBuilder b)) =>
+  Conference rebuild(void updates(ConferenceBuilder b)) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  VoxxedDayBuilder toBuilder() => new VoxxedDayBuilder()..replace(this);
+  ConferenceBuilder toBuilder() => new ConferenceBuilder()..replace(this);
 
   @override
   bool operator ==(dynamic other) {
     if (identical(other, this)) return true;
-    if (other is! VoxxedDay) return false;
+    if (other is! Conference) return false;
     return id == other.id &&
         name == other.name &&
         eventType == other.eventType &&
@@ -188,7 +188,7 @@ class _$VoxxedDay extends VoxxedDay {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('VoxxedDay')
+    return (newBuiltValueToStringHelper('Conference')
           ..add('id', id)
           ..add('name', name)
           ..add('eventType', eventType)
@@ -200,8 +200,8 @@ class _$VoxxedDay extends VoxxedDay {
   }
 }
 
-class VoxxedDayBuilder implements Builder<VoxxedDay, VoxxedDayBuilder> {
-  _$VoxxedDay _$v;
+class ConferenceBuilder implements Builder<Conference, ConferenceBuilder> {
+  _$Conference _$v;
 
   int _id;
   int get id => _$this._id;
@@ -231,9 +231,9 @@ class VoxxedDayBuilder implements Builder<VoxxedDay, VoxxedDayBuilder> {
   String get website => _$this._website;
   set website(String website) => _$this._website = website;
 
-  VoxxedDayBuilder();
+  ConferenceBuilder();
 
-  VoxxedDayBuilder get _$this {
+  ConferenceBuilder get _$this {
     if (_$v != null) {
       _id = _$v.id;
       _name = _$v.name;
@@ -248,20 +248,20 @@ class VoxxedDayBuilder implements Builder<VoxxedDay, VoxxedDayBuilder> {
   }
 
   @override
-  void replace(VoxxedDay other) {
+  void replace(Conference other) {
     if (other == null) throw new ArgumentError.notNull('other');
-    _$v = other as _$VoxxedDay;
+    _$v = other as _$Conference;
   }
 
   @override
-  void update(void updates(VoxxedDayBuilder b)) {
+  void update(void updates(ConferenceBuilder b)) {
     if (updates != null) updates(this);
   }
 
   @override
-  _$VoxxedDay build() {
+  _$Conference build() {
     final _$result = _$v ??
-        new _$VoxxedDay._(
+        new _$Conference._(
             id: id,
             name: name,
             eventType: eventType,

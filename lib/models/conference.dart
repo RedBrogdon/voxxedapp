@@ -16,11 +16,11 @@ import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/enums.dart';
 
-part 'voxxed_day.g.dart';
+part 'conference.g.dart';
 
-abstract class VoxxedDay implements Built<VoxxedDay, VoxxedDayBuilder> {
-  static Serializer<VoxxedDay> get serializer =>
-      _$voxxedDaySerializer;
+abstract class Conference implements Built<Conference, ConferenceBuilder> {
+  static Serializer<Conference> get serializer =>
+      _$conferenceSerializer;
 
   int get id;
 
@@ -36,8 +36,8 @@ abstract class VoxxedDay implements Built<VoxxedDay, VoxxedDayBuilder> {
 
   String get website;
 
-  VoxxedDay._();
+  Conference._();
 
-  factory VoxxedDay([updates(VoxxedDayBuilder b)]) =
-  _$VoxxedDay;
+  factory Conference([updates(ConferenceBuilder b)]) =
+  _$Conference;
 }

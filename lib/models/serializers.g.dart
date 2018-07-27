@@ -29,6 +29,6 @@ part of serializers;
 // ignore_for_file: sort_constructors_first
 
 Serializers _$serializers = (new Serializers().toBuilder()
-      ..add(EventType.serializer)
-      ..add(VoxxedDay.serializer))
+      ..add(Conference.serializer)
+      ..add(EventType.serializer))
     .build();

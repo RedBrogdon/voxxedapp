@@ -12,19 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-library serializers;
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-import 'package:built_value/serializer.dart';
-import 'package:built_value/standard_json_plugin.dart';
-import 'package:voxxedapp/models/enums.dart';
-import 'package:voxxedapp/models/conference.dart';
+class ConferenceDetailScreen extends StatefulWidget {
+  @override
+  _ConferenceDetailScreenState createState() => _ConferenceDetailScreenState();
+}
 
-part 'serializers.g.dart';
-
-@SerializersFor(const [
-  EventType,
-  Conference,
-])
-
-final Serializers serializers =
-(_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();
+class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Current Voxxed Days'),
+      ),
+      body: Center(
+        child: Text('detail'),
+      ),
+    );
+  }
+}

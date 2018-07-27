@@ -10,7 +10,7 @@ import 'dart:convert';
 
 import 'package:voxxedapp/models/enums.dart';
 import 'package:voxxedapp/models/serializers.dart';
-import 'package:voxxedapp/models/voxxed_day.dart';
+import 'package:voxxedapp/models/conference.dart';
 
 const String voxxedDayJson = '''
   {
@@ -87,7 +87,7 @@ void main() {
   group('VoxxedDay serialization', () {
 
     test('Correctly deserialize a typical VoxxedDay', () {
-      final voxxedDay = serializers.deserializeWith(VoxxedDay.serializer, json.decode(voxxedDayJson));
+      final voxxedDay = serializers.deserializeWith(Conference.serializer, json.decode(voxxedDayJson));
       expect(voxxedDay.id, 32);
       expect(voxxedDay.name, 'Voxxed Days Ticino 2018');
       expect(voxxedDay.eventType, EventType.VOXXED);
@@ -100,7 +100,7 @@ void main() {
     test('Correctly deserialize a list of VoxxedDays', () {
       final list = json
           .decode(listOfVoxxedDaysJson)
-          .map((o) => serializers.deserializeWith(VoxxedDay.serializer, o))
+          .map((o) => serializers.deserializeWith(Conference.serializer, o))
           .toList();
 
       expect(list.length, 6);
