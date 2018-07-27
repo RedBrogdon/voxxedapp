@@ -1,2 +1,8 @@
 # voxxedapp
-A Flutter app for iOS and Android that display details about upcoming Voxxed Days
+
+Displays details about upcoming Voxxed Days
+
+## Getting Started
+
+For help getting started with Flutter, view our online
+[documentation](https://flutter.io/).
