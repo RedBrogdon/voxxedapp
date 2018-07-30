@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 
-void main() => runApp(new VoxxedDayApp());
+Future main() async {
+  runApp(new VoxxedDayApp());
+}
 
 class VoxxedDayApp extends StatelessWidget {
+  final conferencesBloc = ConferenceBloc(ConferenceRepository());
+
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
     var path = settings.name.split('/');
 
-    if (path[0] == 'conference') {
+    if (path[1] == 'conference') {
+      final id = int.parse(path[2]);
       return MaterialPageRoute(
-        builder: (context) => ConferenceDetailScreen(),
+        builder: (context) => ConferenceDetailScreen(id),
         settings: settings,
       );
     }
@@ -38,12 +47,15 @@ class VoxxedDayApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
+    return ConferenceBlocProvider(
+      conferenceBloc: conferencesBloc,
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        onGenerateRoute: _onGenerateRoute,
       ),
-      onGenerateRoute: _onGenerateRoute,
     );
   }
 }

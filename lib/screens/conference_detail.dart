@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/models/conference.dart';
 
 class ConferenceDetailScreen extends StatefulWidget {
+  final int id;
+
+  const ConferenceDetailScreen(this.id);
+
   @override
   _ConferenceDetailScreenState createState() => _ConferenceDetailScreenState();
 }
@@ -28,7 +35,21 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
         title: Text('Current Voxxed Days'),
       ),
       body: Center(
-        child: Text('detail'),
+        child: StreamBuilder<BuiltList<Conference>>(
+          stream: ConferenceBlocProvider.of(context).conferences,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final conference = snapshot.data.firstWhere(
+                (c) => c.id == widget.id,
+                orElse: () => null,
+              );
+              if (conference != null) {
+                return Text(conference.name);
+              }
+            }
+            return Text('Details could not be found');
+          },
+        ),
       ),
     );
   }

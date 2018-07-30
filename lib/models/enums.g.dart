@@ -29,14 +29,14 @@ part of 'enums.dart';
 // ignore_for_file: sort_constructors_first
 
 const EventType _$VOXXED = const EventType._('VOXXED');
-const EventType _$unknown = const EventType._('unknown');
+const EventType _$DEVOXX = const EventType._('DEVOXX');
 
 EventType _$valueOf(String name) {
   switch (name) {
     case 'VOXXED':
       return _$VOXXED;
-    case 'unknown':
-      return _$unknown;
+    case 'DEVOXX':
+      return _$DEVOXX;
     default:
       throw new ArgumentError(name);
   }
@@ -44,7 +44,7 @@ EventType _$valueOf(String name) {
 
 final BuiltSet<EventType> _$values = new BuiltSet<EventType>(const <EventType>[
   _$VOXXED,
-  _$unknown,
+  _$DEVOXX,
 ]);
 
 Serializer<EventType> _$eventTypeSerializer = new _$EventTypeSerializer();

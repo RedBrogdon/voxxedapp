@@ -13,28 +13,30 @@
 // limitations under the License.
 
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:built_collection/built_collection.dart';
-import 'package:voxxedapp/data/web_client.dart';
-import 'package:voxxedapp/data/local_storage.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/serializers.dart';
 
-class ConferenceRepository {
-  final WebClient webClient;
-  final ConferenceLocalStorage localStorage;
+class WebClient {
+  static const allConferencesUrl =
+      'https://s3-eu-west-1.amazonaws.com/thewebsites/futureVoxxed.json';
 
-  const ConferenceRepository({
-    this.webClient = const WebClient(),
-    this.localStorage = const ConferenceLocalStorage(),
-  });
+  const WebClient();
 
-  Future<BuiltList<Conference>> loadCachedConferences() {
-    return localStorage.loadConferences();
-  }
+  Future<BuiltList<Conference>> fetchConferences() async {
+    final response = await http.get(allConferencesUrl);
 
-  Future<BuiltList<Conference>> refreshConferences() async {
-    final conferences = await webClient.fetchConferences();
-    localStorage.saveConferences(conferences);
-    return conferences;
+    if (response.statusCode != 200) {
+      print('Failed to fetch conferences, status: ${response.statusCode}');
+      return BuiltList<Conference>([]);
+    }
+
+    return serializers.deserialize(
+      json.decode(response.body),
+      specifiedType: Conference.listSerializationType,
+    );
   }
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/enums.dart';
@@ -19,8 +20,10 @@ import 'package:voxxedapp/models/enums.dart';
 part 'conference.g.dart';
 
 abstract class Conference implements Built<Conference, ConferenceBuilder> {
-  static Serializer<Conference> get serializer =>
-      _$conferenceSerializer;
+  static Serializer<Conference> get serializer => _$conferenceSerializer;
+
+  static const listSerializationType =
+      const FullType(BuiltList, [FullType(Conference)]);
 
   int get id;
 
@@ -38,6 +41,5 @@ abstract class Conference implements Built<Conference, ConferenceBuilder> {
 
   Conference._();
 
-  factory Conference([updates(ConferenceBuilder b)]) =
-  _$Conference;
+  factory Conference([updates(ConferenceBuilder b)]) = _$Conference;
 }

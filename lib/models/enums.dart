@@ -18,25 +18,11 @@ import 'package:built_value/serializer.dart';
 
 part 'enums.g.dart';
 
-/// Example of how to use [EnumClass].
-///
-/// Enum constants must be declared as `static const`. Initialize them from
-/// the generated code. You can use any initializer starting _$ and the
-/// generated code will match it. For example, you could initialize "yes" to
-/// "_$yes", "_$y" or even "_$abc".
-///
-/// You need to write three pieces of boilerplate to hook up the generated
-/// code: a constructor called `_`, a `values` method, and a `valueOf` method.
 class EventType extends EnumClass {
-  /// Example of how to make an [EnumClass] serializable.
-  ///
-  /// Declare a static final [Serializers] field called `serializer`.
-  /// The built_value code generator will provide the implementation. You need
-  /// to do this for every type you want to serialize.
   static Serializer<EventType> get serializer => _$eventTypeSerializer;
 
   static const EventType VOXXED = _$VOXXED;
-  static const EventType unknown = _$unknown;
+  static const EventType DEVOXX = _$DEVOXX;
 
   const EventType._(String name) : super(name);
 

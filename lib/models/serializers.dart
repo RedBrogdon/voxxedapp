@@ -14,6 +14,7 @@
 
 library serializers;
 
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:voxxedapp/models/enums.dart';
@@ -27,4 +28,8 @@ part 'serializers.g.dart';
 ])
 
 final Serializers serializers =
-(_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();
+(_$serializers.toBuilder()
+  ..addBuilderFactory(  // TODO(redbrogdon): remove this
+      const FullType(BuiltList, [FullType(Conference)]),
+          () => new ListBuilder<Conference>())
+  ..addPlugin(StandardJsonPlugin())).build();
