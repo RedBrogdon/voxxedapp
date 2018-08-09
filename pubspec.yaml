@@ -9,11 +9,10 @@ dependencies:
   built_value: ^5.5.1
   path_provider: 0.4.1
   rxdart: 0.18.1
+  logging: 0.11.3+1
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  flutter_driver:
     sdk: flutter
 
   build_runner: ^0.8.0

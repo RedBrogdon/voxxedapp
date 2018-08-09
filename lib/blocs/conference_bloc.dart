@@ -19,6 +19,7 @@ import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/util/logger.dart';
 
 class ConferenceBloc {
   final ConferenceRepository repository;
@@ -33,14 +34,14 @@ class ConferenceBloc {
 
   Future<Null> refreshConferences() async {
     final newList = await repository.refreshConferences();
-    print('Adding ${newList?.length} refreshed items to stream.');
-    _conferences.controller.add(newList);
+    log.info('Adding ${newList?.length} refreshed items to stream.');
+    _conferences.add(newList);
   }
 
   Future<Null> _loadCachedConferences() async {
     final newList = await repository.loadCachedConferences();
-    print('Adding ${newList?.length} cached items to stream.');
-    _conferences.controller.add(newList);
+    log.info('Adding ${newList?.length} cached items to stream.');
+    _conferences.add(newList);
   }
 }
 
