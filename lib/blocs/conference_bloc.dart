@@ -19,29 +19,104 @@ import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/data/speaker_repository.dart';
+import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/util/logger.dart';
 
 class ConferenceBloc {
-  final ConferenceRepository repository;
+  final ConferenceRepository _conferenceRepo;
+  final SpeakerRepository _speakerRepo;
+
   final _conferences = BehaviorSubject<BuiltList<Conference>>();
 
-  ConferenceBloc(this.repository) {
+  final _speakersByConference = Map<int, BehaviorSubject<BuiltList<Speaker>>>();
+
+  var _selectedConferenceId = 0;
+
+  ConferenceBloc(this._conferenceRepo, this._speakerRepo) {
     _loadCachedConferences();
     refreshConferences();
   }
 
   Observable<BuiltList<Conference>> get conferences => _conferences.stream;
 
-  Future<Null> refreshConferences() async {
-    final newList = await repository.refreshConferences();
-    log.info('Adding ${newList?.length} refreshed items to stream.');
-    _conferences.add(newList);
+  Observable<BuiltList<Speaker>> get speakersForSelectedConference =>
+      _speakersByConference[_selectedConferenceId] ??
+      BehaviorSubject<BuiltList<Speaker>>();
+
+  Conference _getConference(int id) => _conferences.value
+      .firstWhere((c) => c.id == id, orElse: () => null);
+
+  Future<void> refreshConferences() async {
+    try {
+      final newList = await _conferenceRepo.refreshConferences();
+      log.info('Adding ${newList?.length} refreshed items to stream.');
+      _conferences.add(newList);
+      await _reconcileSpeakerLists();
+    } on Exception {
+      //TODO(redbrogdon): Make this more specific.
+      log.warning('refreshConferences() failed.');
+    }
   }
 
-  Future<Null> _loadCachedConferences() async {
-    final newList = await repository.loadCachedConferences();
-    log.info('Adding ${newList?.length} cached items to stream.');
-    _conferences.add(newList);
+  Future<void> refreshSpeakers(int id) async {
+    try {
+      String cfpVersion = _conferences.value
+          .firstWhere((c) => c.id == id, orElse: () => null)
+          ?.cfpVersion;
+      if (cfpVersion == null) {
+        log.warning('Couldn' 't refresh speakers for conference $id.');
+        return;
+      }
+
+      final newList = await _speakerRepo.refreshSpeakers(cfpVersion);
+      log.info('Refreshed ${newList?.length} speakers for conference $id.');
+      _speakersByConference[id].add(newList);
+    } on Exception {
+      //TODO(redbrogdon): Make this more specific.
+      log.warning('refreshSpeakers($id) failed.');
+    }
+  }
+
+  Future<void> selectConference(int id) async {
+    if (!_conferences.value.any((c) => c.id == id)) {
+      log.warning('Failed to set selected conference to $id.');
+      return;
+    }
+
+    _selectedConferenceId = id;
+    await refreshSpeakers(id);
+  }
+
+  Future<void> _reconcileSpeakerLists() async {
+    // Close and remove old speaker lists streams from the map.
+    final oldConferenceIds = _speakersByConference.keys.toList();
+    for (int oldId in oldConferenceIds) {
+      if (!_conferences.value.any((c) => c.id == oldId)) {
+        _speakersByConference[oldId].close();
+        _speakersByConference.remove(oldId);
+      }
+    }
+
+    // Add new speaker list streams for any conferences that don't already have
+    // one.
+    for (Conference conference in _conferences.value) {
+      if (!_speakersByConference.containsKey(conference.id)) {
+        _speakersByConference[conference.id] =
+            BehaviorSubject<BuiltList<Speaker>>();
+      }
+    }
+  }
+
+  Future<void> _loadCachedConferences() async {
+    try {
+      final newList = await _conferenceRepo.loadCachedConferences();
+      log.info('Adding ${newList?.length} cached items to stream.');
+      _conferences.add(newList);
+      _reconcileSpeakerLists();
+    } on Exception {
+      log.warning('_loadCachedConferences failed.');
+    }
   }
 }
 

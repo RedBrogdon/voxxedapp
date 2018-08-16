@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'enums.g.dart';
+part 'language.g.dart';
 
-class EventType extends EnumClass {
-  static Serializer<EventType> get serializer => _$eventTypeSerializer;
+abstract class Language implements Built<Language, LanguageBuilder> {
+  static Serializer<Language> get serializer => _$languageSerializer;
 
-  static const EventType VOXXED = _$VOXXED;
-  static const EventType DEVOXX = _$DEVOXX;
+  int get id;
 
-  const EventType._(String name) : super(name);
+  String get code;
 
-  static BuiltSet<EventType> get values => _$values;
-  static EventType valueOf(String name) => _$valueOf(name);
+  String get name;
+
+  Language._();
+
+  factory Language([updates(LanguageBuilder b)]) = _$Language;
 }

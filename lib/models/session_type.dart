@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'enums.g.dart';
+part 'session_type.g.dart';
 
-class EventType extends EnumClass {
-  static Serializer<EventType> get serializer => _$eventTypeSerializer;
+abstract class SessionType implements Built<SessionType, SessionTypeBuilder> {
+  static Serializer<SessionType> get serializer => _$sessionTypeSerializer;
 
-  static const EventType VOXXED = _$VOXXED;
-  static const EventType DEVOXX = _$DEVOXX;
+  int get id;
 
-  const EventType._(String name) : super(name);
+  String get code;
 
-  static BuiltSet<EventType> get values => _$values;
-  static EventType valueOf(String name) => _$valueOf(name);
+  String get name;
+
+  bool get pause;
+
+  int get duration;
+
+  @nullable
+  String get color;
+
+  SessionType._();
+
+  factory SessionType([updates(SessionTypeBuilder b)]) = _$SessionType;
 }

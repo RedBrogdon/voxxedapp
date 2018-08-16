@@ -16,7 +16,7 @@ import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/web_client.dart';
-import 'package:voxxedapp/data/local_storage.dart';
+import 'package:voxxedapp/data/conference_local_storage.dart';
 import 'package:voxxedapp/models/conference.dart';
 
 class ConferenceRepository {
@@ -34,7 +34,16 @@ class ConferenceRepository {
 
   Future<BuiltList<Conference>> refreshConferences() async {
     final conferences = await webClient.fetchConferences();
-    localStorage.saveConferences(conferences);
-    return conferences;
+
+    var futures = <Future<Conference>>[];
+
+    for (Conference conf in conferences) {
+      futures.add(webClient.fetchConference(conf.id).catchError((_) => conf));
+    }
+
+    final refreshedList = BuiltList<Conference>(await Future.wait(futures));
+
+    localStorage.saveConferences(refreshedList);
+    return refreshedList;
   }
 }

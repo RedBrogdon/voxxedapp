@@ -16,16 +16,40 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'enums.g.dart';
+part 'speaker.g.dart';
 
-class EventType extends EnumClass {
-  static Serializer<EventType> get serializer => _$eventTypeSerializer;
+abstract class Speaker implements Built<Speaker, SpeakerBuilder> {
+  static Serializer<Speaker> get serializer => _$speakerSerializer;
 
-  static const EventType VOXXED = _$VOXXED;
-  static const EventType DEVOXX = _$DEVOXX;
+  static const listSerializationType =
+      const FullType(BuiltList, [FullType(Speaker)]);
 
-  const EventType._(String name) : super(name);
+  String get uuid;
+  String get firstName;
+  String get lastName;
 
-  static BuiltSet<EventType> get values => _$values;
-  static EventType valueOf(String name) => _$valueOf(name);
+  @nullable
+  String get lang;
+
+  @nullable
+  String get bioAsHtml;
+
+  @nullable
+  String get bio;
+
+  @nullable
+  String get company;
+
+  @nullable
+  String get blog;
+
+  @nullable
+  String get avatarURL;
+
+  @nullable
+  String get twitter;
+
+  Speaker._();
+
+  factory Speaker([updates(SpeakerBuilder b)]) = _$Speaker;
 }

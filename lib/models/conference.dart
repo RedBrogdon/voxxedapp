@@ -16,6 +16,9 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/enums.dart';
+import 'package:voxxedapp/models/session_type.dart';
+import 'package:voxxedapp/models/track.dart';
+import 'package:voxxedapp/models/language.dart';
 
 part 'conference.g.dart';
 
@@ -29,15 +32,60 @@ abstract class Conference implements Built<Conference, ConferenceBuilder> {
 
   String get name;
 
-  EventType get eventType;
+  String get website;
+
+  String get imageURL;
 
   String get fromDate;
 
   String get endDate;
 
-  String get imageURL;
+  EventType get eventType;
 
-  String get website;
+  @nullable
+  String get description;
+
+  @nullable
+  String get scheduleURL;
+
+  @nullable
+  String get eventImagesURL;
+
+  @nullable
+  String get youTubeURL;
+
+  @nullable
+  String get cfpURL;
+
+  @nullable
+  bool get archived;
+
+  @nullable
+  bool get cfpActive;
+
+  @nullable
+  int get locationId;
+
+  @nullable
+  String get locationName;
+
+  @nullable
+  String get timezone;
+
+  @nullable
+  String get cfpFromDate;
+
+  @nullable
+  String get cfpEndDate;
+
+  @nullable
+  String get cfpVersion;
+
+  BuiltList<Track> get tracks;
+
+  BuiltList<Language> get languages;
+
+  BuiltList<SessionType> get sessionTypes;
 
   Conference._();
 

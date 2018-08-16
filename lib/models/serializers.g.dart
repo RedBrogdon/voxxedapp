@@ -30,5 +30,18 @@ part of serializers;
 
 Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Conference.serializer)
-      ..add(EventType.serializer))
+      ..add(EventType.serializer)
+      ..add(Language.serializer)
+      ..add(SessionType.serializer)
+      ..add(Speaker.serializer)
+      ..add(Track.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Track)]),
+          () => new ListBuilder<Track>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Language)]),
+          () => new ListBuilder<Language>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(SessionType)]),
+          () => new ListBuilder<SessionType>()))
     .build();

@@ -19,17 +19,28 @@ import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:voxxedapp/models/enums.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/speaker.dart';
+import 'package:voxxedapp/models/track.dart';
+import 'package:voxxedapp/models/language.dart';
+import 'package:voxxedapp/models/session_type.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor(const [
-  EventType,
   Conference,
+  EventType,
+  Language,
+  SessionType,
+  Speaker,
+  Track,
 ])
-
-final Serializers serializers =
-(_$serializers.toBuilder()
-  ..addBuilderFactory(  // TODO(redbrogdon): remove this
-      const FullType(BuiltList, [FullType(Conference)]),
-          () => new ListBuilder<Conference>())
-  ..addPlugin(StandardJsonPlugin())).build();
+// built_value doesn't include serializers for lists of values by default, so
+// any lists that we need to directly fetch from the API or store locally need
+// to be added manually here.
+final Serializers serializers = (_$serializers.toBuilder()
+      ..addBuilderFactory(
+          Conference.listSerializationType, () => new ListBuilder<Conference>())
+      ..addBuilderFactory(
+          Speaker.listSerializationType, () => new ListBuilder<Speaker>())
+      ..addPlugin(StandardJsonPlugin()))
+    .build();

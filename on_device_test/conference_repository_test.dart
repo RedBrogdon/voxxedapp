@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 
-import 'package:voxxedapp/data/local_storage.dart';
+import 'package:voxxedapp/data/conference_local_storage.dart';
 import 'package:voxxedapp/models/enums.dart';
 import 'package:voxxedapp/models/conference.dart';
 

@@ -85,15 +85,16 @@ const String listOfVoxxedDaysJson = '''
 
 void main() {
   group('VoxxedDay serialization', () {
-
     test('Correctly deserialize a typical VoxxedDay', () {
-      final voxxedDay = serializers.deserializeWith(Conference.serializer, json.decode(voxxedDayJson));
+      final voxxedDay = serializers.deserializeWith(
+          Conference.serializer, json.decode(voxxedDayJson));
       expect(voxxedDay.id, 32);
       expect(voxxedDay.name, 'Voxxed Days Ticino 2018');
       expect(voxxedDay.eventType, EventType.VOXXED);
       expect(voxxedDay.fromDate, '2018-10-20');
       expect(voxxedDay.endDate, '2018-10-20');
-      expect(voxxedDay.imageURL, 'https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/d8f534e3-7018-457c-83cf-379e40cd783b.jpg');
+      expect(voxxedDay.imageURL,
+          'https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/d8f534e3-7018-457c-83cf-379e40cd783b.jpg');
       expect(voxxedDay.website, 'https://ticino.voxxeddays.com');
     });
 
@@ -105,6 +106,5 @@ void main() {
 
       expect(list.length, 6);
     });
-
   });
 }

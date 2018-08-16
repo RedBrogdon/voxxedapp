@@ -53,6 +53,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
       padding: const EdgeInsets.only(bottom: 2.0),
       child: GestureDetector(
         onTap: () {
+          ConferenceBlocProvider.of(context).selectConference(conference.id);
           Navigator.of(context).pushNamed('/conference/${conference.id}');
         },
         child: ConstrainedBox(

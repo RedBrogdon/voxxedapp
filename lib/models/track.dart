@@ -12,20 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
-part 'enums.g.dart';
+part 'track.g.dart';
 
-class EventType extends EnumClass {
-  static Serializer<EventType> get serializer => _$eventTypeSerializer;
+abstract class Track implements Built<Track, TrackBuilder> {
+  static Serializer<Track> get serializer => _$trackSerializer;
 
-  static const EventType VOXXED = _$VOXXED;
-  static const EventType DEVOXX = _$DEVOXX;
+  int get id;
 
-  const EventType._(String name) : super(name);
+  String get name;
 
-  static BuiltSet<EventType> get values => _$values;
-  static EventType valueOf(String name) => _$valueOf(name);
+  String get description;
+
+  @nullable
+  String get imageURL;
+
+  @nullable
+  int get categoryId;
+
+  @nullable
+  String get categoryName;
+
+  Track._();
+
+  factory Track([updates(TrackBuilder b)]) = _$Track;
 }
