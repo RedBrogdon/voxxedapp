@@ -24,56 +24,75 @@ import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 
+typedef Widget ViewModelBuilder<V extends ViewModel>(BuildContext context, V viewModel);
+typedef V ViewModelConverter<S, V extends ViewModel<S>>(Dispatcher<S> dispatcher, S state);
 
-typedef Widget ViewModelBuilder<V>(BuildContext context, V viewModel);
-typedef V ViewModelConverter<S, V>(Dispatcher<S> store, S state);
-
-class ViewModelSubscriber<S, V> extends StatefulWidget {
+class ViewModelSubscriber<S, V extends ViewModel<S>> extends StatefulWidget {
   final Dispatcher<S> dispatcher;
   final BehaviorSubject<S> stream;
   final ViewModelConverter<S, V> converter;
   final ViewModelBuilder<V> builder;
 
   ViewModelSubscriber({
+    @required this.dispatcher,
     @required this.stream,
     @required this.converter,
     @required this.builder,
   });
 
   @override
-  _ViewModelSubscriberState createState() => _ViewModelSubscriberState();
+  _ViewModelSubscriberState createState() => _ViewModelSubscriberState<S, V>();
 }
 
-class _ViewModelSubscriberState<B, S, V> extends State<ViewModelSubscriber> {
-  _ViewModelSubscriberState() {
-    widget.stream.map(widget.converter).distinct().listen((S data) {});
-  }
+class _ViewModelSubscriberState<S, V extends ViewModel<S>>
+    extends State<ViewModelSubscriber<S, V>> {
+  V _latestViewModel;
+  StreamSubscription<V> _subscription;
 
-  StreamSubscription<T> listen(void onData(T event),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  @override
+  void initState() {
+    super.initState();
+    _latestViewModel = widget.converter(widget.dispatcher, widget.stream.value);
+    _subscription = widget.stream
+        .map<V>((s) => widget.converter(widget.dispatcher, s))
+        .distinct()
+        .listen((viewModel) {
+      setState(() => _latestViewModel = viewModel);
+    });
+  }
 
 
   @override
+  void dispose() {
+    _subscription.cancel();
+    _subscription = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container();
+    return widget.builder(context, _latestViewModel);
   }
 }
 
+class ViewModel<S> {
+  final Dispatcher<S> dispatcher;
 
+  const ViewModel(this.dispatcher);
+}
 
-
-class ConferenceDetailsViewModel {
-  final ConferenceBloc _bloc;
+class ConferenceDetailsViewModel extends ViewModel<AppState> {
   final Conference conference;
   final BuiltList<Speaker> speakers;
 
   const ConferenceDetailsViewModel._(
-      this._bloc, this.conference, this.speakers);
+      Dispatcher<AppState> dispatcher, this.conference, this.speakers)
+      : super(dispatcher);
 
   factory ConferenceDetailsViewModel.fromAppState(
-      ConferenceBloc bloc, AppState state, int conferenceId) {
+      Dispatcher<AppState> dispatcher, AppState state, int conferenceId) {
     return ConferenceDetailsViewModel._(
-        bloc,
+        dispatcher,
         state.conferences
             .firstWhere((c) => c.id == conferenceId, orElse: () => null),
         state.speakers.containsKey(conferenceId)
@@ -215,7 +234,6 @@ class ConferenceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    ConferenceBloc bloc = ConferenceBlocProvider.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -223,18 +241,21 @@ class ConferenceDetailScreen extends StatelessWidget {
       ),
       drawer: MainDrawer(),
       body: SingleChildScrollView(
-        child: StreamBuilder<ConferenceDetailsViewModel>(
-          stream: bloc.appStates.map((state) => ConferenceDetailsViewModel.fromAppState(bloc, state, id)).distinct(),
-          builder: (context, snapshot) {
+        child: ViewModelSubscriber<AppState, ConferenceDetailsViewModel>(
+          dispatcher: ConferenceBlocProvider.of(context),
+          stream: ConferenceBlocProvider.of(context).appStates,
+          converter: (dispatcher, state) =>
+              ConferenceDetailsViewModel.fromAppState(dispatcher, state, id),
+          builder: (context, viewModel) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                _buildHeader(context, snapshot.data.conference, theme),
+                _buildHeader(context, viewModel.conference, theme),
                 Divider(height: 2.0),
-                _buildInfoBlock(context, snapshot.data.conference, theme),
+                _buildInfoBlock(context, viewModel.conference, theme),
                 Divider(height: 2.0),
-                _buildTrackList(context, snapshot.data.conference, theme),
-                _buildSpeakerList(context, snapshot.data.speakers, theme),
+                _buildTrackList(context, viewModel.conference, theme),
+                _buildSpeakerList(context, viewModel.speakers, theme),
               ],
             );
           },

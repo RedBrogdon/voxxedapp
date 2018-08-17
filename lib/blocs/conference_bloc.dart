@@ -24,9 +24,26 @@ import 'package:voxxedapp/data/speaker_repository.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/util/logger.dart';
 
+abstract class Action<T> {
+  const Action();
+}
+
+class LoadCachedConferencesAction extends Action<void> {
+  const LoadCachedConferencesAction();
+}
+
+class RefreshSpeakersForConferenceAction extends Action<int> {
+  final int id;
+  const RefreshSpeakersForConferenceAction(this.id);
+}
+
 class Dispatcher<S> {
   final appStates =
   BehaviorSubject<AppState>(seedValue: AppState.initialState());
+
+  void dispatch(Action action) {
+
+  }
 
   AppState get _state => appStates.value;
 }
