@@ -16,6 +16,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 
 class ConferenceListScreen extends StatefulWidget {
@@ -48,14 +49,12 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
     );
   }
 
-  Widget _buildListItem(BuildContext context, Conference conference) {
+  Widget _buildListItem(
+      BuildContext context, Conference conference, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2.0),
       child: GestureDetector(
-        onTap: () {
-          ConferenceBlocProvider.of(context).selectConference(conference.id);
-          Navigator.of(context).pushNamed('/conference/${conference.id}');
-        },
+        onTap: onTap,
         child: ConstrainedBox(
           constraints: BoxConstraints.tightFor(height: 300.0),
           child: Stack(
@@ -111,14 +110,21 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
-      body: StreamBuilder<BuiltList<Conference>>(
-        stream: ConferenceBlocProvider.of(context).conferences,
+      body: StreamBuilder<AppState>(
+        stream: ConferenceBlocProvider.of(context).appStates,
         builder: (context, snapshot) {
           return ListView.builder(
-            itemCount: snapshot.hasData ? snapshot.data.length : 0,
+            itemCount: snapshot.hasData ? snapshot.data.conferences.length : 0,
             itemBuilder: (context, i) => _buildListItem(
                   context,
-                  snapshot.data[i],
+                  snapshot.data.conferences[i],
+                  () {
+                    ConferenceBlocProvider
+                        .of(context)
+                        .selectConference(snapshot.data.conferences[i].id);
+                    Navigator.of(context).pushNamed(
+                        '/conference/${snapshot.data.conferences[i].id}');
+                  },
                 ),
           );
         },

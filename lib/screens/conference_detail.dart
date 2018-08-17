@@ -12,24 +12,81 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 
-class ConferenceDetailScreen extends StatefulWidget {
+
+typedef Widget ViewModelBuilder<V>(BuildContext context, V viewModel);
+typedef V ViewModelConverter<S, V>(Dispatcher<S> store, S state);
+
+class ViewModelSubscriber<S, V> extends StatefulWidget {
+  final Dispatcher<S> dispatcher;
+  final BehaviorSubject<S> stream;
+  final ViewModelConverter<S, V> converter;
+  final ViewModelBuilder<V> builder;
+
+  ViewModelSubscriber({
+    @required this.stream,
+    @required this.converter,
+    @required this.builder,
+  });
+
+  @override
+  _ViewModelSubscriberState createState() => _ViewModelSubscriberState();
+}
+
+class _ViewModelSubscriberState<B, S, V> extends State<ViewModelSubscriber> {
+  _ViewModelSubscriberState() {
+    widget.stream.map(widget.converter).distinct().listen((S data) {});
+  }
+
+  StreamSubscription<T> listen(void onData(T event),
+      {Function onError, void onDone(), bool cancelOnError}) {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+
+
+
+class ConferenceDetailsViewModel {
+  final ConferenceBloc _bloc;
+  final Conference conference;
+  final BuiltList<Speaker> speakers;
+
+  const ConferenceDetailsViewModel._(
+      this._bloc, this.conference, this.speakers);
+
+  factory ConferenceDetailsViewModel.fromAppState(
+      ConferenceBloc bloc, AppState state, int conferenceId) {
+    return ConferenceDetailsViewModel._(
+        bloc,
+        state.conferences
+            .firstWhere((c) => c.id == conferenceId, orElse: () => null),
+        state.speakers.containsKey(conferenceId)
+            ? state.speakers[conferenceId]
+            : BuiltList<Speaker>());
+  }
+}
+
+class ConferenceDetailScreen extends StatelessWidget {
   final int id;
 
   const ConferenceDetailScreen(this.id);
 
-  @override
-  _ConferenceDetailScreenState createState() => _ConferenceDetailScreenState();
-}
-
-class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
   Widget _buildHeader(
       BuildContext context, Conference conference, ThemeData theme) {
     return ConstrainedBox(
@@ -151,18 +208,14 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
   }
 
   Widget _buildSpeakerList(
-      BuildContext context, Conference conference, ThemeData theme) {
-    return StreamBuilder<BuiltList<Speaker>>(
-      stream: ConferenceBlocProvider.of(context).speakersForSelectedConference,
-      builder: (context, snapshot) {
-        return Text(snapshot.data?.length.toString());
-      },
-    );
+      BuildContext context, BuiltList<Speaker> speakers, ThemeData theme) {
+    return Text('${speakers.length}');
   }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    ConferenceBloc bloc = ConferenceBlocProvider.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -170,29 +223,20 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       ),
       drawer: MainDrawer(),
       body: SingleChildScrollView(
-        child: StreamBuilder<BuiltList<Conference>>(
-          stream: ConferenceBlocProvider.of(context).conferences,
+        child: StreamBuilder<ConferenceDetailsViewModel>(
+          stream: bloc.appStates.map((state) => ConferenceDetailsViewModel.fromAppState(bloc, state, id)).distinct(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final conference = snapshot.data.firstWhere(
-                (c) => c.id == widget.id,
-                orElse: () => null,
-              );
-              if (conference != null) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    _buildHeader(context, conference, theme),
-                    Divider(height: 2.0),
-                    _buildInfoBlock(context, conference, theme),
-                    Divider(height: 2.0),
-                    _buildTrackList(context, conference, theme),
-                    _buildSpeakerList(context, conference, theme),
-                  ],
-                );
-              }
-            }
-            return Text('Details could not be found');
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                _buildHeader(context, snapshot.data.conference, theme),
+                Divider(height: 2.0),
+                _buildInfoBlock(context, snapshot.data.conference, theme),
+                Divider(height: 2.0),
+                _buildTrackList(context, snapshot.data.conference, theme),
+                _buildSpeakerList(context, snapshot.data.speakers, theme),
+              ],
+            );
           },
         ),
       ),
