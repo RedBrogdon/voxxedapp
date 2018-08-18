@@ -16,48 +16,72 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
-import 'package:voxxedapp/data/conference_repository.dart';
-import 'package:voxxedapp/data/speaker_repository.dart';
-import 'package:voxxedapp/screens/conference_detail.dart';
-import 'package:voxxedapp/screens/conference_list.dart';
+import 'package:voxxedapp/models/app_state.dart';
+import 'package:voxxedapp/rebloc.dart';
 
 Future main() async {
   runApp(new VoxxedDayApp());
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  final conferencesBloc =
-      ConferenceBloc(ConferenceRepository(), SpeakerRepository());
-
-  MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
-    var path = settings.name.split('/');
-
-    if (path[1] == 'conference') {
-      final id = int.parse(path[2]);
-      return MaterialPageRoute(
-        builder: (context) => ConferenceDetailScreen(id),
-        settings: settings,
-      );
-    }
-
-    // Default route is the conference list.
-    return new MaterialPageRoute(
-      builder: (context) => ConferenceListScreen(),
-      settings: settings,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return ConferenceBlocProvider(
-      conferenceBloc: conferencesBloc,
+    return StoreProvider(
+      store: Store<AppState, AppStateBuilder>(
+        initialState: AppState.initialState(),
+        blocs: [
+          ConBloc(),
+        ],
+      ),
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        onGenerateRoute: _onGenerateRoute,
+        home: Scaffold(
+          appBar: AppBar(title: Text('Hey there')),
+          body: Center(
+            child: Text('loaded.'),
+          ),
+        ),
       ),
     );
   }
 }
+
+//class VoxxedDayApp extends StatelessWidget {
+//  final conferencesBloc =
+//      ConferenceBloc(ConferenceRepository(), SpeakerRepository());
+//
+//  MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
+//    var path = settings.name.split('/');
+//
+//    if (path[1] == 'conference') {
+//      final id = int.parse(path[2]);
+//      return MaterialPageRoute(
+//        builder: (context) => ConferenceDetailScreen(id),
+//        settings: settings,
+//      );
+//    }
+//
+//    // Default route is the conference list.
+//    return new MaterialPageRoute(
+//      builder: (context) => ConferenceListScreen(),
+//      settings: settings,
+//    );
+//  }
+//
+//  @override
+//  Widget build(BuildContext context) {
+//    return ConferenceBlocProvider(
+//      conferenceBloc: conferencesBloc,
+//      child: MaterialApp(
+//        title: 'Flutter Demo',
+//        theme: ThemeData(
+//          primarySwatch: Colors.blue,
+//        ),
+//        onGenerateRoute: _onGenerateRoute,
+//      ),
+//    );
+//  }
+//}
