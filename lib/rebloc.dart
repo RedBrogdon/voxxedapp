@@ -26,19 +26,27 @@ abstract class Action {
   const Action();
 }
 
+class Accumulator<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+  final Action action;
+  final S state;
+
+  const Accumulator(this.action, this.state);
+}
+
 class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  final _actionsController = StreamController<Action>();
+  final _dispatchController = StreamController<Action>();
   final BehaviorSubject<S> states;
-  Stream<Action> _actions;
 
   Store({
     @required S initialState,
     List<Bloc> blocs,
   }) : states = BehaviorSubject<S>(seedValue: initialState) {
-    _actions = _actionsController.stream;
+    final reducerController = StreamController<Accumulator<S, B>>();
+    var reducerStream = reducerController.stream;
+    var dispatchStream = _dispatchController.stream;
 
     for (Bloc bloc in blocs) {
-      _actions = _actions.transform(
+      dispatchStream = dispatchStream.transform(
         StreamTransformer.fromHandlers(
             handleData: (Action data, EventSink<Action> sink) {
           if (bloc.middle(this, data)) {
@@ -46,27 +54,23 @@ class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
           }
         }),
       );
-    }
 
-    S newState = states.value;
-
-    for (Bloc bloc in blocs) {
-      _actions = _actions.transform(
-        StreamTransformer.fromHandlers(
-            handleData: (Action data, EventSink<Action> sink) {
-          final builder = bloc.reduce(this, newState, data);
-          if (builder != null) {
-            newState = builder.build();
-          }
+      reducerStream = reducerStream.transform(
+        StreamTransformer.fromHandlers(handleData:
+            (Accumulator<S, B> data, EventSink<Accumulator<S, B>> sink) {
+          final builder = bloc.reduce(this, data.state, data.action);
+          sink.add(Accumulator(data.action, builder?.build() ?? data.state));
         }),
       );
     }
 
     // Need this to make the stream run.
-    _actions.listen((_) {});
+    reducerController.addStream(dispatchStream
+        .map<Accumulator<S, B>>((a) => Accumulator(a, states.value)));
+    reducerStream.listen((a) => states.add(a.state));
   }
 
-  get dispatch => _actionsController.add;
+  get dispatch => _dispatchController.add;
 }
 
 abstract class Bloc<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
@@ -94,4 +98,70 @@ class StoreProvider extends InheritedWidget {
   static Store<AppState, AppStateBuilder> of(BuildContext context) =>
       (context.inheritFromWidgetOfExactType(StoreProvider) as StoreProvider)
           .store;
+}
+
+typedef Widget ViewModelBuilder<
+    S extends bv.Built<S, B>,
+    B extends bv.Builder<S, B>,
+    V extends ViewModel<S, B>>(BuildContext context, V viewModel);
+typedef V ViewModelConverter<
+    S extends bv.Built<S, B>,
+    B extends bv.Builder<S, B>,
+    V extends ViewModel<S, B>>(Store dispatcher, S state);
+
+class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
+    V extends ViewModel<S, B>> extends StatefulWidget {
+  final Store store;
+  final BehaviorSubject<S> stream;
+  final ViewModelConverter<S, B, V> converter;
+  final ViewModelBuilder<S, B, V> builder;
+
+  ViewModelSubscriber({
+    @required this.store,
+    @required this.stream,
+    @required this.converter,
+    @required this.builder,
+  });
+
+  @override
+  _ViewModelSubscriberState createState() =>
+      _ViewModelSubscriberState<S, B, V>();
+}
+
+class _ViewModelSubscriberState<
+    S extends bv.Built<S, B>,
+    B extends bv.Builder<S, B>,
+    V extends ViewModel<S, B>> extends State<ViewModelSubscriber<S, B, V>> {
+  V _latestViewModel;
+  StreamSubscription<V> _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _latestViewModel = widget.converter(widget.store, widget.stream.value);
+    _subscription = widget.stream
+        .map<V>((s) => widget.converter(widget.store, s))
+        .distinct()
+        .listen((viewModel) {
+      setState(() => _latestViewModel = viewModel);
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    _subscription = null;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, _latestViewModel);
+  }
+}
+
+class ViewModel<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+  final Store<S, B> store;
+
+  const ViewModel(this.store);
 }

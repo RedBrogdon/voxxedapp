@@ -16,6 +16,7 @@ import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/rebloc.dart';
+import 'package:voxxedapp/util/logger.dart';
 
 class LoadCachedConferencesAction extends Action {
   const LoadCachedConferencesAction();
@@ -44,13 +45,20 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
 
   ConferenceBloc(this.repository);
 
-  bool _loadCachedConferences(
-      Store<AppState, AppStateBuilder> store, Action action) {
+  bool _loadCachedConferences(Store<AppState, AppStateBuilder> store,
+      Action action) {
+    repository.loadCachedConferences().then((list) {
+      log.info('Adding ${list.length} cached items to stream.');
+      store.dispatch(new LoadedCachedConferencesAction(list.toList()));
+    }).catchError((e, s) {
+      log.warning('_loadCachedConferences failed.');
+    });
+
     return true;
   }
 
-  bool _refreshSpeakersForConference(
-      Store<AppState, AppStateBuilder> store, Action action) {
+  bool _refreshSpeakersForConference(Store<AppState, AppStateBuilder> store,
+      Action action) {
     return true;
   }
 
@@ -58,7 +66,7 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
       Store<AppState, AppStateBuilder> store,
       AppState state,
       LoadedCachedConferencesAction action) {
-    return store.states.value.toBuilder();
+    return state.toBuilder()..conferences.replace(action.conferences);
   }
 
   AppStateBuilder _refreshedConferences(Store<AppState, AppStateBuilder> store,
@@ -67,8 +75,8 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
   }
 
   @override
-  AppStateBuilder reduce(
-      Store<AppState, AppStateBuilder> store, AppState state, Action action) {
+  AppStateBuilder reduce(Store<AppState, AppStateBuilder> store, AppState state,
+      Action action) {
     if (action is LoadedCachedConferencesAction) {
       return _loadedCachedConferences(store, state, action);
     } else if (action is RefreshedConferencesAction) {
@@ -76,7 +84,7 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
     }
 
     // Make no changes.
-    return store.states.value.toBuilder();
+    return state.toBuilder();
   }
 
   @override
