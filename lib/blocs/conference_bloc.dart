@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:async';
-
+import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/rebloc.dart';
@@ -22,55 +21,74 @@ class LoadCachedConferencesAction extends Action {
   const LoadCachedConferencesAction();
 }
 
-class RefreshSpeakersForConferenceAction extends Action {
+class RefreshConferencesAction extends Action {
   final int id;
 
-  const RefreshSpeakersForConferenceAction(this.id);
+  const RefreshConferencesAction(this.id);
 }
 
-class CachedConferencesLoaded extends Action {
+class RefreshedConferencesAction extends Action {
   final List<Conference> conferences;
 
-  const CachedConferencesLoaded(this.conferences);
+  const RefreshedConferencesAction(this.conferences);
 }
 
-class ConBloc extends Bloc<AppState, AppStateBuilder> {
-  ConBloc();
+class LoadedCachedConferencesAction extends Action {
+  final List<Conference> conferences;
 
-  Future<bool> _loadCachedConferences(
-      Sink<Action> dispatch, AppState state, Action action) async {
+  const LoadedCachedConferencesAction(this.conferences);
+}
+
+class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
+  final ConferenceRepository repository;
+
+  ConferenceBloc(this.repository);
+
+  bool _loadCachedConferences(
+      Store<AppState, AppStateBuilder> store, Action action) {
     return true;
   }
 
-  Future<bool> _refreshSpeakersForConference(
-      Sink<Action> dispatch, AppState state, Action action) async {
+  bool _refreshSpeakersForConference(
+      Store<AppState, AppStateBuilder> store, Action action) {
     return true;
   }
 
   AppStateBuilder _loadedCachedConferences(
-      AppState state, LoadCachedConferencesAction action) {
-    return state.toBuilder();
+      Store<AppState, AppStateBuilder> store,
+      AppState state,
+      LoadedCachedConferencesAction action) {
+    return store.states.value.toBuilder();
   }
 
-  AppStateBuilder _refreshedSpeakersConferences(AppState state, Action action) {
-    return state.toBuilder();
-  }
-
-  @override
-  Map<Type, Future<bool> Function(Sink<Action>, AppState, Action)>
-      get middleware {
-    return {
-      LoadCachedConferencesAction: _loadCachedConferences,
-      RefreshSpeakersForConferenceAction: _refreshSpeakersForConference,
-    };
+  AppStateBuilder _refreshedConferences(Store<AppState, AppStateBuilder> store,
+      AppState state, RefreshedConferencesAction action) {
+    return store.states.value.toBuilder();
   }
 
   @override
-  Map<Type, AppStateBuilder Function(AppState, Action)> get reducers {
-    return {
-      CachedConferencesLoaded: _loadedCachedConferences,
-      RefreshSpeakersForConferenceAction: _refreshedSpeakersConferences,
-    };
+  AppStateBuilder reduce(
+      Store<AppState, AppStateBuilder> store, AppState state, Action action) {
+    if (action is LoadedCachedConferencesAction) {
+      return _loadedCachedConferences(store, state, action);
+    } else if (action is RefreshedConferencesAction) {
+      return _refreshedConferences(store, state, action);
+    }
+
+    // Make no changes.
+    return store.states.value.toBuilder();
+  }
+
+  @override
+  bool middle(Store<AppState, AppStateBuilder> store, Action action) {
+    if (action is LoadCachedConferencesAction) {
+      return _loadCachedConferences(store, action);
+    } else if (action is RefreshConferencesAction) {
+      return _refreshSpeakersForConference(store, action);
+    }
+
+    // Keep going with the next middleware.
+    return true;
   }
 }
 

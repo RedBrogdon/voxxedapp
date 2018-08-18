@@ -26,39 +26,57 @@ abstract class Action {
   const Action();
 }
 
-typedef bv.Builder<S, B> Reducer<S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>, A>(S state, A action);
-
 class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
   final _actionsController = StreamController<Action>();
   final BehaviorSubject<S> states;
+  Stream<Action> _actions;
 
   Store({
     @required S initialState,
     List<Bloc> blocs,
   }) : states = BehaviorSubject<S>(seedValue: initialState) {
+    _actions = _actionsController.stream;
+
     for (Bloc bloc in blocs) {
-
+      _actions = _actions.transform(
+        StreamTransformer.fromHandlers(
+            handleData: (Action data, EventSink<Action> sink) {
+          if (bloc.middle(this, data)) {
+            sink.add(data);
+          }
+        }),
+      );
     }
+
+    S newState = states.value;
+
+    for (Bloc bloc in blocs) {
+      _actions = _actions.transform(
+        StreamTransformer.fromHandlers(
+            handleData: (Action data, EventSink<Action> sink) {
+          final builder = bloc.reduce(this, newState, data);
+          if (builder != null) {
+            newState = builder.build();
+          }
+        }),
+      );
+    }
+
+    // Need this to make the stream run.
+    _actions.listen((_) {});
   }
 
-  get actions => _actionsController.stream;
-
-  get dispatch => _actionsController.sink;
-}
-
-class Middleware<S, T> extends StreamTransformer<S, T> {
-
-  @override
-  Stream<T> bind(Stream<S> stream) {
-
-  }
+  get dispatch => _actionsController.add;
 }
 
 abstract class Bloc<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  Map<Type, Future<bool> Function(Sink<Action>, S, Action)> get middleware;
+  B reduce(Store<S, B> store, S state, Action action) {
+    return state.toBuilder();
+  }
 
-  Map<Type, bv.Builder<S, B> Function(S, Action)> get reducer;
+  bool middle(Store<S, B> store, Action action) {
+    return true;
+  }
 }
 
 class StoreProvider extends InheritedWidget {

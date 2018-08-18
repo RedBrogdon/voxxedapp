@@ -16,6 +16,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/blocs/logger_bloc.dart';
+import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/rebloc.dart';
 
@@ -24,15 +26,22 @@ Future main() async {
 }
 
 class VoxxedDayApp extends StatelessWidget {
+  final Store<AppState, AppStateBuilder> store = Store<AppState, AppStateBuilder>(
+    initialState: AppState.initialState(),
+    blocs: [
+      LoggerBloc(),
+      ConferenceBloc(ConferenceRepository()),
+    ],
+  );
+
+  VoxxedDayApp() {
+    store.dispatch(new LoadCachedConferencesAction());
+  }
+
   @override
   Widget build(BuildContext context) {
     return StoreProvider(
-      store: Store<AppState, AppStateBuilder>(
-        initialState: AppState.initialState(),
-        blocs: [
-          ConBloc(),
-        ],
-      ),
+      store: store,
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
