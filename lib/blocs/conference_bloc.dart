@@ -51,7 +51,7 @@ class ConferenceBloc extends Bloc<AppState> {
       EventSink<MiddlewareContext<AppState>> sink) {
     repository.loadCachedConferences().then((list) {
       log.info('Adding ${list.length} cached items to stream.');
-      context.dispatch(new LoadedCachedConferencesAction(list.toList()));
+      context.dispatcher(new LoadedCachedConferencesAction(list.toList()));
     }).catchError((e, s) {
       log.warning('_loadCachedConferences failed.');
     });
@@ -62,7 +62,7 @@ class ConferenceBloc extends Bloc<AppState> {
   void _refreshConferences(MiddlewareContext<AppState> context,
       EventSink<MiddlewareContext<AppState>> sink) {
     repository.refreshConferences().then((newList) {
-      context.dispatch(RefreshedConferencesAction(newList.toList()));
+      context.dispatcher(RefreshedConferencesAction(newList.toList()));
       log.info('Refreshed ${newList?.length} conferences.');
     }).catchError((_) {
       log.warning('refreshConferences() failed.');

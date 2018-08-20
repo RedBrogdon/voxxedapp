@@ -15,7 +15,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:built_value/built_value.dart' as bv;
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -35,11 +34,11 @@ class Accumulator<S> {
 typedef void DispatchFunction(Action action);
 
 class MiddlewareContext<S> {
-  final DispatchFunction dispatch;
+  final DispatchFunction dispatcher;
   final S state;
   final Action action;
 
-  const MiddlewareContext(this.dispatch, this.state, this.action);
+  const MiddlewareContext(this.dispatcher, this.state, this.action);
 }
 
 class Store<S> {
@@ -64,8 +63,8 @@ class Store<S> {
     reducerStream.listen((a) => states.add(a.state));
   }
 
-  get dispatch => (Action action) => _dispatchController
-      .add(MiddlewareContext(dispatch, states.value, action));
+  get dispatcher => (Action action) => _dispatchController
+      .add(MiddlewareContext(dispatcher, states.value, action));
 }
 
 abstract class Bloc<S> {
@@ -122,16 +121,13 @@ class _InheritedStoreProvider<S> extends InheritedWidget {
       (oldWidget.store != store);
 }
 
-typedef Widget ViewModelWidgetBuilder<
-    S,
-    V extends ViewModel<S>>(BuildContext context, V viewModel);
+typedef Widget ViewModelWidgetBuilder<S, V extends ViewModel<S>>(
+    BuildContext context, V viewModel);
 
-typedef V ViewModelConverter<
-    S,
-    V extends ViewModel<S>>(DispatchFunction dispatch, S state);
+typedef V ViewModelConverter<S, V extends ViewModel<S>>(
+    DispatchFunction dispatcher, S state);
 
-class ViewModelSubscriber<S,
-    V extends ViewModel<S>> extends StatelessWidget {
+class ViewModelSubscriber<S, V extends ViewModel<S>> extends StatelessWidget {
   final ViewModelConverter<S, V> converter;
   final ViewModelWidgetBuilder<S, V> builder;
 
@@ -144,23 +140,22 @@ class ViewModelSubscriber<S,
   Widget build(BuildContext context) {
     Store<S> store = StoreProvider.of<S>(context);
     return _ViewModelStreamBuilder<S, V>(
-        dispatch: store.dispatch,
+        dispatcher: store.dispatcher,
         stream: store.states,
         converter: converter,
         builder: builder);
   }
 }
 
-class _ViewModelStreamBuilder<
-    S,
-    V extends ViewModel<S>> extends StatefulWidget {
-  final DispatchFunction dispatch;
+class _ViewModelStreamBuilder<S, V extends ViewModel<S>>
+    extends StatefulWidget {
+  final DispatchFunction dispatcher;
   final BehaviorSubject<S> stream;
   final ViewModelConverter<S, V> converter;
   final ViewModelWidgetBuilder<S, V> builder;
 
   _ViewModelStreamBuilder({
-    @required this.dispatch,
+    @required this.dispatcher,
     @required this.stream,
     @required this.converter,
     @required this.builder,
@@ -171,18 +166,17 @@ class _ViewModelStreamBuilder<
       _ViewModelStreamBuilderState<S, V>();
 }
 
-class _ViewModelStreamBuilderState<
-    S,
-    V extends ViewModel<S>> extends State<_ViewModelStreamBuilder<S, V>> {
+class _ViewModelStreamBuilderState<S, V extends ViewModel<S>>
+    extends State<_ViewModelStreamBuilder<S, V>> {
   V _latestViewModel;
   StreamSubscription<V> _subscription;
 
   @override
   void initState() {
     super.initState();
-    _latestViewModel = widget.converter(widget.dispatch, widget.stream.value);
+    _latestViewModel = widget.converter(widget.dispatcher, widget.stream.value);
     _subscription = widget.stream
-        .map<V>((s) => widget.converter(widget.dispatch, s))
+        .map<V>((s) => widget.converter(widget.dispatcher, s))
         .distinct()
         .listen((viewModel) {
       setState(() => _latestViewModel = viewModel);
@@ -203,7 +197,7 @@ class _ViewModelStreamBuilderState<
 }
 
 class ViewModel<S> {
-  final DispatchFunction dispatch;
+  final DispatchFunction dispatcher;
 
-  const ViewModel(this.dispatch);
+  const ViewModel(this.dispatcher);
 }

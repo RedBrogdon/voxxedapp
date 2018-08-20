@@ -38,8 +38,8 @@ class VoxxedDayApp extends StatelessWidget {
   );
 
   VoxxedDayApp() {
-    store.dispatch(new LoadCachedConferencesAction());
-    store.dispatch(new RefreshConferencesAction());
+    store.dispatcher(new LoadCachedConferencesAction());
+    store.dispatcher(new RefreshConferencesAction());
   }
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {

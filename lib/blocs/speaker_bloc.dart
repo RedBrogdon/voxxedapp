@@ -92,7 +92,7 @@ class SpeakerBloc extends Bloc<AppState> {
         handleData: (context, sink) {
           if (context.action is RefreshSpeakersForConferenceAction) {
             _refreshSpeakersForConference(
-                context.dispatch, context.state, context.action, sink);
+                context.dispatcher, context.state, context.action, sink);
           }
 
           sink.add(context);

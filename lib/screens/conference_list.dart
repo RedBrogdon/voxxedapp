@@ -118,8 +118,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
-      body: ViewModelSubscriber<AppState,
-          ConferenceListViewModel>(
+      body: ViewModelSubscriber<AppState, ConferenceListViewModel>(
         converter: (dispatch, state) =>
             ConferenceListViewModel(dispatch, state),
         builder: (context, viewModel) {
@@ -130,7 +129,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
                   viewModel.conferences[i],
                   () {
                     int id = viewModel.conferences[i].id;
-                    viewModel.dispatch(RefreshSpeakersForConferenceAction(id));
+                    viewModel.dispatcher(RefreshSpeakersForConferenceAction(id));
                     Navigator.of(context).pushNamed('/conference/$id');
                   },
                 ),
