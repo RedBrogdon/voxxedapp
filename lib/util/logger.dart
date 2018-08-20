@@ -18,3 +18,10 @@ final Logger log = new Logger('VoxLog')
   ..onRecord.listen((LogRecord rec) {
     print('VOXLOG ${rec.level.name}: ${rec.message}');
   });
+
+void logObject(String msg, Object o) {
+  log.info(msg);
+  for (String line in o.toString().split('\n')) {
+    log.info('-- $line');
+  }
+}

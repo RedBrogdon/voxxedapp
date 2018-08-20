@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
+import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
@@ -23,9 +27,7 @@ class LoadCachedConferencesAction extends Action {
 }
 
 class RefreshConferencesAction extends Action {
-  final int id;
-
-  const RefreshConferencesAction(this.id);
+  const RefreshConferencesAction();
 }
 
 class RefreshedConferencesAction extends Action {
@@ -43,179 +45,145 @@ class LoadedCachedConferencesAction extends Action {
 class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
   final ConferenceRepository repository;
 
-  ConferenceBloc(this.repository);
+  ConferenceBloc({this.repository = const ConferenceRepository()});
 
-  bool _loadCachedConferences(Store<AppState, AppStateBuilder> store,
-      Action action) {
+  void _loadCachedConferences(
+      MiddlewareContext<AppState, AppStateBuilder> context,
+      EventSink<MiddlewareContext<AppState, AppStateBuilder>> sink) {
     repository.loadCachedConferences().then((list) {
       log.info('Adding ${list.length} cached items to stream.');
-      store.dispatch(new LoadedCachedConferencesAction(list.toList()));
+      context.dispatch(new LoadedCachedConferencesAction(list.toList()));
     }).catchError((e, s) {
       log.warning('_loadCachedConferences failed.');
     });
 
-    return true;
+    sink.add(context);
   }
 
-  bool _refreshSpeakersForConference(Store<AppState, AppStateBuilder> store,
-      Action action) {
-    return true;
+  void _refreshConferences(
+      MiddlewareContext<AppState, AppStateBuilder> context,
+      EventSink<MiddlewareContext<AppState, AppStateBuilder>> sink) {
+    repository.refreshConferences().then((newList) {
+      context.dispatch(RefreshedConferencesAction(newList.toList()));
+      log.info('Refreshed ${newList?.length} conferences.');
+    }).catchError((_) {
+      log.warning('refreshConferences() failed.');
+    });
+
+    sink.add(context);
   }
 
-  AppStateBuilder _loadedCachedConferences(
-      Store<AppState, AppStateBuilder> store,
-      AppState state,
-      LoadedCachedConferencesAction action) {
-    return state.toBuilder()..conferences.replace(action.conferences);
+  AppState _loadedCachedConferences(
+      AppState state, LoadedCachedConferencesAction action) {
+    return state.rebuild((b) => b..conferences.replace(action.conferences));
   }
 
-  AppStateBuilder _refreshedConferences(Store<AppState, AppStateBuilder> store,
+  AppState _refreshedConferences(
       AppState state, RefreshedConferencesAction action) {
-    return store.states.value.toBuilder();
+    AppState newState =
+        state.rebuild((b) => b..conferences.replace(action.conferences));
+    return newState
+        .rebuild((b) => b..speakers.replace(_reconcileSpeakerLists(newState)));
+  }
+
+  BuiltMap<int, BuiltList<Speaker>> _reconcileSpeakerLists(AppState state) {
+    // IDs that are no longer in the list of conferences, so their corresponding
+    // speaker lists should be removed.
+    final staleIds = state.speakers.keys.toList()
+      ..removeWhere((id) => state.conferences.any((c) => c.id == id));
+
+    // New conference IDs for which speaker lists haven't yet been created.
+    final newIds = state.conferences.map((c) => c.id).toList()
+      ..removeWhere((id) => state.speakers.containsKey(id));
+
+    // Add the new stuff and remove the stale.
+    return state.speakers.rebuild((b) {
+      b.addIterable(newIds, key: (i) => i, value: (_) => BuiltList<Speaker>());
+      for (int staleId in staleIds) {
+        b.remove(staleId);
+      }
+    });
   }
 
   @override
-  AppStateBuilder reduce(Store<AppState, AppStateBuilder> store, AppState state,
-      Action action) {
-    if (action is LoadedCachedConferencesAction) {
-      return _loadedCachedConferences(store, state, action);
-    } else if (action is RefreshedConferencesAction) {
-      return _refreshedConferences(store, state, action);
-    }
-
-    // Make no changes.
-    return state.toBuilder();
+  Stream<MiddlewareContext<AppState, AppStateBuilder>> applyMiddleware(
+      Stream<MiddlewareContext<AppState, AppStateBuilder>> input) {
+    return input.transform(
+      StreamTransformer.fromHandlers(
+        handleData: (context, sink) {
+          if (context.action is LoadCachedConferencesAction) {
+            _loadCachedConferences(context, sink);
+          } else if (context.action is RefreshConferencesAction) {
+            _refreshConferences(context, sink);
+          } else {
+            sink.add(context);
+          }
+        },
+      ),
+    );
   }
 
   @override
-  bool middle(Store<AppState, AppStateBuilder> store, Action action) {
-    if (action is LoadCachedConferencesAction) {
-      return _loadCachedConferences(store, action);
-    } else if (action is RefreshConferencesAction) {
-      return _refreshSpeakersForConference(store, action);
-    }
+  Stream<Accumulator<AppState, AppStateBuilder>> applyReducer(
+      Stream<Accumulator<AppState, AppStateBuilder>> input) {
+    return input.transform(
+      StreamTransformer.fromHandlers(
+        handleData: (accumulator, sink) {
+          AppState newState = accumulator.state;
+          if (accumulator.action is LoadedCachedConferencesAction) {
+            newState =
+                _loadedCachedConferences(accumulator.state, accumulator.action);
+          } else if (accumulator.action is RefreshedConferencesAction) {
+            newState =
+                _refreshedConferences(accumulator.state, accumulator.action);
+          }
 
-    // Keep going with the next middleware.
-    return true;
+          sink.add(accumulator.copyWith(newState));
+        },
+      ),
+    );
   }
-}
 
-//class ConferenceBloc extends Store<AppState> {
-//  final ConferenceRepository _conferenceRepo;
-//  final SpeakerRepository _speakerRepo;
-//
-////  final appStates =
-////      BehaviorSubject<AppState>(seedValue: AppState.initialState());
-////
-////  AppState get _state => appStates.value;
-//
-//  Conference get _selectedConference =>
-//      _state.conferences.firstWhere((c) => c.id == _state.selectedConferenceId,
-//          orElse: () => null);
-//
-//  ConferenceBloc(this._conferenceRepo, this._speakerRepo) {
-//    _loadCachedConferences();
-//    refreshConferences();
-//  }
-//
-//  Future<void> refreshConferences() async {
-//    try {
-//      final newList = await _conferenceRepo.refreshConferences();
-//      log.info('Adding ${newList?.length} refreshed items to stream.');
-//      appStates.add(_state.rebuild((b) => b..conferences.replace(newList)));
-//      await _reconcileSpeakerLists();
-//    } on Exception {
-//      //TODO(redbrogdon): Make this more specific.
-//      log.warning('refreshConferences() failed.');
-//    }
-//  }
-//
-//  Future<void> refreshSpeakers(int id) async {
-//    try {
-//      String cfpVersion = _selectedConference.cfpVersion;
-//
-//      if (cfpVersion == null) {
-//        log.warning('Couldn' 't refresh speakers for conference $id.');
-//        return;
-//      }
-//
-//      final newList = await _speakerRepo.refreshSpeakers(cfpVersion);
-//      log.info('Refreshed ${newList?.length} speakers for conference $id.');
-//
-//      appStates.add(
-//        _state.rebuild(
-//          (b) => b.speakers.addAll({
-//                id: newList,
-//              }),
-//        ),
-//      );
-//    } on Exception {
-//      //TODO(redbrogdon): Make this more specific.
-//      log.warning('refreshSpeakers($id) failed.');
-//    }
-//  }
-//
-//  Future<void> selectConference(int id) async {
-//    if (!_state.conferences.any((c) => c.id == id)) {
-//      log.warning('Failed to set selected conference to $id.');
-//      return;
-//    }
-//
-//    appStates.add(_state.rebuild((b) => b..selectedConferenceId = id));
-//    await refreshSpeakers(id);
-//  }
-//
-//  // Updates the map of speaker lists to match the current state of the list of
-//  // conferences. If a conference used to exist and now does not, this method
-//  // will remove its speaker list. If a new conference has been found, a new,
-//  // empty list of speakers will be created.
-//  Future<void> _reconcileSpeakerLists() async {
-//    // IDs that are no longer in the list of conferences, so their corresponding
-//    // speaker lists should be removed.
-//    final staleIds = _state.speakers.keys.toList()
-//      ..removeWhere((id) => _state.conferences.any((c) => c.id == id));
-//
-//    // New conference IDs for which speaker lists haven't yet been created.
-//    final newIds = _state.conferences.map((c) => c.id).toList()
-//      ..removeWhere((id) => _state.speakers.containsKey(id));
-//
-//    // Add the new stuff and remove the stale.
-//    appStates.add(_state.rebuild((b) {
-//      b.speakers.addIterable(newIds,
-//          key: (i) => i, value: (_) => BuiltList<Speaker>());
-//      for (int staleId in staleIds) {
-//        b.speakers.remove(staleId);
-//      }
-//    }));
-//  }
-//
-//  Future<void> _loadCachedConferences() async {
-//    try {
-//      final newList = await _conferenceRepo.loadCachedConferences();
-//      log.info('Adding ${newList?.length} cached items to stream.');
-//
-//      appStates.add(_state.rebuild((b) => b..conferences.replace(newList)));
-//    } on Exception {
-//      log.warning('_loadCachedConferences failed.');
-//    }
-//  }
-//}
-//
-//class ConferenceBlocProvider extends InheritedWidget {
-//  final ConferenceBloc _bloc;
-//
-//  ConferenceBlocProvider({
-//    Key key,
-//    @required ConferenceBloc conferenceBloc,
-//    Widget child,
-//  })  : _bloc = conferenceBloc,
-//        super(key: key, child: child);
-//
 //  @override
-//  bool updateShouldNotify(InheritedWidget oldWidget) => true;
+//  Stream<MiddleWareContext<AppState, AppStateBuilder>> applyMiddleware(Stream<MiddleWareContext<AppState, AppStateBuilder>> input) {
+//    return input;
+//    .transform(
+//      StreamTransformer.fromHandlers(
+//        handleData: (action, sink) {
+//          if (action is LoadCachedConferencesAction) {
+//            _loadCachedConferences(store, action);
+//          } else if (action is RefreshConferencesAction) {
+//            _refreshConferences(store, action);
+//          } else {
+//            sink.add(action);
+//          }
+//        },
+//      ),
+//    );
+//  }
+
+//  @override
+//  AppState applyReducers(AppState state, Action action) {
+//    if (action is LoadedCachedConferencesAction) {
+//      return _loadedCachedConferences(state, action);
+//    } else if (action is RefreshedConferencesAction) {
+//      return _refreshedConferences(state, action);
+//    }
 //
-//  static ConferenceBloc of(BuildContext context) =>
-//      (context.inheritFromWidgetOfExactType(ConferenceBlocProvider)
-//              as ConferenceBlocProvider)
-//          ._bloc;
-//}
+//    // Make no changes.
+//    return state;
+//  }
+
+//  @override
+//  bool applyMiddleware(Store<AppState, AppStateBuilder> store, Action action) {
+//    if (action is LoadCachedConferencesAction) {
+//      return _loadCachedConferences(store, action);
+//    } else if (action is RefreshConferencesAction) {
+//      return _refreshConferences(store, action);
+//    }
+//
+//    // Keep going with the next middleware.
+//    return true;
+//  }
+
+}

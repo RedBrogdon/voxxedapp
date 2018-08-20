@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
 class LoggerBloc extends Bloc<AppState, AppStateBuilder> {
   @override
-  bool middle(Store<AppState, AppStateBuilder> store, Action action) {
-    log.info('ACTION: ${action.runtimeType}, STATE: ${store.states.value}');
-    return true;
+  Stream<MiddlewareContext<AppState, AppStateBuilder>> applyMiddleware(
+      Stream<MiddlewareContext<AppState, AppStateBuilder>> input) {
+    return input.transform(
+      StreamTransformer.fromHandlers(
+        handleData: (context, sink) {
+          log.info('ACTION: ${context.action.runtimeType}');
+          sink.add(context);
+        },
+      ),
+    );
   }
 }

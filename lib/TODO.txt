@@ -1,0 +1,7 @@
+X Refactor stream subscriptions in blocs.
+- Refactor ViewModel class to get a dispatch function rather than store.
+- Refactor ViewModel to be a built_value (for equality).
+- Rewrite/restructure tests.
+- Refactor reducers to just return an object rather than a builder.
+- Implement Drawer and "pick a conference" navigation.
+- Refactor error logging, exception handling.

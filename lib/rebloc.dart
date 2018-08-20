@@ -18,9 +18,6 @@ import 'package:flutter/foundation.dart';
 import 'package:built_value/built_value.dart' as bv;
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:voxxedapp/models/app_state.dart';
-
-// TODO(redbrogdon): make actions built.
 
 abstract class Action {
   const Action();
@@ -31,116 +28,168 @@ class Accumulator<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
   final S state;
 
   const Accumulator(this.action, this.state);
+
+  Accumulator<S, B> copyWith(S newState) => Accumulator(this.action, newState);
+}
+
+typedef void DispatchFunction(Action action);
+
+class MiddlewareContext<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+  final DispatchFunction dispatch;
+  final S state;
+  final Action action;
+
+  const MiddlewareContext(this.dispatch, this.state, this.action);
 }
 
 class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  final _dispatchController = StreamController<Action>();
+  final _dispatchController = StreamController<MiddlewareContext<S, B>>();
   final BehaviorSubject<S> states;
 
   Store({
     @required S initialState,
-    List<Bloc> blocs,
+    List<Bloc> blocs = const [],
   }) : states = BehaviorSubject<S>(seedValue: initialState) {
     final reducerController = StreamController<Accumulator<S, B>>();
     var reducerStream = reducerController.stream;
     var dispatchStream = _dispatchController.stream;
 
     for (Bloc bloc in blocs) {
-      dispatchStream = dispatchStream.transform(
-        StreamTransformer.fromHandlers(
-            handleData: (Action data, EventSink<Action> sink) {
-          if (bloc.middle(this, data)) {
-            sink.add(data);
-          }
-        }),
-      );
-
-      reducerStream = reducerStream.transform(
-        StreamTransformer.fromHandlers(handleData:
-            (Accumulator<S, B> data, EventSink<Accumulator<S, B>> sink) {
-          final builder = bloc.reduce(this, data.state, data.action);
-          sink.add(Accumulator(data.action, builder?.build() ?? data.state));
-        }),
-      );
+      dispatchStream = bloc.applyMiddleware(dispatchStream);
+      reducerStream = bloc.applyReducer(reducerStream);
     }
 
-    // Need this to make the stream run.
-    reducerController.addStream(dispatchStream
-        .map<Accumulator<S, B>>((a) => Accumulator(a, states.value)));
+    reducerController.addStream(dispatchStream.map<Accumulator<S, B>>(
+        (context) => Accumulator(context.action, states.value)));
     reducerStream.listen((a) => states.add(a.state));
   }
 
-  get dispatch => _dispatchController.add;
+  get dispatch => (Action action) => _dispatchController
+      .add(MiddlewareContext(dispatch, states.value, action));
 }
 
 abstract class Bloc<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  B reduce(Store<S, B> store, S state, Action action) {
-    return state.toBuilder();
-  }
+  Stream<MiddlewareContext<S, B>> applyMiddleware(
+          Stream<MiddlewareContext<S, B>> input) =>
+      input;
 
-  bool middle(Store<S, B> store, Action action) {
-    return true;
-  }
+  Stream<Accumulator<S, B>> applyReducer(Stream<Accumulator<S, B>> input) =>
+      input;
 }
 
-class StoreProvider extends InheritedWidget {
-  final Store<AppState, AppStateBuilder> store;
+class StoreProvider<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>
+    extends StatelessWidget {
+  final Store<S, B> store;
+  final Widget child;
 
   StoreProvider({
     @required this.store,
+    @required this.child,
     Key key,
-    Widget child,
-  }) : super(key: key, child: child);
+  }) : super(key: key);
+
+  static Store<S, B> of<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>(
+    BuildContext context, {
+    bool rebuildOnChange = false,
+  }) {
+    final Type type = _type<_InheritedStoreProvider<S, B>>();
+
+    Widget widget = rebuildOnChange
+        ? context.inheritFromWidgetOfExactType(type)
+        : context.ancestorWidgetOfExactType(type);
+
+    if (widget == null) {
+      throw Exception('Couldn\'t find an StoreProvider of the correct type.');
+    } else {
+      return (widget as _InheritedStoreProvider<S, B>).store;
+    }
+  }
 
   @override
-  bool updateShouldNotify(InheritedWidget oldWidget) => true;
+  Widget build(BuildContext context) {
+    return _InheritedStoreProvider<S, B>(store: store, child: child);
+  }
 
-  static Store<AppState, AppStateBuilder> of(BuildContext context) =>
-      (context.inheritFromWidgetOfExactType(StoreProvider) as StoreProvider)
-          .store;
+  static Type _type<T>() => T;
 }
 
-typedef Widget ViewModelBuilder<
+class _InheritedStoreProvider<S extends bv.Built<S, B>,
+    B extends bv.Builder<S, B>> extends InheritedWidget {
+  final Store<S, B> store;
+
+  _InheritedStoreProvider({Key key, Widget child, this.store})
+      : super(key: key, child: child);
+
+  @override
+  bool updateShouldNotify(_InheritedStoreProvider<S, B> oldWidget) =>
+      (oldWidget.store != store);
+}
+
+typedef Widget ViewModelWidgetBuilder<
     S extends bv.Built<S, B>,
     B extends bv.Builder<S, B>,
     V extends ViewModel<S, B>>(BuildContext context, V viewModel);
+
 typedef V ViewModelConverter<
     S extends bv.Built<S, B>,
     B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>>(Store dispatcher, S state);
+    V extends ViewModel<S, B>>(DispatchFunction dispatch, S state);
 
 class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>> extends StatefulWidget {
-  final Store store;
-  final BehaviorSubject<S> stream;
+    V extends ViewModel<S, B>> extends StatelessWidget {
   final ViewModelConverter<S, B, V> converter;
-  final ViewModelBuilder<S, B, V> builder;
+  final ViewModelWidgetBuilder<S, B, V> builder;
 
   ViewModelSubscriber({
-    @required this.store,
+    @required this.converter,
+    @required this.builder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Store<S, B> store = StoreProvider.of<S, B>(context);
+    return _ViewModelStreamBuilder<S, B, V>(
+        dispatch: store.dispatch,
+        stream: store.states,
+        converter: converter,
+        builder: builder);
+  }
+}
+
+class _ViewModelStreamBuilder<
+    S extends bv.Built<S, B>,
+    B extends bv.Builder<S, B>,
+    V extends ViewModel<S, B>> extends StatefulWidget {
+  final DispatchFunction dispatch;
+  final BehaviorSubject<S> stream;
+  final ViewModelConverter<S, B, V> converter;
+  final ViewModelWidgetBuilder<S, B, V> builder;
+
+  _ViewModelStreamBuilder({
+    @required this.dispatch,
     @required this.stream,
     @required this.converter,
     @required this.builder,
   });
 
   @override
-  _ViewModelSubscriberState createState() =>
-      _ViewModelSubscriberState<S, B, V>();
+  _ViewModelStreamBuilderState createState() =>
+      _ViewModelStreamBuilderState<S, B, V>();
 }
 
-class _ViewModelSubscriberState<
+class _ViewModelStreamBuilderState<
     S extends bv.Built<S, B>,
     B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>> extends State<ViewModelSubscriber<S, B, V>> {
+    V extends ViewModel<S, B>> extends State<_ViewModelStreamBuilder<S, B, V>> {
   V _latestViewModel;
   StreamSubscription<V> _subscription;
 
   @override
   void initState() {
     super.initState();
-    _latestViewModel = widget.converter(widget.store, widget.stream.value);
+    _latestViewModel = widget.converter(widget.dispatch, widget.stream.value);
     _subscription = widget.stream
-        .map<V>((s) => widget.converter(widget.store, s))
+        .map<V>((s) => widget.converter(widget.dispatch, s))
         .distinct()
         .listen((viewModel) {
       setState(() => _latestViewModel = viewModel);
@@ -161,7 +210,7 @@ class _ViewModelSubscriberState<
 }
 
 class ViewModel<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  final Store<S, B> store;
+  final DispatchFunction dispatch;
 
-  const ViewModel(this.store);
+  const ViewModel(this.dispatch);
 }

@@ -18,6 +18,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/web_client.dart';
 import 'package:voxxedapp/data/conference_local_storage.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/util/logger.dart';
 
 class ConferenceRepository {
   final WebClient webClient;
@@ -42,6 +43,8 @@ class ConferenceRepository {
     }
 
     final refreshedList = BuiltList<Conference>(await Future.wait(futures));
+
+    logObject('Dumping refreshed conferences: ', refreshedList);
 
     localStorage.saveConferences(refreshedList);
     return refreshedList;

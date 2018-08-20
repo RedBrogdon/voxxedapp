@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/rebloc.dart';
+
+class ConferenceListViewModel extends ViewModel<AppState, AppStateBuilder> {
+  final List<Conference> conferences;
+
+  ConferenceListViewModel(
+      DispatchFunction dispatch, AppState state)
+      : this.conferences = state.conferences.toList(),
+        super(dispatch);
+}
 
 class ConferenceListScreen extends StatefulWidget {
   @override
@@ -110,20 +119,20 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
-      body: StreamBuilder<AppState>(
-        stream: ConferenceBlocProvider.of(context).appStates,
-        builder: (context, snapshot) {
+      body: ViewModelSubscriber<AppState, AppStateBuilder,
+          ConferenceListViewModel>(
+        converter: (dispatch, state) =>
+            ConferenceListViewModel(dispatch, state),
+        builder: (context, viewModel) {
           return ListView.builder(
-            itemCount: snapshot.hasData ? snapshot.data.conferences.length : 0,
+            itemCount: viewModel.conferences.length,
             itemBuilder: (context, i) => _buildListItem(
                   context,
-                  snapshot.data.conferences[i],
+                  viewModel.conferences[i],
                   () {
-                    ConferenceBlocProvider
-                        .of(context)
-                        .selectConference(snapshot.data.conferences[i].id);
-                    Navigator.of(context).pushNamed(
-                        '/conference/${snapshot.data.conferences[i].id}');
+                    int id = viewModel.conferences[i].id;
+                    viewModel.dispatch(RefreshSpeakersForConferenceAction(id));
+                    Navigator.of(context).pushNamed('/conference/$id');
                   },
                 ),
           );
