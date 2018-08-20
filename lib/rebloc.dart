@@ -123,19 +123,17 @@ class _InheritedStoreProvider<S> extends InheritedWidget {
 }
 
 typedef Widget ViewModelWidgetBuilder<
-    S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>>(BuildContext context, V viewModel);
+    S,
+    V extends ViewModel<S>>(BuildContext context, V viewModel);
 
 typedef V ViewModelConverter<
-    S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>>(DispatchFunction dispatch, S state);
+    S,
+    V extends ViewModel<S>>(DispatchFunction dispatch, S state);
 
-class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>> extends StatelessWidget {
-  final ViewModelConverter<S, B, V> converter;
-  final ViewModelWidgetBuilder<S, B, V> builder;
+class ViewModelSubscriber<S,
+    V extends ViewModel<S>> extends StatelessWidget {
+  final ViewModelConverter<S, V> converter;
+  final ViewModelWidgetBuilder<S, V> builder;
 
   ViewModelSubscriber({
     @required this.converter,
@@ -145,7 +143,7 @@ class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
   @override
   Widget build(BuildContext context) {
     Store<S> store = StoreProvider.of<S>(context);
-    return _ViewModelStreamBuilder<S, B, V>(
+    return _ViewModelStreamBuilder<S, V>(
         dispatch: store.dispatch,
         stream: store.states,
         converter: converter,
@@ -154,13 +152,12 @@ class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
 }
 
 class _ViewModelStreamBuilder<
-    S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>> extends StatefulWidget {
+    S,
+    V extends ViewModel<S>> extends StatefulWidget {
   final DispatchFunction dispatch;
   final BehaviorSubject<S> stream;
-  final ViewModelConverter<S, B, V> converter;
-  final ViewModelWidgetBuilder<S, B, V> builder;
+  final ViewModelConverter<S, V> converter;
+  final ViewModelWidgetBuilder<S, V> builder;
 
   _ViewModelStreamBuilder({
     @required this.dispatch,
@@ -171,13 +168,12 @@ class _ViewModelStreamBuilder<
 
   @override
   _ViewModelStreamBuilderState createState() =>
-      _ViewModelStreamBuilderState<S, B, V>();
+      _ViewModelStreamBuilderState<S, V>();
 }
 
 class _ViewModelStreamBuilderState<
-    S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>,
-    V extends ViewModel<S, B>> extends State<_ViewModelStreamBuilder<S, B, V>> {
+    S,
+    V extends ViewModel<S>> extends State<_ViewModelStreamBuilder<S, V>> {
   V _latestViewModel;
   StreamSubscription<V> _subscription;
 
@@ -206,7 +202,7 @@ class _ViewModelStreamBuilderState<
   }
 }
 
-class ViewModel<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+class ViewModel<S> {
   final DispatchFunction dispatch;
 
   const ViewModel(this.dispatch);

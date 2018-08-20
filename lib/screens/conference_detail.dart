@@ -21,7 +21,7 @@ import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/rebloc.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 
-class ConferenceDetailsViewModel extends ViewModel<AppState, AppStateBuilder> {
+class ConferenceDetailsViewModel extends ViewModel<AppState> {
   final Conference conference;
   final BuiltList<Speaker> speakers;
 
@@ -174,7 +174,7 @@ class ConferenceDetailScreen extends StatelessWidget {
         title: Text('Current Voxxed Days'),
       ),
       body: SingleChildScrollView(
-        child: ViewModelSubscriber<AppState, AppStateBuilder,
+        child: ViewModelSubscriber<AppState,
             ConferenceDetailsViewModel>(
           converter: (dispatcher, state) =>
               ConferenceDetailsViewModel(dispatcher, state, id),

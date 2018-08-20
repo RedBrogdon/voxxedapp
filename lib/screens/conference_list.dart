@@ -19,7 +19,7 @@ import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/rebloc.dart';
 
-class ConferenceListViewModel extends ViewModel<AppState, AppStateBuilder> {
+class ConferenceListViewModel extends ViewModel<AppState> {
   final List<Conference> conferences;
 
   ConferenceListViewModel(DispatchFunction dispatch, AppState state)
@@ -118,7 +118,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
-      body: ViewModelSubscriber<AppState, AppStateBuilder,
+      body: ViewModelSubscriber<AppState,
           ConferenceListViewModel>(
         converter: (dispatch, state) =>
             ConferenceListViewModel(dispatch, state),
