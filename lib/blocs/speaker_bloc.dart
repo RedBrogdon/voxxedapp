@@ -118,25 +118,4 @@ class SpeakerBloc extends Bloc<AppState> {
       ),
     );
   }
-
-//  @override
-//  AppState applyReducers(
-//      AppState state, Action action) {
-//    if (action is RefreshedSpeakersForConferenceAction) {
-//      return _refreshedSpeakersForConference(state, action);
-//    }
-//
-//    // Otherwise make no changes.
-//    return state;
-//  }
-//
-//  @override
-//  bool applyMiddleware(Store<AppState> store, Action action) {
-//    if (action is RefreshSpeakersForConferenceAction) {
-//      return _refreshSpeakersForConference(store, action);
-//    }
-//
-//    // Keep going with the next middleware.
-//    return true;
-//  }
 }

@@ -144,47 +144,4 @@ class ConferenceBloc extends Bloc<AppState> {
       ),
     );
   }
-
-//  @override
-//  Stream<MiddleWareContext<AppState>> applyMiddleware(Stream<MiddleWareContext<AppState>> input) {
-//    return input;
-//    .transform(
-//      StreamTransformer.fromHandlers(
-//        handleData: (action, sink) {
-//          if (action is LoadCachedConferencesAction) {
-//            _loadCachedConferences(store, action);
-//          } else if (action is RefreshConferencesAction) {
-//            _refreshConferences(store, action);
-//          } else {
-//            sink.add(action);
-//          }
-//        },
-//      ),
-//    );
-//  }
-
-//  @override
-//  AppState applyReducers(AppState state, Action action) {
-//    if (action is LoadedCachedConferencesAction) {
-//      return _loadedCachedConferences(state, action);
-//    } else if (action is RefreshedConferencesAction) {
-//      return _refreshedConferences(state, action);
-//    }
-//
-//    // Make no changes.
-//    return state;
-//  }
-
-//  @override
-//  bool applyMiddleware(Store<AppState> store, Action action) {
-//    if (action is LoadCachedConferencesAction) {
-//      return _loadCachedConferences(store, action);
-//    } else if (action is RefreshConferencesAction) {
-//      return _refreshConferences(store, action);
-//    }
-//
-//    // Keep going with the next middleware.
-//    return true;
-//  }
-
 }
