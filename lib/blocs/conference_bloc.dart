@@ -42,14 +42,13 @@ class LoadedCachedConferencesAction extends Action {
   const LoadedCachedConferencesAction(this.conferences);
 }
 
-class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
+class ConferenceBloc extends Bloc<AppState> {
   final ConferenceRepository repository;
 
   ConferenceBloc({this.repository = const ConferenceRepository()});
 
-  void _loadCachedConferences(
-      MiddlewareContext<AppState, AppStateBuilder> context,
-      EventSink<MiddlewareContext<AppState, AppStateBuilder>> sink) {
+  void _loadCachedConferences(MiddlewareContext<AppState> context,
+      EventSink<MiddlewareContext<AppState>> sink) {
     repository.loadCachedConferences().then((list) {
       log.info('Adding ${list.length} cached items to stream.');
       context.dispatch(new LoadedCachedConferencesAction(list.toList()));
@@ -60,9 +59,8 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
     sink.add(context);
   }
 
-  void _refreshConferences(
-      MiddlewareContext<AppState, AppStateBuilder> context,
-      EventSink<MiddlewareContext<AppState, AppStateBuilder>> sink) {
+  void _refreshConferences(MiddlewareContext<AppState> context,
+      EventSink<MiddlewareContext<AppState>> sink) {
     repository.refreshConferences().then((newList) {
       context.dispatch(RefreshedConferencesAction(newList.toList()));
       log.info('Refreshed ${newList?.length} conferences.');
@@ -75,7 +73,10 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
 
   AppState _loadedCachedConferences(
       AppState state, LoadedCachedConferencesAction action) {
-    return state.rebuild((b) => b..conferences.replace(action.conferences));
+    AppState newState =
+        state.rebuild((b) => b..conferences.replace(action.conferences));
+    return newState
+        .rebuild((b) => b..speakers.replace(_reconcileSpeakerLists(newState)));
   }
 
   AppState _refreshedConferences(
@@ -106,8 +107,8 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
   }
 
   @override
-  Stream<MiddlewareContext<AppState, AppStateBuilder>> applyMiddleware(
-      Stream<MiddlewareContext<AppState, AppStateBuilder>> input) {
+  Stream<MiddlewareContext<AppState>> applyMiddleware(
+      Stream<MiddlewareContext<AppState>> input) {
     return input.transform(
       StreamTransformer.fromHandlers(
         handleData: (context, sink) {
@@ -124,8 +125,8 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
   }
 
   @override
-  Stream<Accumulator<AppState, AppStateBuilder>> applyReducer(
-      Stream<Accumulator<AppState, AppStateBuilder>> input) {
+  Stream<Accumulator<AppState>> applyReducer(
+      Stream<Accumulator<AppState>> input) {
     return input.transform(
       StreamTransformer.fromHandlers(
         handleData: (accumulator, sink) {
@@ -145,7 +146,7 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
   }
 
 //  @override
-//  Stream<MiddleWareContext<AppState, AppStateBuilder>> applyMiddleware(Stream<MiddleWareContext<AppState, AppStateBuilder>> input) {
+//  Stream<MiddleWareContext<AppState>> applyMiddleware(Stream<MiddleWareContext<AppState>> input) {
 //    return input;
 //    .transform(
 //      StreamTransformer.fromHandlers(
@@ -175,7 +176,7 @@ class ConferenceBloc extends Bloc<AppState, AppStateBuilder> {
 //  }
 
 //  @override
-//  bool applyMiddleware(Store<AppState, AppStateBuilder> store, Action action) {
+//  bool applyMiddleware(Store<AppState> store, Action action) {
 //    if (action is LoadCachedConferencesAction) {
 //      return _loadCachedConferences(store, action);
 //    } else if (action is RefreshConferencesAction) {

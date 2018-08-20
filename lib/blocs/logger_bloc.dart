@@ -18,10 +18,10 @@ import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
-class LoggerBloc extends Bloc<AppState, AppStateBuilder> {
+class LoggerBloc extends Bloc<AppState> {
   @override
-  Stream<MiddlewareContext<AppState, AppStateBuilder>> applyMiddleware(
-      Stream<MiddlewareContext<AppState, AppStateBuilder>> input) {
+  Stream<MiddlewareContext<AppState>> applyMiddleware(
+      Stream<MiddlewareContext<AppState>> input) {
     return input.transform(
       StreamTransformer.fromHandlers(
         handleData: (context, sink) {

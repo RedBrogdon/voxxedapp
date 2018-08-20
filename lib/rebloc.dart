@@ -23,18 +23,18 @@ abstract class Action {
   const Action();
 }
 
-class Accumulator<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+class Accumulator<S> {
   final Action action;
   final S state;
 
   const Accumulator(this.action, this.state);
 
-  Accumulator<S, B> copyWith(S newState) => Accumulator(this.action, newState);
+  Accumulator<S> copyWith(S newState) => Accumulator(this.action, newState);
 }
 
 typedef void DispatchFunction(Action action);
 
-class MiddlewareContext<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
+class MiddlewareContext<S> {
   final DispatchFunction dispatch;
   final S state;
   final Action action;
@@ -42,15 +42,15 @@ class MiddlewareContext<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
   const MiddlewareContext(this.dispatch, this.state, this.action);
 }
 
-class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  final _dispatchController = StreamController<MiddlewareContext<S, B>>();
+class Store<S> {
+  final _dispatchController = StreamController<MiddlewareContext<S>>();
   final BehaviorSubject<S> states;
 
   Store({
     @required S initialState,
     List<Bloc> blocs = const [],
   }) : states = BehaviorSubject<S>(seedValue: initialState) {
-    final reducerController = StreamController<Accumulator<S, B>>();
+    final reducerController = StreamController<Accumulator<S>>();
     var reducerStream = reducerController.stream;
     var dispatchStream = _dispatchController.stream;
 
@@ -59,7 +59,7 @@ class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
       reducerStream = bloc.applyReducer(reducerStream);
     }
 
-    reducerController.addStream(dispatchStream.map<Accumulator<S, B>>(
+    reducerController.addStream(dispatchStream.map<Accumulator<S>>(
         (context) => Accumulator(context.action, states.value)));
     reducerStream.listen((a) => states.add(a.state));
   }
@@ -68,18 +68,16 @@ class Store<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
       .add(MiddlewareContext(dispatch, states.value, action));
 }
 
-abstract class Bloc<S extends bv.Built<S, B>, B extends bv.Builder<S, B>> {
-  Stream<MiddlewareContext<S, B>> applyMiddleware(
-          Stream<MiddlewareContext<S, B>> input) =>
+abstract class Bloc<S> {
+  Stream<MiddlewareContext<S>> applyMiddleware(
+          Stream<MiddlewareContext<S>> input) =>
       input;
 
-  Stream<Accumulator<S, B>> applyReducer(Stream<Accumulator<S, B>> input) =>
-      input;
+  Stream<Accumulator<S>> applyReducer(Stream<Accumulator<S>> input) => input;
 }
 
-class StoreProvider<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>
-    extends StatelessWidget {
-  final Store<S, B> store;
+class StoreProvider<S> extends StatelessWidget {
+  final Store<S> store;
   final Widget child;
 
   StoreProvider({
@@ -88,11 +86,11 @@ class StoreProvider<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>
     Key key,
   }) : super(key: key);
 
-  static Store<S, B> of<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>(
+  static Store<S> of<S>(
     BuildContext context, {
     bool rebuildOnChange = false,
   }) {
-    final Type type = _type<_InheritedStoreProvider<S, B>>();
+    final Type type = _type<_InheritedStoreProvider<S>>();
 
     Widget widget = rebuildOnChange
         ? context.inheritFromWidgetOfExactType(type)
@@ -101,27 +99,26 @@ class StoreProvider<S extends bv.Built<S, B>, B extends bv.Builder<S, B>>
     if (widget == null) {
       throw Exception('Couldn\'t find an StoreProvider of the correct type.');
     } else {
-      return (widget as _InheritedStoreProvider<S, B>).store;
+      return (widget as _InheritedStoreProvider<S>).store;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return _InheritedStoreProvider<S, B>(store: store, child: child);
+    return _InheritedStoreProvider<S>(store: store, child: child);
   }
 
   static Type _type<T>() => T;
 }
 
-class _InheritedStoreProvider<S extends bv.Built<S, B>,
-    B extends bv.Builder<S, B>> extends InheritedWidget {
-  final Store<S, B> store;
+class _InheritedStoreProvider<S> extends InheritedWidget {
+  final Store<S> store;
 
   _InheritedStoreProvider({Key key, Widget child, this.store})
       : super(key: key, child: child);
 
   @override
-  bool updateShouldNotify(_InheritedStoreProvider<S, B> oldWidget) =>
+  bool updateShouldNotify(_InheritedStoreProvider<S> oldWidget) =>
       (oldWidget.store != store);
 }
 
@@ -147,7 +144,7 @@ class ViewModelSubscriber<S extends bv.Built<S, B>, B extends bv.Builder<S, B>,
 
   @override
   Widget build(BuildContext context) {
-    Store<S, B> store = StoreProvider.of<S, B>(context);
+    Store<S> store = StoreProvider.of<S>(context);
     return _ViewModelStreamBuilder<S, B, V>(
         dispatch: store.dispatch,
         stream: store.states,

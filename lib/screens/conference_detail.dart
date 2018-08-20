@@ -174,7 +174,8 @@ class ConferenceDetailScreen extends StatelessWidget {
         title: Text('Current Voxxed Days'),
       ),
       body: SingleChildScrollView(
-        child: ViewModelSubscriber<AppState, AppStateBuilder, ConferenceDetailsViewModel>(
+        child: ViewModelSubscriber<AppState, AppStateBuilder,
+            ConferenceDetailsViewModel>(
           converter: (dispatcher, state) =>
               ConferenceDetailsViewModel(dispatcher, state, id),
           builder: (context, viewModel) {

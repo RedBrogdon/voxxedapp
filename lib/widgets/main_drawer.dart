@@ -30,13 +30,11 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             title: Text('Item 1'),
-            onTap: () {
-            },
+            onTap: () {},
           ),
           ListTile(
             title: Text('Item 2'),
-            onTap: () {
-            },
+            onTap: () {},
           ),
         ],
       ),

@@ -28,8 +28,7 @@ Future main() async {
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  final Store<AppState, AppStateBuilder> store =
-      Store<AppState, AppStateBuilder>(
+  final Store<AppState> store = Store<AppState>(
     initialState: AppState.initialState(),
     blocs: [
       LoggerBloc(),

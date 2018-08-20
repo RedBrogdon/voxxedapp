@@ -44,7 +44,7 @@ class LoadedCachedSpeakersAction extends Action {
   const LoadedCachedSpeakersAction(this.speakers);
 }
 
-class SpeakerBloc extends Bloc<AppState, AppStateBuilder> {
+class SpeakerBloc extends Bloc<AppState> {
   final SpeakerRepository repository;
 
   SpeakerBloc({this.repository = const SpeakerRepository()});
@@ -53,7 +53,7 @@ class SpeakerBloc extends Bloc<AppState, AppStateBuilder> {
       DispatchFunction dispatch,
       AppState state,
       RefreshSpeakersForConferenceAction action,
-      EventSink<MiddlewareContext<AppState, AppStateBuilder>> sink) {
+      EventSink<MiddlewareContext<AppState>> sink) {
     String cfpVersion = state.conferences
         .firstWhere((c) => c.id == action.conferenceId, orElse: () => null)
         ?.cfpVersion;
@@ -75,21 +75,18 @@ class SpeakerBloc extends Bloc<AppState, AppStateBuilder> {
 
   AppState _refreshedSpeakersForConference(
       AppState state, RefreshedSpeakersForConferenceAction action) {
-    try {
-      if (state.speakers.containsKey(action.conferenceId)) {
-        return state.rebuild((b) => b
-          ..speakers.addAll(
-              {action.conferenceId: BuiltList<Speaker>(action.speakers)}));
-      }
-    } on Exception {
-      //TODO(redbrogdon): Make this more specific.
-      log.warning('refreshedSpeakers(${action.conferenceId}) failed.');
+    if (state.speakers.containsKey(action.conferenceId)) {
+      return state.rebuild((b) => b
+        ..speakers.addAll(
+            {action.conferenceId: BuiltList<Speaker>(action.speakers)}));
     }
+
+    return state;
   }
 
   @override
-  Stream<MiddlewareContext<AppState, AppStateBuilder>> applyMiddleware(
-      Stream<MiddlewareContext<AppState, AppStateBuilder>> input) {
+  Stream<MiddlewareContext<AppState>> applyMiddleware(
+      Stream<MiddlewareContext<AppState>> input) {
     return input.transform(
       StreamTransformer.fromHandlers(
         handleData: (context, sink) {
@@ -105,8 +102,8 @@ class SpeakerBloc extends Bloc<AppState, AppStateBuilder> {
   }
 
   @override
-  Stream<Accumulator<AppState, AppStateBuilder>> applyReducer(
-      Stream<Accumulator<AppState, AppStateBuilder>> input) {
+  Stream<Accumulator<AppState>> applyReducer(
+      Stream<Accumulator<AppState>> input) {
     return input.transform(
       StreamTransformer.fromHandlers(
         handleData: (accumulator, sink) {
@@ -134,7 +131,7 @@ class SpeakerBloc extends Bloc<AppState, AppStateBuilder> {
 //  }
 //
 //  @override
-//  bool applyMiddleware(Store<AppState, AppStateBuilder> store, Action action) {
+//  bool applyMiddleware(Store<AppState> store, Action action) {
 //    if (action is RefreshSpeakersForConferenceAction) {
 //      return _refreshSpeakersForConference(store, action);
 //    }

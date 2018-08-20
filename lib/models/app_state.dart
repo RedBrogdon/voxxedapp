@@ -20,7 +20,6 @@ import 'package:voxxedapp/models/speaker.dart';
 part 'app_state.g.dart';
 
 abstract class AppState implements Built<AppState, AppStateBuilder> {
-
   BuiltList<Conference> get conferences;
 
   BuiltMap<int, BuiltList<Speaker>> get speakers;
@@ -32,8 +31,6 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
   factory AppState([updates(AppStateBuilder b)]) = _$AppState;
 
   factory AppState.initialState() {
-    return AppState((b) => b
-      .._selectedConferenceId = 0
-    );
+    return AppState((b) => b.._selectedConferenceId = 0);
   }
 }

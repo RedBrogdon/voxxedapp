@@ -22,8 +22,7 @@ import 'package:voxxedapp/rebloc.dart';
 class ConferenceListViewModel extends ViewModel<AppState, AppStateBuilder> {
   final List<Conference> conferences;
 
-  ConferenceListViewModel(
-      DispatchFunction dispatch, AppState state)
+  ConferenceListViewModel(DispatchFunction dispatch, AppState state)
       : this.conferences = state.conferences.toList(),
         super(dispatch);
 }
