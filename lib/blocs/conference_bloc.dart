@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:async';
-
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
-import 'package:voxxedapp/rebloc.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
 class LoadCachedConferencesAction extends Action {
@@ -42,33 +40,33 @@ class LoadedCachedConferencesAction extends Action {
   const LoadedCachedConferencesAction(this.conferences);
 }
 
-class ConferenceBloc extends Bloc<AppState> {
+class ConferenceBloc extends SimpleBloc<AppState> {
   final ConferenceRepository repository;
 
   ConferenceBloc({this.repository = const ConferenceRepository()});
 
-  void _loadCachedConferences(MiddlewareContext<AppState> context,
-      EventSink<MiddlewareContext<AppState>> sink) {
+  Action _loadCachedConferences(DispatchFunction dispatcher, AppState state,
+      LoadCachedConferencesAction action) {
     repository.loadCachedConferences().then((list) {
       log.info('Adding ${list.length} cached items to stream.');
-      context.dispatcher(new LoadedCachedConferencesAction(list.toList()));
+      dispatcher(new LoadedCachedConferencesAction(list.toList()));
     }).catchError((e, s) {
       log.warning('_loadCachedConferences failed.');
     });
 
-    sink.add(context);
+    return action;
   }
 
-  void _refreshConferences(MiddlewareContext<AppState> context,
-      EventSink<MiddlewareContext<AppState>> sink) {
+  Action _refreshConferences(DispatchFunction dispatcher, AppState state,
+      RefreshConferencesAction action) {
     repository.refreshConferences().then((newList) {
-      context.dispatcher(RefreshedConferencesAction(newList.toList()));
+      dispatcher(RefreshedConferencesAction(newList.toList()));
       log.info('Refreshed ${newList?.length} conferences.');
     }).catchError((_) {
       log.warning('refreshConferences() failed.');
     });
 
-    sink.add(context);
+    return action;
   }
 
   AppState _loadedCachedConferences(
@@ -107,41 +105,24 @@ class ConferenceBloc extends Bloc<AppState> {
   }
 
   @override
-  Stream<MiddlewareContext<AppState>> applyMiddleware(
-      Stream<MiddlewareContext<AppState>> input) {
-    return input.transform(
-      StreamTransformer.fromHandlers(
-        handleData: (context, sink) {
-          if (context.action is LoadCachedConferencesAction) {
-            _loadCachedConferences(context, sink);
-          } else if (context.action is RefreshConferencesAction) {
-            _refreshConferences(context, sink);
-          } else {
-            sink.add(context);
-          }
-        },
-      ),
-    );
+  Action middleware(dispatcher, state, action) {
+    if (action is LoadCachedConferencesAction) {
+      _loadCachedConferences(dispatcher, state, action);
+    } else if (action is RefreshConferencesAction) {
+      _refreshConferences(dispatcher, state, action);
+    }
+
+    return action;
   }
 
   @override
-  Stream<Accumulator<AppState>> applyReducer(
-      Stream<Accumulator<AppState>> input) {
-    return input.transform(
-      StreamTransformer.fromHandlers(
-        handleData: (accumulator, sink) {
-          AppState newState = accumulator.state;
-          if (accumulator.action is LoadedCachedConferencesAction) {
-            newState =
-                _loadedCachedConferences(accumulator.state, accumulator.action);
-          } else if (accumulator.action is RefreshedConferencesAction) {
-            newState =
-                _refreshedConferences(accumulator.state, accumulator.action);
-          }
+  AppState reducer(state, action) {
+    if (action is LoadedCachedConferencesAction) {
+      return _loadedCachedConferences(state, action);
+    } else if (action is RefreshedConferencesAction) {
+      return _refreshedConferences(state, action);
+    }
 
-          sink.add(accumulator.copyWith(newState));
-        },
-      ),
-    );
+    return state;
   }
 }

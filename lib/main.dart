@@ -19,7 +19,7 @@ import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
-import 'package:voxxedapp/rebloc.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 

@@ -18,21 +18,19 @@ import 'package:flutter/widgets.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
-import 'package:voxxedapp/rebloc.dart';
-import 'package:voxxedapp/widgets/main_drawer.dart';
+import 'package:rebloc/rebloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-class ConferenceDetailsViewModel extends ViewModel<AppState> {
+class ConferenceDetailsViewModel {
   final Conference conference;
   final BuiltList<Speaker> speakers;
 
-  ConferenceDetailsViewModel(
-      DispatchFunction dispatch, AppState state, int conferenceId)
+  ConferenceDetailsViewModel(AppState state, int conferenceId)
       : this.conference = state.conferences
             .firstWhere((c) => c.id == conferenceId, orElse: () => null),
         this.speakers = state.speakers.containsKey(conferenceId)
             ? state.speakers[conferenceId]
-            : BuiltList<Speaker>(),
-        super(dispatch);
+            : BuiltList<Speaker>();
 }
 
 class ConferenceDetailScreen extends StatelessWidget {
@@ -136,12 +134,14 @@ class ConferenceDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 4.0),
             child: Row(
               children: [
-                Image.network(
-                  track.imageURL ?? 'http://via.placeholder.com/50x50',
-                  height: 50.0,
-                  width: 50.0,
-                  fit: BoxFit.cover,
-                ),
+//                CachedNetworkImage(
+//                  imageUrl: track.imageURL ?? 'http://via.placeholder.com/50x50',
+//                  placeholder: CircularProgressIndicator(),
+//                  errorWidget: Icon(Icons.error),
+//                  height: 50.0,
+//                  width: 50.0,
+//                  fit: BoxFit.cover,
+//                ),
                 SizedBox(width: 4.0),
                 Text(track.name, style: theme.textTheme.body1),
               ],
@@ -175,9 +175,8 @@ class ConferenceDetailScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: ViewModelSubscriber<AppState, ConferenceDetailsViewModel>(
-          converter: (dispatcher, state) =>
-              ConferenceDetailsViewModel(dispatcher, state, id),
-          builder: (context, viewModel) {
+          converter: (state) => ConferenceDetailsViewModel(state, id),
+          builder: (context, dispatcher, viewModel) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[

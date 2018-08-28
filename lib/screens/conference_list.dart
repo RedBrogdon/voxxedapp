@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
-import 'package:voxxedapp/rebloc.dart';
+import 'package:rebloc/rebloc.dart';
 
-class ConferenceListViewModel extends ViewModel<AppState> {
+class ConferenceListViewModel {
   final List<Conference> conferences;
 
-  ConferenceListViewModel(DispatchFunction dispatch, AppState state)
-      : this.conferences = state.conferences.toList(),
-        super(dispatch);
+  ConferenceListViewModel(AppState state)
+      : this.conferences = state.conferences.toList();
 }
 
 class ConferenceListScreen extends StatefulWidget {
@@ -119,20 +121,25 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
         title: Text('Current Voxxed Days'),
       ),
       body: ViewModelSubscriber<AppState, ConferenceListViewModel>(
-        converter: (dispatch, state) =>
-            ConferenceListViewModel(dispatch, state),
-        builder: (context, viewModel) {
-          return ListView.builder(
-            itemCount: viewModel.conferences.length,
-            itemBuilder: (context, i) => _buildListItem(
-                  context,
-                  viewModel.conferences[i],
-                  () {
-                    int id = viewModel.conferences[i].id;
-                    viewModel.dispatcher(RefreshSpeakersForConferenceAction(id));
-                    Navigator.of(context).pushNamed('/conference/$id');
-                  },
-                ),
+        converter: (state) => ConferenceListViewModel(state),
+        builder: (context, dispatcher, viewModel) {
+          return RefreshIndicator(
+            onRefresh: () {
+              dispatcher(RefreshConferencesAction());
+              return Future.delayed(Duration(seconds:2), () {});
+            },
+            child: ListView.builder(
+              itemCount: viewModel.conferences.length,
+              itemBuilder: (context, i) => _buildListItem(
+                    context,
+                    viewModel.conferences[i],
+                    () {
+                      int id = viewModel.conferences[i].id;
+                      dispatcher(RefreshSpeakersForConferenceAction(id));
+                      Navigator.of(context).pushNamed('/conference/$id');
+                    },
+                  ),
+            ),
           );
         },
       ),

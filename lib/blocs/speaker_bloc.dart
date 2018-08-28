@@ -18,7 +18,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/speaker_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/speaker.dart';
-import 'package:voxxedapp/rebloc.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
 class LoadCachedSpeakersAction extends Action {
@@ -31,29 +31,13 @@ class RefreshSpeakersForConferenceAction extends Action {
   const RefreshSpeakersForConferenceAction(this.conferenceId);
 }
 
-class RefreshedSpeakersForConferenceAction extends Action {
-  final List<Speaker> speakers;
-  final int conferenceId;
-
-  const RefreshedSpeakersForConferenceAction(this.speakers, this.conferenceId);
-}
-
-class LoadedCachedSpeakersAction extends Action {
-  final List<Speaker> speakers;
-
-  const LoadedCachedSpeakersAction(this.speakers);
-}
-
-class SpeakerBloc extends Bloc<AppState> {
+class SpeakerBloc extends SimpleBloc<AppState> {
   final SpeakerRepository repository;
 
   SpeakerBloc({this.repository = const SpeakerRepository()});
 
-  void _refreshSpeakersForConference(
-      DispatchFunction dispatch,
-      AppState state,
-      RefreshSpeakersForConferenceAction action,
-      EventSink<MiddlewareContext<AppState>> sink) {
+  Action _refreshSpeakersForConference(DispatchFunction dispatch,
+      AppState state, RefreshSpeakersForConferenceAction action) {
     String cfpVersion = state.conferences
         .firstWhere((c) => c.id == action.conferenceId, orElse: () => null)
         ?.cfpVersion;
@@ -71,6 +55,8 @@ class SpeakerBloc extends Bloc<AppState> {
         log.warning('refreshSpeakers(${action.conferenceId}) failed.');
       });
     }
+
+    return action;
   }
 
   AppState _refreshedSpeakersForConference(
@@ -85,37 +71,33 @@ class SpeakerBloc extends Bloc<AppState> {
   }
 
   @override
-  Stream<MiddlewareContext<AppState>> applyMiddleware(
-      Stream<MiddlewareContext<AppState>> input) {
-    return input.transform(
-      StreamTransformer.fromHandlers(
-        handleData: (context, sink) {
-          if (context.action is RefreshSpeakersForConferenceAction) {
-            _refreshSpeakersForConference(
-                context.dispatcher, context.state, context.action, sink);
-          }
+  Action middleware(dispatcher, state, action) {
+    if (action is RefreshSpeakersForConferenceAction) {
+      return _refreshSpeakersForConference(dispatcher, state, action);
+    }
 
-          sink.add(context);
-        },
-      ),
-    );
+    return action;
   }
 
   @override
-  Stream<Accumulator<AppState>> applyReducer(
-      Stream<Accumulator<AppState>> input) {
-    return input.transform(
-      StreamTransformer.fromHandlers(
-        handleData: (accumulator, sink) {
-          AppState newState = accumulator.state;
-          if (accumulator.action is RefreshedSpeakersForConferenceAction) {
-            newState = _refreshedSpeakersForConference(
-                accumulator.state, accumulator.action);
-          }
+  AppState reducer(state, action) {
+    if (action is RefreshedSpeakersForConferenceAction) {
+      return _refreshedSpeakersForConference(state, action);
+    }
 
-          sink.add(accumulator.copyWith(newState));
-        },
-      ),
-    );
+    return state;
   }
+}
+
+class RefreshedSpeakersForConferenceAction extends Action {
+  final List<Speaker> speakers;
+  final int conferenceId;
+
+  const RefreshedSpeakersForConferenceAction(this.speakers, this.conferenceId);
+}
+
+class LoadedCachedSpeakersAction extends Action {
+  final List<Speaker> speakers;
+
+  const LoadedCachedSpeakersAction(this.speakers);
 }

@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:async';
-
 import 'package:voxxedapp/models/app_state.dart';
-import 'package:voxxedapp/rebloc.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/util/logger.dart';
 
-class LoggerBloc extends Bloc<AppState> {
+class LoggerBloc extends SimpleBloc<AppState> {
   @override
-  Stream<MiddlewareContext<AppState>> applyMiddleware(
-      Stream<MiddlewareContext<AppState>> input) {
-    return input.transform(
-      StreamTransformer.fromHandlers(
-        handleData: (context, sink) {
-          log.info('ACTION: ${context.action.runtimeType}');
-          sink.add(context);
-        },
-      ),
-    );
+  Action middleware(store, state, action) {
+    log.info('ACTION: ${action.runtimeType}');
+    return action;
   }
 }
