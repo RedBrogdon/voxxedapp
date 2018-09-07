@@ -45,6 +45,9 @@ class AppStateBloc extends SimpleBloc<AppState> {
       } else {
         dispatcher(LoadAppStateFailedAction());
       }
+    }).catchError((e, s) {
+      log.warning('Error while loading app state from disk: $e');
+      dispatcher(LoadAppStateFailedAction());
     });
   }
 
@@ -77,7 +80,14 @@ class AppStateBloc extends SimpleBloc<AppState> {
     if (action is RefreshConferenceFailedAction) {
       if (!state.readyToGo) {
         log.severe('Failed to refresh conferences with no cached data!');
+        return state.rebuild((b) => b..willNeverBeReadyToGo = true);
       }
+    }
+
+    if (action is AppStateLoadedAction) {
+      return state.rebuild((b) => b
+        ..readyToGo = true
+        ..willNeverBeReadyToGo = false);
     }
 
     return state;

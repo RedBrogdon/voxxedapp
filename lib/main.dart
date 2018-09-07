@@ -42,8 +42,11 @@ class VoxxedDayApp extends StatelessWidget {
   );
 
   VoxxedDayApp() {
-    store.dispatcher(new LoadCachedConferencesAction());
-    store.dispatcher(new RefreshConferencesAction());
+    // This will attempt to load a previously-saved app state from disk. A
+    // request to the server for the list of conferences will automatically
+    // follow. If both fail, the app can't run, and will halt on the splash
+    // screen with a warning message.
+    store.dispatcher(new LoadAppStateAction());
   }
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {

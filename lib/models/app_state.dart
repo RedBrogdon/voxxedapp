@@ -31,6 +31,7 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
   // TODO(redbrogdon): Replace these with some kind of enum.
   bool get readyToGo;
+
   bool get willNeverBeReadyToGo;
 
   AppState._();
@@ -38,10 +39,9 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
   factory AppState([updates(AppStateBuilder b)]) = _$AppState;
 
   factory AppState.initialState() {
-    return AppState(
-      (b) => b
-        .._selectedConferenceId = 0
-        ..readyToGo = false,
-    );
+    return AppState((b) => b
+      .._selectedConferenceId = 0
+      ..readyToGo = false
+      .._willNeverBeReadyToGo = false);
   }
 }
