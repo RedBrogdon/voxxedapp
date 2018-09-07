@@ -1,17 +1,3 @@
-// Copyright 2018, Devoxx
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'app_state.dart';
@@ -23,10 +9,93 @@ part of 'app_state.dart';
 // ignore_for_file: always_put_control_body_on_new_line
 // ignore_for_file: annotate_overrides
 // ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_catches_without_on_clauses
 // ignore_for_file: avoid_returning_this
+// ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_expression_function_bodies
 // ignore_for_file: sort_constructors_first
+// ignore_for_file: unnecessary_const
+// ignore_for_file: unnecessary_new
+// ignore_for_file: test_types_in_equals
+
+Serializer<AppState> _$appStateSerializer = new _$AppStateSerializer();
+
+class _$AppStateSerializer implements StructuredSerializer<AppState> {
+  @override
+  final Iterable<Type> types = const [AppState, _$AppState];
+  @override
+  final String wireName = 'AppState';
+
+  @override
+  Iterable serialize(Serializers serializers, AppState object,
+      {FullType specifiedType = FullType.unspecified}) {
+    final result = <Object>[
+      'conferences',
+      serializers.serialize(object.conferences,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(Conference)])),
+      'speakers',
+      serializers.serialize(object.speakers,
+          specifiedType: const FullType(BuiltMap, const [
+            const FullType(int),
+            const FullType(BuiltList, const [const FullType(Speaker)])
+          ])),
+      'selectedConferenceId',
+      serializers.serialize(object.selectedConferenceId,
+          specifiedType: const FullType(int)),
+      'readyToGo',
+      serializers.serialize(object.readyToGo,
+          specifiedType: const FullType(bool)),
+      'willNeverBeReadyToGo',
+      serializers.serialize(object.willNeverBeReadyToGo,
+          specifiedType: const FullType(bool)),
+    ];
+
+    return result;
+  }
+
+  @override
+  AppState deserialize(Serializers serializers, Iterable serialized,
+      {FullType specifiedType = FullType.unspecified}) {
+    final result = new AppStateBuilder();
+
+    final iterator = serialized.iterator;
+    while (iterator.moveNext()) {
+      final key = iterator.current as String;
+      iterator.moveNext();
+      final dynamic value = iterator.current;
+      switch (key) {
+        case 'conferences':
+          result.conferences.replace(serializers.deserialize(value,
+              specifiedType: const FullType(
+                  BuiltList, const [const FullType(Conference)])) as BuiltList);
+          break;
+        case 'speakers':
+          result.speakers.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltMap, const [
+                const FullType(int),
+                const FullType(BuiltList, const [const FullType(Speaker)])
+              ])) as BuiltMap);
+          break;
+        case 'selectedConferenceId':
+          result.selectedConferenceId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
+          break;
+        case 'readyToGo':
+          result.readyToGo = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool;
+          break;
+        case 'willNeverBeReadyToGo':
+          result.willNeverBeReadyToGo = serializers.deserialize(value,
+              specifiedType: const FullType(bool)) as bool;
+          break;
+      }
+    }
+
+    return result.build();
+  }
+}
 
 class _$AppState extends AppState {
   @override
@@ -35,18 +104,36 @@ class _$AppState extends AppState {
   final BuiltMap<int, BuiltList<Speaker>> speakers;
   @override
   final int selectedConferenceId;
+  @override
+  final bool readyToGo;
+  @override
+  final bool willNeverBeReadyToGo;
 
   factory _$AppState([void updates(AppStateBuilder b)]) =>
       (new AppStateBuilder()..update(updates)).build();
 
-  _$AppState._({this.conferences, this.speakers, this.selectedConferenceId})
+  _$AppState._(
+      {this.conferences,
+      this.speakers,
+      this.selectedConferenceId,
+      this.readyToGo,
+      this.willNeverBeReadyToGo})
       : super._() {
-    if (conferences == null)
+    if (conferences == null) {
       throw new BuiltValueNullFieldError('AppState', 'conferences');
-    if (speakers == null)
+    }
+    if (speakers == null) {
       throw new BuiltValueNullFieldError('AppState', 'speakers');
-    if (selectedConferenceId == null)
+    }
+    if (selectedConferenceId == null) {
       throw new BuiltValueNullFieldError('AppState', 'selectedConferenceId');
+    }
+    if (readyToGo == null) {
+      throw new BuiltValueNullFieldError('AppState', 'readyToGo');
+    }
+    if (willNeverBeReadyToGo == null) {
+      throw new BuiltValueNullFieldError('AppState', 'willNeverBeReadyToGo');
+    }
   }
 
   @override
@@ -57,18 +144,24 @@ class _$AppState extends AppState {
   AppStateBuilder toBuilder() => new AppStateBuilder()..replace(this);
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    if (other is! AppState) return false;
-    return conferences == other.conferences &&
+    return other is AppState &&
+        conferences == other.conferences &&
         speakers == other.speakers &&
-        selectedConferenceId == other.selectedConferenceId;
+        selectedConferenceId == other.selectedConferenceId &&
+        readyToGo == other.readyToGo &&
+        willNeverBeReadyToGo == other.willNeverBeReadyToGo;
   }
 
   @override
   int get hashCode {
-    return $jf($jc($jc($jc(0, conferences.hashCode), speakers.hashCode),
-        selectedConferenceId.hashCode));
+    return $jf($jc(
+        $jc(
+            $jc($jc($jc(0, conferences.hashCode), speakers.hashCode),
+                selectedConferenceId.hashCode),
+            readyToGo.hashCode),
+        willNeverBeReadyToGo.hashCode));
   }
 
   @override
@@ -76,7 +169,9 @@ class _$AppState extends AppState {
     return (newBuiltValueToStringHelper('AppState')
           ..add('conferences', conferences)
           ..add('speakers', speakers)
-          ..add('selectedConferenceId', selectedConferenceId))
+          ..add('selectedConferenceId', selectedConferenceId)
+          ..add('readyToGo', readyToGo)
+          ..add('willNeverBeReadyToGo', willNeverBeReadyToGo))
         .toString();
   }
 }
@@ -101,6 +196,15 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
   set selectedConferenceId(int selectedConferenceId) =>
       _$this._selectedConferenceId = selectedConferenceId;
 
+  bool _readyToGo;
+  bool get readyToGo => _$this._readyToGo;
+  set readyToGo(bool readyToGo) => _$this._readyToGo = readyToGo;
+
+  bool _willNeverBeReadyToGo;
+  bool get willNeverBeReadyToGo => _$this._willNeverBeReadyToGo;
+  set willNeverBeReadyToGo(bool willNeverBeReadyToGo) =>
+      _$this._willNeverBeReadyToGo = willNeverBeReadyToGo;
+
   AppStateBuilder();
 
   AppStateBuilder get _$this {
@@ -108,6 +212,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
       _conferences = _$v.conferences?.toBuilder();
       _speakers = _$v.speakers?.toBuilder();
       _selectedConferenceId = _$v.selectedConferenceId;
+      _readyToGo = _$v.readyToGo;
+      _willNeverBeReadyToGo = _$v.willNeverBeReadyToGo;
       _$v = null;
     }
     return this;
@@ -115,7 +221,9 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
 
   @override
   void replace(AppState other) {
-    if (other == null) throw new ArgumentError.notNull('other');
+    if (other == null) {
+      throw new ArgumentError.notNull('other');
+    }
     _$v = other as _$AppState;
   }
 
@@ -132,7 +240,9 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
           new _$AppState._(
               conferences: conferences.build(),
               speakers: speakers.build(),
-              selectedConferenceId: selectedConferenceId);
+              selectedConferenceId: selectedConferenceId,
+              readyToGo: readyToGo,
+              willNeverBeReadyToGo: willNeverBeReadyToGo);
     } catch (_) {
       String _$failedField;
       try {

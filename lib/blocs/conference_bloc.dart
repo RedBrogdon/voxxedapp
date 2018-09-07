@@ -18,21 +18,9 @@ import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
-import 'package:voxxedapp/util/logger.dart';
 
-class LoadCachedConferencesAction extends Action {
-  const LoadCachedConferencesAction();
-}
-
-class RefreshConferencesAction extends Action {
-  const RefreshConferencesAction();
-}
-
-class RefreshedConferencesAction extends Action {
-  final List<Conference> conferences;
-
-  const RefreshedConferencesAction(this.conferences);
-}
+/// Manage cached conference data:
+class LoadCachedConferencesAction extends Action {}
 
 class LoadedCachedConferencesAction extends Action {
   final List<Conference> conferences;
@@ -40,6 +28,35 @@ class LoadedCachedConferencesAction extends Action {
   const LoadedCachedConferencesAction(this.conferences);
 }
 
+class LoadCachedConferencesFailedAction extends Action {}
+
+/// Refresh the entire conference list (partial data for each conference):
+class RefreshConferencesAction extends Action {}
+
+class RefreshedConferencesAction extends Action {
+  final List<Conference> conferences;
+
+  const RefreshedConferencesAction(this.conferences);
+}
+
+class RefreshConferencesFailedAction extends Action {}
+
+/// Refresh a single conference:
+class RefreshConferenceAction extends Action {
+  final int id;
+  const RefreshConferenceAction(this.id);
+}
+
+class RefreshedConferenceAction extends Action {
+  final conferences;
+
+  const RefreshedConferenceAction(this.conferences);
+}
+
+class RefreshConferenceFailedAction extends Action {}
+
+
+/// Manages the loading and caching of conference records.
 class ConferenceBloc extends SimpleBloc<AppState> {
   final ConferenceRepository repository;
 
@@ -48,10 +65,9 @@ class ConferenceBloc extends SimpleBloc<AppState> {
   Action _loadCachedConferences(DispatchFunction dispatcher, AppState state,
       LoadCachedConferencesAction action) {
     repository.loadCachedConferences().then((list) {
-      log.info('Adding ${list.length} cached items to stream.');
       dispatcher(new LoadedCachedConferencesAction(list.toList()));
     }).catchError((e, s) {
-      log.warning('_loadCachedConferences failed.');
+      dispatcher(LoadCachedConferencesFailedAction());
     });
 
     return action;
@@ -61,9 +77,8 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       RefreshConferencesAction action) {
     repository.refreshConferences().then((newList) {
       dispatcher(RefreshedConferencesAction(newList.toList()));
-      log.info('Refreshed ${newList?.length} conferences.');
     }).catchError((_) {
-      log.warning('refreshConferences() failed.');
+      dispatcher(RefreshConferencesFailedAction());
     });
 
     return action;

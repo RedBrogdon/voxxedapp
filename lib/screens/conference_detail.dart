@@ -20,6 +20,7 @@ import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:voxxedapp/widgets/main_drawer.dart';
 
 class ConferenceDetailsViewModel {
   final Conference conference;
@@ -134,14 +135,18 @@ class ConferenceDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 4.0),
             child: Row(
               children: [
-//                CachedNetworkImage(
-//                  imageUrl: track.imageURL ?? 'http://via.placeholder.com/50x50',
-//                  placeholder: CircularProgressIndicator(),
-//                  errorWidget: Icon(Icons.error),
-//                  height: 50.0,
-//                  width: 50.0,
-//                  fit: BoxFit.cover,
-//                ),
+                SizedBox(
+                  height: 50.0,
+                  width: 50.0,
+                  child: CachedNetworkImage(
+                    imageUrl: track.imageURL ?? 'http://via.placeholder.com/50x50',
+                    placeholder: CircularProgressIndicator(),
+                    errorWidget: Icon(Icons.error),
+                    height: 50.0,
+                    width: 50.0,
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 SizedBox(width: 4.0),
                 Text(track.name, style: theme.textTheme.body1),
               ],
@@ -173,6 +178,7 @@ class ConferenceDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
+      drawer: MainDrawer(),
       body: SingleChildScrollView(
         child: ViewModelSubscriber<AppState, ConferenceDetailsViewModel>(
           converter: (state) => ConferenceDetailsViewModel(state, id),

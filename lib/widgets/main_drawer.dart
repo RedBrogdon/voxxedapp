@@ -16,25 +16,60 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class MainDrawer extends StatelessWidget {
+  const MainDrawer();
+
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text('Drawer Header'),
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'VoxxedDays',
+                    style: theme.textTheme.display1.copyWith(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'From developers, For developers',
+                    style: theme.textTheme.subhead.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.black,
             ),
           ),
           ListTile(
-            title: Text('Item 1'),
-            onTap: () {},
+            leading: Icon(Icons.calendar_today),
+            title: Text('Select a conference'),
+            onTap: () async {
+              // Show the conference list to get a selection, then navigate to
+              // it.
+              int id = await Navigator.of(context).pushNamed('/conferences');
+              Navigator.of(context).pushReplacementNamed('/conference/$id');
+            },
           ),
           ListTile(
-            title: Text('Item 2'),
-            onTap: () {},
+            leading: Icon(Icons.person),
+            title: Text('Speaker list'),
+            onTap: () {
+              Navigator.of(context).pushNamed('/speakers');
+            },
           ),
         ],
       ),

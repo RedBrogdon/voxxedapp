@@ -14,23 +14,34 @@
 
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
+import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 
 part 'app_state.g.dart';
 
 abstract class AppState implements Built<AppState, AppStateBuilder> {
+  static Serializer<AppState> get serializer => _$appStateSerializer;
+
   BuiltList<Conference> get conferences;
 
   BuiltMap<int, BuiltList<Speaker>> get speakers;
 
   int get selectedConferenceId;
 
+  // TODO(redbrogdon): Replace these with some kind of enum.
+  bool get readyToGo;
+  bool get willNeverBeReadyToGo;
+
   AppState._();
 
   factory AppState([updates(AppStateBuilder b)]) = _$AppState;
 
   factory AppState.initialState() {
-    return AppState((b) => b.._selectedConferenceId = 0);
+    return AppState(
+      (b) => b
+        .._selectedConferenceId = 0
+        ..readyToGo = false,
+    );
   }
 }

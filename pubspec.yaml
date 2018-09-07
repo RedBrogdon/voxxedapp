@@ -1,24 +1,26 @@
 name: voxxedapp
 description: Displays details about upcoming Voxxed Days
 
+environment:
+  sdk: ^2.0.0
+
 dependencies:
   flutter:
     sdk: flutter
 
   built_collection: '>=2.0.0 <4.0.0'
-  built_value: ^5.5.1
+  built_value: ^6.1.2
   cached_network_image: ^0.4.1
   logging: ^0.11.3+1
   path_provider: ^0.4.1
-  rebloc: ^0.0.3
-  rxdart: ^0.18.1
+  rebloc: ^0.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^0.8.0
-  built_value_generator: ^5.5.0
+  build_runner: '>=0.9.0 <0.11.0'
+  built_value_generator: ^6.1.2
 
 flutter:
   uses-material-design: true

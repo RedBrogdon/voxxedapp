@@ -1,17 +1,3 @@
-// Copyright 2018, Devoxx
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'speaker.dart';
@@ -23,10 +9,15 @@ part of 'speaker.dart';
 // ignore_for_file: always_put_control_body_on_new_line
 // ignore_for_file: annotate_overrides
 // ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_catches_without_on_clauses
 // ignore_for_file: avoid_returning_this
+// ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_expression_function_bodies
 // ignore_for_file: sort_constructors_first
+// ignore_for_file: unnecessary_const
+// ignore_for_file: unnecessary_new
+// ignore_for_file: test_types_in_equals
 
 Serializer<Speaker> _$speakerSerializer = new _$SpeakerSerializer();
 
@@ -38,7 +29,7 @@ class _$SpeakerSerializer implements StructuredSerializer<Speaker> {
 
   @override
   Iterable serialize(Serializers serializers, Speaker object,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'uuid',
       serializers.serialize(object.uuid, specifiedType: const FullType(String)),
@@ -97,7 +88,7 @@ class _$SpeakerSerializer implements StructuredSerializer<Speaker> {
 
   @override
   Speaker deserialize(Serializers serializers, Iterable serialized,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = new SpeakerBuilder();
 
     final iterator = serialized.iterator;
@@ -190,11 +181,15 @@ class _$Speaker extends Speaker {
       this.avatarURL,
       this.twitter})
       : super._() {
-    if (uuid == null) throw new BuiltValueNullFieldError('Speaker', 'uuid');
-    if (firstName == null)
+    if (uuid == null) {
+      throw new BuiltValueNullFieldError('Speaker', 'uuid');
+    }
+    if (firstName == null) {
       throw new BuiltValueNullFieldError('Speaker', 'firstName');
-    if (lastName == null)
+    }
+    if (lastName == null) {
       throw new BuiltValueNullFieldError('Speaker', 'lastName');
+    }
   }
 
   @override
@@ -205,10 +200,10 @@ class _$Speaker extends Speaker {
   SpeakerBuilder toBuilder() => new SpeakerBuilder()..replace(this);
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    if (other is! Speaker) return false;
-    return uuid == other.uuid &&
+    return other is Speaker &&
+        uuid == other.uuid &&
         firstName == other.firstName &&
         lastName == other.lastName &&
         lang == other.lang &&
@@ -323,7 +318,9 @@ class SpeakerBuilder implements Builder<Speaker, SpeakerBuilder> {
 
   @override
   void replace(Speaker other) {
-    if (other == null) throw new ArgumentError.notNull('other');
+    if (other == null) {
+      throw new ArgumentError.notNull('other');
+    }
     _$v = other as _$Speaker;
   }
 

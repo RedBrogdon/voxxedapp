@@ -16,11 +16,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
-import 'package:rebloc/rebloc.dart';
 
 class ConferenceListViewModel {
   final List<Conference> conferences;
@@ -126,7 +126,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
           return RefreshIndicator(
             onRefresh: () {
               dispatcher(RefreshConferencesAction());
-              return Future.delayed(Duration(seconds:2), () {});
+              return Future.delayed(Duration(seconds: 2), () {});
             },
             child: ListView.builder(
               itemCount: viewModel.conferences.length,
@@ -136,7 +136,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
                     () {
                       int id = viewModel.conferences[i].id;
                       dispatcher(RefreshSpeakersForConferenceAction(id));
-                      Navigator.of(context).pushNamed('/conference/$id');
+                      Navigator.of(context).pop(id);
                     },
                   ),
             ),
