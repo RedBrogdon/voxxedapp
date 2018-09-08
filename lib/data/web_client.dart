@@ -24,6 +24,7 @@ import 'package:voxxedapp/util/logger.dart';
 
 class WebClient {
   static const _requestTimeoutDuration = Duration(seconds: 10);
+  static const maxAttempts = 3;
 
   const WebClient();
 
@@ -37,14 +38,20 @@ class WebClient {
       'https://$cfpVersion.confinabox.com/api/conferences/$cfpVersion/speakers';
 
   Future<BuiltList<Conference>> fetchConferences() async {
-    final response = await http
-        .get(createAllConferencesUrl())
-        .timeout(_requestTimeoutDuration)
-        .catchError((_) {
-      String msg = 'Timed out fetching conferences.';
-      log.warning(msg);
-      throw Exception(msg);
-    });
+    int attempts = 0;
+    http.Response response;
+
+    do {
+      attempts++;
+      response = await http
+          .get(createAllConferencesUrl())
+          .timeout(_requestTimeoutDuration)
+          .catchError((_) {
+        String msg = 'Timed out fetching conferences.';
+        log.warning(msg);
+        throw Exception(msg);
+      });
+    } while (response.statusCode == 500 && attempts < maxAttempts);
 
     if (response.statusCode != 200) {
       final msg = 'Failed to fetch conferences, status: ${response.statusCode}';

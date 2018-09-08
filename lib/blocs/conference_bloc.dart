@@ -25,7 +25,7 @@ class RefreshConferencesAction extends Action {}
 class RefreshedConferencesAction extends Action {
   final List<Conference> conferences;
 
-  const RefreshedConferencesAction(this.conferences);
+  RefreshedConferencesAction(this.conferences);
 }
 
 class RefreshConferencesFailedAction extends Action {}
@@ -34,13 +34,13 @@ class RefreshConferencesFailedAction extends Action {}
 class RefreshConferenceAction extends Action {
   final int id;
 
-  const RefreshConferenceAction(this.id);
+  RefreshConferenceAction(this.id);
 }
 
 class RefreshedConferenceAction extends Action {
   final conference;
 
-  const RefreshedConferenceAction(this.conference);
+  RefreshedConferenceAction(this.conference);
 }
 
 class RefreshConferenceFailedAction extends Action {}
@@ -54,7 +54,12 @@ class ConferenceBloc extends SimpleBloc<AppState> {
   Action _refreshConferences(DispatchFunction dispatcher, AppState state,
       RefreshConferencesAction action) {
     repository.loadConferenceList().then((newList) {
-      dispatcher(RefreshedConferencesAction(newList.toList()));
+      final action = RefreshedConferencesAction(newList.toList());
+
+      for (Conference conf in newList) {
+        action.afterward(RefreshConferenceAction(conf.id));
+      }
+      dispatcher(action);
     }).catchError((e, s) {
       dispatcher(RefreshConferencesFailedAction());
     });
@@ -88,6 +93,11 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     // any new data that was just loaded.
     final oldConfs = action.conferences.where((c) => oldIds.contains(c.id));
 
+    // If the old selected conference is no longer around, pick the first one as
+    // a replacement.
+    final selectedConferenceId = (newIds.contains(state.selectedConferenceId)) ?
+        state.selectedConferenceId : newIds.first;
+
     return state.rebuild((b) {
       for (int staleId in staleIds) {
         b.conferences.remove(staleId);
@@ -104,6 +114,7 @@ class ConferenceBloc extends SimpleBloc<AppState> {
           ..imageURL = oldConf.imageURL
           ..website = oldConf.website);
       }
+      b.selectedConferenceId = selectedConferenceId;
     });
   }
 

@@ -29,7 +29,7 @@ class LoadAppStateFailedAction extends Action {}
 class AppStateLoadedAction extends Action {
   final AppState state;
 
-  const AppStateLoadedAction(this.state);
+  AppStateLoadedAction(this.state);
 }
 
 /// Manages the loading and caching of conference records.
@@ -64,7 +64,8 @@ class AppStateBloc extends SimpleBloc<AppState> {
     } else if (action is RefreshedConferenceAction ||
         action is RefreshedConferencesAction) {
       // if conference data has been refreshed, the app state should be cached.
-      dispatcher(SaveAppStateAction());
+      //dispatcher(SaveAppStateAction());
+      action.afterward(SaveAppStateAction());
     }
 
     return action;
@@ -85,7 +86,7 @@ class AppStateBloc extends SimpleBloc<AppState> {
     }
 
     if (action is AppStateLoadedAction) {
-      return state.rebuild((b) => b
+      return action.state.rebuild((b) => b
         ..readyToGo = true
         ..willNeverBeReadyToGo = false);
     }
