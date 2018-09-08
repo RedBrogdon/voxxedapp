@@ -19,17 +19,6 @@ import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
 
-/// Manage cached conference data:
-class LoadCachedConferencesAction extends Action {}
-
-class LoadedCachedConferencesAction extends Action {
-  final List<Conference> conferences;
-
-  const LoadedCachedConferencesAction(this.conferences);
-}
-
-class LoadCachedConferencesFailedAction extends Action {}
-
 /// Refresh the entire conference list (partial data for each conference):
 class RefreshConferencesAction extends Action {}
 
@@ -44,17 +33,17 @@ class RefreshConferencesFailedAction extends Action {}
 /// Refresh a single conference:
 class RefreshConferenceAction extends Action {
   final int id;
+
   const RefreshConferenceAction(this.id);
 }
 
 class RefreshedConferenceAction extends Action {
-  final conferences;
+  final conference;
 
-  const RefreshedConferenceAction(this.conferences);
+  const RefreshedConferenceAction(this.conference);
 }
 
 class RefreshConferenceFailedAction extends Action {}
-
 
 /// Manages the loading and caching of conference records.
 class ConferenceBloc extends SimpleBloc<AppState> {
@@ -62,53 +51,78 @@ class ConferenceBloc extends SimpleBloc<AppState> {
 
   ConferenceBloc({this.repository = const ConferenceRepository()});
 
-  Action _loadCachedConferences(DispatchFunction dispatcher, AppState state,
-      LoadCachedConferencesAction action) {
-    repository.loadCachedConferences().then((list) {
-      dispatcher(new LoadedCachedConferencesAction(list.toList()));
-    }).catchError((e, s) {
-      dispatcher(LoadCachedConferencesFailedAction());
-    });
-
-    return action;
-  }
-
   Action _refreshConferences(DispatchFunction dispatcher, AppState state,
       RefreshConferencesAction action) {
-    repository.refreshConferences().then((newList) {
+    repository.loadConferenceList().then((newList) {
       dispatcher(RefreshedConferencesAction(newList.toList()));
-    }).catchError((_) {
+    }).catchError((e, s) {
       dispatcher(RefreshConferencesFailedAction());
     });
 
     return action;
   }
 
-  AppState _loadedCachedConferences(
-      AppState state, LoadedCachedConferencesAction action) {
-    AppState newState =
-        state.rebuild((b) => b..conferences.replace(action.conferences));
-    return newState
-        .rebuild((b) => b..speakers.replace(_reconcileSpeakerLists(newState)));
+  Action _refreshConference(DispatchFunction dispatcher, AppState state,
+      RefreshConferenceAction action) {
+    repository.loadConference(action.id).then((conference) {
+      dispatcher(RefreshedConferenceAction(conference));
+    }).catchError((e, s) {
+      dispatcher(RefreshConferencesFailedAction());
+    });
+
+    return action;
   }
 
   AppState _refreshedConferences(
       AppState state, RefreshedConferencesAction action) {
-    AppState newState =
-        state.rebuild((b) => b..conferences.replace(action.conferences));
-    return newState
-        .rebuild((b) => b..speakers.replace(_reconcileSpeakerLists(newState)));
+    final oldIds = state.conferences.keys.toList();
+    final newIds = action.conferences.map((c) => c.id);
+
+    // Conferences currently in the app state that shouldn't be.
+    final staleIds = oldIds.where((id) => !newIds.contains(id));
+
+    // Conferences that are new, and aren't in the app state.
+    final newConfs = action.conferences.where((c) => !oldIds.contains(c.id));
+
+    // Conferences that are already in the app state, and should be updated with
+    // any new data that was just loaded.
+    final oldConfs = action.conferences.where((c) => oldIds.contains(c.id));
+
+    return state.rebuild((b) {
+      for (int staleId in staleIds) {
+        b.conferences.remove(staleId);
+      }
+      for (Conference newConf in newConfs) {
+        b.conferences[newConf.id] = newConf;
+      }
+      for (Conference oldConf in oldConfs) {
+        b.conferences[oldConf.id].rebuild((cb) => cb
+          ..name = oldConf.name
+          ..eventType = oldConf.eventType
+          ..fromDate = oldConf.fromDate
+          ..endDate = oldConf.endDate
+          ..imageURL = oldConf.imageURL
+          ..website = oldConf.website);
+      }
+    });
+  }
+
+  AppState _refreshedConference(
+      AppState state, RefreshedConferenceAction action) {
+    return state.rebuild(
+        (b) => b..conferences[action.conference.id] = action.conference);
   }
 
   BuiltMap<int, BuiltList<Speaker>> _reconcileSpeakerLists(AppState state) {
     // IDs that are no longer in the list of conferences, so their corresponding
     // speaker lists should be removed.
     final staleIds = state.speakers.keys.toList()
-      ..removeWhere((id) => state.conferences.any((c) => c.id == id));
+      ..removeWhere((id) => state.conferences.containsKey(id));
 
     // New conference IDs for which speaker lists haven't yet been created.
-    final newIds = state.conferences.map((c) => c.id).toList()
-      ..removeWhere((id) => state.speakers.containsKey(id));
+    final newIds = state.conferences.keys
+        .where((id) => !state.speakers.containsKey(id))
+        .toList();
 
     // Add the new stuff and remove the stale.
     return state.speakers.rebuild((b) {
@@ -121,10 +135,10 @@ class ConferenceBloc extends SimpleBloc<AppState> {
 
   @override
   Action middleware(dispatcher, state, action) {
-    if (action is LoadCachedConferencesAction) {
-      _loadCachedConferences(dispatcher, state, action);
-    } else if (action is RefreshConferencesAction) {
-      _refreshConferences(dispatcher, state, action);
+    if (action is RefreshConferencesAction) {
+      return _refreshConferences(dispatcher, state, action);
+    } else if (action is RefreshConferenceAction) {
+      return _refreshConference(dispatcher, state, action);
     }
 
     return action;
@@ -132,10 +146,10 @@ class ConferenceBloc extends SimpleBloc<AppState> {
 
   @override
   AppState reducer(state, action) {
-    if (action is LoadedCachedConferencesAction) {
-      return _loadedCachedConferences(state, action);
-    } else if (action is RefreshedConferencesAction) {
+    if (action is RefreshedConferencesAction) {
       return _refreshedConferences(state, action);
+    } else if (action is RefreshedConferenceAction) {
+      return _refreshedConference(state, action);
     }
 
     return state;

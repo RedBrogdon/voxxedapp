@@ -77,7 +77,7 @@ class AppStateBloc extends SimpleBloc<AppState> {
       return state.rebuild((b) => b..readyToGo = true);
     }
 
-    if (action is RefreshConferenceFailedAction) {
+    if (action is RefreshConferencesFailedAction) {
       if (!state.readyToGo) {
         log.severe('Failed to refresh conferences with no cached data!');
         return state.rebuild((b) => b..willNeverBeReadyToGo = true);

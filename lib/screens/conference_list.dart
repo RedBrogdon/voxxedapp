@@ -26,7 +26,7 @@ class ConferenceListViewModel {
   final List<Conference> conferences;
 
   ConferenceListViewModel(AppState state)
-      : this.conferences = state.conferences.toList();
+      : this.conferences = state.conferences.values.toList();
 }
 
 class ConferenceListScreen extends StatefulWidget {
@@ -135,7 +135,7 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
                     viewModel.conferences[i],
                     () {
                       int id = viewModel.conferences[i].id;
-                      dispatcher(RefreshSpeakersForConferenceAction(id));
+                      //dispatcher(RefreshSpeakersForConferenceAction(id));
                       Navigator.of(context).pop(id);
                     },
                   ),

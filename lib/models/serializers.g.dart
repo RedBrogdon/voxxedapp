@@ -28,15 +28,6 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Speaker.serializer)
       ..add(Track.serializer)
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(Conference)]),
-          () => new ListBuilder<Conference>())
-      ..addBuilderFactory(
-          const FullType(BuiltMap, const [
-            const FullType(int),
-            const FullType(BuiltList, const [const FullType(Speaker)])
-          ]),
-          () => new MapBuilder<int, BuiltList<Speaker>>())
-      ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Track)]),
           () => new ListBuilder<Track>())
       ..addBuilderFactory(
@@ -44,5 +35,15 @@ Serializers _$serializers = (new Serializers().toBuilder()
           () => new ListBuilder<Language>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(SessionType)]),
-          () => new ListBuilder<SessionType>()))
+          () => new ListBuilder<SessionType>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap,
+              const [const FullType(int), const FullType(Conference)]),
+          () => new MapBuilder<int, Conference>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(int),
+            const FullType(BuiltList, const [const FullType(Speaker)])
+          ]),
+          () => new MapBuilder<int, BuiltList<Speaker>>()))
     .build();

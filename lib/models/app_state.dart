@@ -23,7 +23,8 @@ part 'app_state.g.dart';
 abstract class AppState implements Built<AppState, AppStateBuilder> {
   static Serializer<AppState> get serializer => _$appStateSerializer;
 
-  BuiltList<Conference> get conferences;
+  // TODO(redbrogdon): Make this a BuiltMap.
+  BuiltMap<int, Conference> get conferences;
 
   BuiltMap<int, BuiltList<Speaker>> get speakers;
 

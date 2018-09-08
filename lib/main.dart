@@ -37,7 +37,7 @@ class VoxxedDayApp extends StatelessWidget {
       LoggerBloc(),
       AppStateBloc(),
       ConferenceBloc(),
-      SpeakerBloc(),
+//      SpeakerBloc(),
     ],
   );
 

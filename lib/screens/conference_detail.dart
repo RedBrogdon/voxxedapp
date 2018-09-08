@@ -27,8 +27,7 @@ class ConferenceDetailsViewModel {
   final BuiltList<Speaker> speakers;
 
   ConferenceDetailsViewModel(AppState state, int conferenceId)
-      : this.conference = state.conferences
-            .firstWhere((c) => c.id == conferenceId, orElse: () => null),
+      : this.conference = state.conferences[conferenceId],
         this.speakers = state.speakers.containsKey(conferenceId)
             ? state.speakers[conferenceId]
             : BuiltList<Speaker>();

@@ -22,4 +22,10 @@ class LoggerBloc extends SimpleBloc<AppState> {
     log.info('ACTION: ${action.runtimeType}');
     return action;
   }
+
+  @override
+  AppState reducer(AppState state, Action action) {
+    log.info('REDUCING: ${action.runtimeType}');
+    return state;
+  }
 }

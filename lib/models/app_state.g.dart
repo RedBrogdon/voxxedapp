@@ -33,8 +33,8 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
     final result = <Object>[
       'conferences',
       serializers.serialize(object.conferences,
-          specifiedType:
-              const FullType(BuiltList, const [const FullType(Conference)])),
+          specifiedType: const FullType(BuiltMap,
+              const [const FullType(int), const FullType(Conference)])),
       'speakers',
       serializers.serialize(object.speakers,
           specifiedType: const FullType(BuiltMap, const [
@@ -68,8 +68,10 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
       switch (key) {
         case 'conferences':
           result.conferences.replace(serializers.deserialize(value,
-              specifiedType: const FullType(
-                  BuiltList, const [const FullType(Conference)])) as BuiltList);
+              specifiedType: const FullType(BuiltMap, const [
+                const FullType(int),
+                const FullType(Conference)
+              ])) as BuiltMap);
           break;
         case 'speakers':
           result.speakers.replace(serializers.deserialize(value,
@@ -99,7 +101,7 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
 
 class _$AppState extends AppState {
   @override
-  final BuiltList<Conference> conferences;
+  final BuiltMap<int, Conference> conferences;
   @override
   final BuiltMap<int, BuiltList<Speaker>> speakers;
   @override
@@ -179,10 +181,10 @@ class _$AppState extends AppState {
 class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
   _$AppState _$v;
 
-  ListBuilder<Conference> _conferences;
-  ListBuilder<Conference> get conferences =>
-      _$this._conferences ??= new ListBuilder<Conference>();
-  set conferences(ListBuilder<Conference> conferences) =>
+  MapBuilder<int, Conference> _conferences;
+  MapBuilder<int, Conference> get conferences =>
+      _$this._conferences ??= new MapBuilder<int, Conference>();
+  set conferences(MapBuilder<int, Conference> conferences) =>
       _$this._conferences = conferences;
 
   MapBuilder<int, BuiltList<Speaker>> _speakers;

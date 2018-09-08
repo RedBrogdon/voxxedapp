@@ -30,6 +30,12 @@ class WebClient {
   String createAllConferencesUrl() =>
       'https://beta.voxxeddays.com/backend/api/voxxeddays/events/future/voxxed';
 
+  String createSingleConferenceUrl(int id) =>
+      'https://beta.voxxeddays.com/backend/api/voxxeddays/events/$id';
+
+  String createAllSpeakersUrl(String cfpVersion) =>
+      'https://$cfpVersion.confinabox.com/api/conferences/$cfpVersion/speakers';
+
   Future<BuiltList<Conference>> fetchConferences() async {
     final response = await http
         .get(createAllConferencesUrl())
@@ -55,9 +61,6 @@ class WebClient {
     return deserialized;
   }
 
-  String createSingleConferenceUrl(int id) =>
-      'https://beta.voxxeddays.com/backend/api/voxxeddays/events/$id';
-
   Future<Conference> fetchConference(int id) async {
     final response = await http
         .get(createSingleConferenceUrl(id))
@@ -80,9 +83,6 @@ class WebClient {
         serializers.deserializeWith(Conference.serializer, parsedJson);
     return deserialized;
   }
-
-  String createAllSpeakersUrl(String cfpVersion) =>
-      'https://$cfpVersion.confinabox.com/api/conferences/$cfpVersion/speakers';
 
   Future<BuiltList<Speaker>> fetchSpeakers(String cfpVersion) async {
     final response = await http

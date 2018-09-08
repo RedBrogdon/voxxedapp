@@ -371,9 +371,9 @@ packages:
   rebloc:
     dependency: "direct main"
     description:
-      name: rebloc
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "../rebloc"
+      relative: true
+    source: path
     version: "0.0.4"
   rxdart:
     dependency: transitive

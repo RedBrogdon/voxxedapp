@@ -13,7 +13,8 @@ dependencies:
   cached_network_image: ^0.4.1
   logging: ^0.11.3+1
   path_provider: ^0.4.1
-  rebloc: ^0.0.4
+  rebloc: #^0.0.4
+    path: '../rebloc'
 
 dev_dependencies:
   flutter_test:
