@@ -34,24 +34,32 @@ class WebClient {
   String createSingleConferenceUrl(int id) =>
       'https://beta.voxxeddays.com/backend/api/voxxeddays/events/$id';
 
-  String createAllSpeakersUrl(String cfpVersion) =>
-      'https://$cfpVersion.confinabox.com/api/conferences/$cfpVersion/speakers';
+  String createAllSpeakersUrl(String cfpUrl, String cfpVersion) =>
+      '$cfpUrl/api/conferences/$cfpVersion/speakers';
 
-  Future<BuiltList<Conference>> fetchConferences() async {
+  String createSingleSpeakerUrl(
+          String cfpUrl, String cfpVersion, String uuid) =>
+      '$cfpUrl/api/conferences/CFPVDT18/speakers/$uuid';
+
+  Future<http.Response> _makeRequest(String url) async {
     int attempts = 0;
     http.Response response;
 
     do {
       attempts++;
-      response = await http
-          .get(createAllConferencesUrl())
-          .timeout(_requestTimeoutDuration)
-          .catchError((_) {
-        String msg = 'Timed out fetching conferences.';
+      response =
+          await http.get(url).timeout(_requestTimeoutDuration).catchError((_) {
+        String msg = 'Timed out requesting $url.';
         log.warning(msg);
         throw Exception(msg);
       });
     } while (response.statusCode == 500 && attempts < maxAttempts);
+
+    return response;
+  }
+
+  Future<BuiltList<Conference>> fetchConferences() async {
+    final response = await _makeRequest(createAllConferencesUrl());
 
     if (response.statusCode != 200) {
       final msg = 'Failed to fetch conferences, status: ${response.statusCode}';
@@ -69,18 +77,11 @@ class WebClient {
   }
 
   Future<Conference> fetchConference(int id) async {
-    final response = await http
-        .get(createSingleConferenceUrl(id))
-        .timeout(_requestTimeoutDuration)
-        .catchError((_) {
-      String msg = 'Timed out fetching conference $id.';
-      log.warning(msg);
-      throw Exception(msg);
-    });
+    final response = await _makeRequest(createSingleConferenceUrl(id));
 
     if (response.statusCode != 200) {
-      final msg = 'Failed to fetch conference $id, status: ${response
-          .statusCode}';
+      final msg =
+          'Failed to fetch conference $id, status: ${response.statusCode}';
       log.warning(msg);
       throw Exception(msg);
     }
@@ -91,19 +92,14 @@ class WebClient {
     return deserialized;
   }
 
-  Future<BuiltList<Speaker>> fetchSpeakers(String cfpVersion) async {
-    final response = await http
-        .get(createAllSpeakersUrl(cfpVersion))
-        .timeout(_requestTimeoutDuration)
-        .catchError((_) {
-      String msg = 'Timed out fetching speakers for $cfpVersion.';
-      log.warning(msg);
-      throw Exception(msg);
-    });
+  Future<BuiltList<Speaker>> fetchSpeakers(
+      String cfpUrl, String cfpVersion) async {
+    final response =
+        await _makeRequest(createAllSpeakersUrl(cfpUrl, cfpVersion));
 
     if (response.statusCode != 200) {
-      final msg =
-          'Failed to fetch speakers for $cfpVersion, status: ${response.statusCode}';
+      final msg = 'Failed to fetch speakers for $cfpVersion, '
+          'status: ${response.statusCode}';
       log.warning(msg);
       throw Exception(msg);
     }
@@ -113,6 +109,25 @@ class WebClient {
       parsedJson,
       specifiedType: Speaker.listSerializationType,
     );
+
+    return deserialized;
+  }
+
+  Future<Speaker> fetchSpeaker(
+      String cfpUrl, String cfpVersion, String uuid) async {
+    final response =
+        await _makeRequest(createSingleSpeakerUrl(cfpUrl, cfpVersion, uuid));
+
+    if (response.statusCode != 200) {
+      final msg = 'Failed to fetch speaker for $uuid at $cfpVersion, '
+          'status: ${response.statusCode}';
+      log.warning(msg);
+      throw Exception(msg);
+    }
+
+    final parsedJson = json.decode(response.body);
+    final deserialized =
+        serializers.deserializeWith(Speaker.serializer, parsedJson);
 
     return deserialized;
   }

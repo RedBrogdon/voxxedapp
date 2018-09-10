@@ -68,7 +68,7 @@ class MainDrawer extends StatelessWidget {
             leading: Icon(Icons.person),
             title: Text('Speaker list'),
             onTap: () {
-              Navigator.of(context).pushNamed('/speakers');
+              Navigator.of(context).pushReplacementNamed('/speakers');
             },
           ),
         ],

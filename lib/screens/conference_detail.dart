@@ -13,20 +13,21 @@
 //// limitations under the License.
 
 import 'package:built_collection/built_collection.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
-import 'package:rebloc/rebloc.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
+import 'package:voxxedapp/widgets/speaker_item.dart';
 
-class ConferenceDetailsViewModel {
+class ConferenceDetailViewModel {
   final Conference conference;
   final BuiltList<Speaker> speakers;
 
-  ConferenceDetailsViewModel(AppState state, int conferenceId)
+  ConferenceDetailViewModel(AppState state, int conferenceId)
       : this.conference = state.conferences[conferenceId],
         this.speakers = state.speakers.containsKey(conferenceId)
             ? state.speakers[conferenceId]
@@ -37,6 +38,16 @@ class ConferenceDetailScreen extends StatelessWidget {
   final int id;
 
   const ConferenceDetailScreen(this.id);
+
+  Widget _createFailIcon(IconData iconData) {
+    return Container(
+      color: Color(0x40000000),
+      child: Icon(
+        iconData,
+        color: Colors.grey,
+      ),
+    );
+  }
 
   Widget _buildHeader(
       BuildContext context, Conference conference, ThemeData theme) {
@@ -119,54 +130,98 @@ class ConferenceDetailScreen extends StatelessWidget {
   Widget _buildTrackList(
       BuildContext context, Conference conference, ThemeData theme) {
     var children = <Widget>[
-      Text('Conference tracks', style: theme.textTheme.subhead),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('Conference tracks', style: theme.textTheme.subhead),
+      ),
     ];
 
     if (conference.tracks == null || conference.tracks.length == 0) {
-      children.add(Text(
-        'No track information provided.',
-        style: theme.textTheme.body1,
-      ));
+      children.add(
+        Text(
+          'Not yet determined.',
+          style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+        ),
+      );
     } else {
+      var count = 0;
       for (final track in conference.tracks) {
         children.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4.0),
-            child: Row(
-              children: [
-                SizedBox(
-                  height: 50.0,
-                  width: 50.0,
-                  child: CachedNetworkImage(
-                    imageUrl: track.imageURL ?? 'http://via.placeholder.com/50x50',
-                    placeholder: CircularProgressIndicator(),
-                    errorWidget: Icon(Icons.error),
+          DecoratedBox(
+            decoration: BoxDecoration(
+                color: count % 2 == 0 ? Color(0x08000000) : Colors.transparent),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 8.0,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(),
+                    ),
+                    padding: const EdgeInsets.all(2.0),
                     height: 50.0,
                     width: 50.0,
-                    fit: BoxFit.cover,
+                    child: track.imageURL != null
+                        ? CachedNetworkImage(
+                            imageUrl: track.imageURL,
+                            placeholder: _createFailIcon(Icons.assignment),
+                            errorWidget: _createFailIcon(Icons.error),
+                            height: 50.0,
+                            width: 50.0,
+                            fit: BoxFit.cover,
+                          )
+                        : _createFailIcon(Icons.assignment),
                   ),
-                ),
-                SizedBox(width: 4.0),
-                Text(track.name, style: theme.textTheme.body1),
-              ],
+                  SizedBox(width: 12.0),
+                  Text(track.name, style: theme.textTheme.body1),
+                ],
+              ),
             ),
           ),
         );
+
+        count++;
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
     );
   }
 
   Widget _buildSpeakerList(
       BuildContext context, BuiltList<Speaker> speakers, ThemeData theme) {
-    return Text('${speakers.length}');
+    var children = <Widget>[
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('Speakers', style: theme.textTheme.subhead),
+      ),
+    ];
+
+    if (speakers == null || speakers.length == 0) {
+      children.add(
+        Text(
+          'Not yet determined.',
+          style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+        ),
+      );
+    } else {
+      var count = 0;
+      for (final speaker in speakers) {
+        children.add(SpeakerItem(speaker, alternateColor: count % 2 == 0));
+        count++;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
+    );
   }
 
   @override
@@ -175,20 +230,20 @@ class ConferenceDetailScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Current Voxxed Days'),
+        title: Text('Voxxed Day details'),
       ),
       drawer: MainDrawer(),
       body: SingleChildScrollView(
-        child: ViewModelSubscriber<AppState, ConferenceDetailsViewModel>(
-          converter: (state) => ConferenceDetailsViewModel(state, id),
+        child: ViewModelSubscriber<AppState, ConferenceDetailViewModel>(
+          converter: (state) => ConferenceDetailViewModel(state, id),
           builder: (context, dispatcher, viewModel) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 _buildHeader(context, viewModel.conference, theme),
-                Divider(height: 2.0),
+                SizedBox(height: 12.0),
                 _buildInfoBlock(context, viewModel.conference, theme),
-                Divider(height: 2.0),
+                SizedBox(height: 12.0),
                 _buildTrackList(context, viewModel.conference, theme),
                 _buildSpeakerList(context, viewModel.speakers, theme),
               ],

@@ -15,6 +15,7 @@ dependencies:
   path_provider: ^0.4.1
   rebloc: #^0.0.4
     path: '../rebloc'
+  url_launcher: ^3.0.3
 
 dev_dependencies:
   flutter_test:

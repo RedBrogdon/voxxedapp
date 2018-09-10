@@ -16,24 +16,23 @@ import 'dart:async';
 
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/web_client.dart';
-import 'package:voxxedapp/data/speaker_local_storage.dart';
 import 'package:voxxedapp/models/speaker.dart';
 
 class SpeakerRepository {
   final WebClient webClient;
-  final SpeakerLocalStorage localStorage;
 
   const SpeakerRepository({
     this.webClient = const WebClient(),
-    this.localStorage = const SpeakerLocalStorage(),
   });
 
-  Future<BuiltList<Speaker>> loadCachedSpeakers(String cfpVersion) {
-    return localStorage.loadSpeakers(cfpVersion);
+  Future<BuiltList<Speaker>> refreshSpeakers(
+      String cfpUrl, String cfpVersion) async {
+    final speakers = await webClient.fetchSpeakers(cfpUrl, cfpVersion);
+    return BuiltList<Speaker>(speakers);
   }
 
-  Future<BuiltList<Speaker>> refreshSpeakers(String cfpVersion) async {
-    final speakers = await webClient.fetchSpeakers(cfpVersion);
-    return BuiltList<Speaker>(speakers);
+  Future<Speaker> refreshSpeaker(
+      String cfpUrl, String cfpVersion, String uuid) async {
+    return await webClient.fetchSpeaker(cfpUrl, cfpVersion, uuid);
   }
 }

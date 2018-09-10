@@ -72,7 +72,7 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     repository.loadConference(action.id).then((conference) {
       dispatcher(RefreshedConferenceAction(conference));
     }).catchError((e, s) {
-      dispatcher(RefreshConferencesFailedAction());
+      dispatcher(RefreshConferenceFailedAction());
     });
 
     return action;
@@ -95,10 +95,11 @@ class ConferenceBloc extends SimpleBloc<AppState> {
 
     // If the old selected conference is no longer around, pick the first one as
     // a replacement.
-    final selectedConferenceId = (newIds.contains(state.selectedConferenceId)) ?
-        state.selectedConferenceId : newIds.first;
+    final selectedConferenceId = (newIds.contains(state.selectedConferenceId))
+        ? state.selectedConferenceId
+        : newIds.first;
 
-    return state.rebuild((b) {
+    var newState = state.rebuild((b) {
       for (int staleId in staleIds) {
         b.conferences.remove(staleId);
       }
@@ -116,6 +117,9 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       }
       b.selectedConferenceId = selectedConferenceId;
     });
+
+    return newState
+        .rebuild((b) => b.speakers.replace(_reconcileSpeakerLists(newState)));
   }
 
   AppState _refreshedConference(

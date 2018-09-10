@@ -14,7 +14,6 @@ import 'package:test/test.dart';
 // local storage, which is only available on a device or emulator.
 void main() {
   group('Conference repository integration tests', () {
-    test('This test always passes.', () async {
-    });
+    test('This test always passes.', () async {});
   });
 }
