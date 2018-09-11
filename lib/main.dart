@@ -21,6 +21,7 @@ import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
+import 'package:voxxedapp/screens/about_screen.dart';
 import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 import 'package:voxxedapp/screens/speaker_detail.dart';
@@ -83,6 +84,14 @@ class VoxxedDayApp extends StatelessWidget {
       final uuid = path[2];
       return MaterialPageRoute(
         builder: (context) => SpeakerDetailScreen(uuid),
+        settings: settings,
+      );
+    }
+
+    // List of speakers for drill-down.
+    if (path[1] == 'about') {
+      return MaterialPageRoute(
+        builder: (context) => AboutScreen(),
         settings: settings,
       );
     }

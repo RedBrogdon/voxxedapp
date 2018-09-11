@@ -14,9 +14,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer();
+
+  static const issuesUrl = 'https://github.com/redbrogdon/voxxedapp/issues';
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +68,19 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Speaker list'),
+            leading: Icon(Icons.info_outline),
+            title: Text('About this app'),
             onTap: () {
-              Navigator.of(context).pushReplacementNamed('/speakers');
+              Navigator.of(context).pushNamed('/about');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.bug_report),
+            title: Text('Report an issue'),
+            onTap: () async {
+              if (await launcher.canLaunch(issuesUrl)) {
+                await launcher.launch(issuesUrl);
+              }
             },
           ),
         ],
