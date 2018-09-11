@@ -25,7 +25,6 @@ import 'package:voxxedapp/screens/about_screen.dart';
 import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 import 'package:voxxedapp/screens/speaker_detail.dart';
-import 'package:voxxedapp/screens/speaker_list.dart';
 import 'package:voxxedapp/screens/splash_screen.dart';
 
 Future main() async {
@@ -65,27 +64,22 @@ class VoxxedDayApp extends StatelessWidget {
     // Details page for a single conference.
     if (path[1] == 'conference') {
       final id = int.parse(path[2]);
-      return MaterialPageRoute(
-        builder: (context) => ConferenceDetailScreen(id),
-        settings: settings,
-      );
-    }
 
-    // List of speakers for drill-down.
-    if (path[1] == 'speakers') {
-      return MaterialPageRoute(
-        builder: (context) => SpeakerListScreen(),
-        settings: settings,
-      );
-    }
+      if (path.length < 5) {
+        return MaterialPageRoute(
+          builder: (context) => ConferenceDetailScreen(id),
+          settings: settings,
+        );
+      }
 
-    // List of speakers for drill-down.
-    if (path[1] == 'speaker') {
-      final uuid = path[2];
-      return MaterialPageRoute(
-        builder: (context) => SpeakerDetailScreen(uuid),
-        settings: settings,
-      );
+      // List of speakers for drill-down.
+      if (path[3] == 'speaker') {
+        final uuid = path[4];
+        return MaterialPageRoute(
+          builder: (context) => SpeakerDetailScreen(id, uuid),
+          settings: settings,
+        );
+      }
     }
 
     // List of speakers for drill-down.

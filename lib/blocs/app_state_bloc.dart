@@ -64,7 +64,8 @@ class AppStateBloc extends SimpleBloc<AppState> {
       dispatcher(RefreshConferencesAction());
     } else if (action is RefreshedConferenceAction ||
         action is RefreshedConferencesAction ||
-        action is RefreshedSpeakersForConferenceAction) {
+        action is RefreshedSpeakersForConferenceAction ||
+        action is RefreshedSpeakerForConferenceAction) {
       // New data is arriving, so app state should be saved afterward.
       action.afterward(SaveAppStateAction());
     }

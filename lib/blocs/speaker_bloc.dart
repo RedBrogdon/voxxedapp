@@ -37,6 +37,24 @@ class RefreshSpeakersForConferenceFailedAction extends Action {
   RefreshSpeakersForConferenceFailedAction();
 }
 
+class RefreshSpeakerForConferenceAction extends Action {
+  final int conferenceId;
+  final String uuid;
+
+  RefreshSpeakerForConferenceAction(this.conferenceId, this.uuid);
+}
+
+class RefreshedSpeakerForConferenceAction extends Action {
+  final Speaker speaker;
+  final int conferenceId;
+
+  RefreshedSpeakerForConferenceAction(this.speaker, this.conferenceId);
+}
+
+class RefreshSpeakerForConferenceFailedAction extends Action {
+  RefreshSpeakerForConferenceFailedAction();
+}
+
 class SpeakerBloc extends SimpleBloc<AppState> {
   final SpeakerRepository repository;
 
@@ -62,6 +80,28 @@ class SpeakerBloc extends SimpleBloc<AppState> {
     return action;
   }
 
+  Action _refreshSpeakerForConference(DispatchFunction dispatch, AppState state,
+      RefreshSpeakerForConferenceAction action) {
+    String cfpVersion = state.conferences[action.conferenceId]?.cfpVersion;
+    String cfpUrl = state.conferences[action.conferenceId]?.cfpURL;
+
+    if (cfpVersion == null || cfpUrl == null) {
+      log.warning('Couldn\'t refresh speaker ${action.uuid} for conference'
+          ' #${action.conferenceId}.');
+    } else {
+      repository
+          .refreshSpeaker(cfpUrl, cfpVersion, action.uuid)
+          .then((speaker) {
+        dispatch(
+            RefreshedSpeakerForConferenceAction(speaker, action.conferenceId));
+      }).catchError((_) {
+        dispatch(RefreshSpeakerForConferenceFailedAction());
+      });
+    }
+
+    return action;
+  }
+
   AppState _refreshedSpeakersForConference(
       AppState state, RefreshedSpeakersForConferenceAction action) {
     if (state.speakers.containsKey(action.conferenceId)) {
@@ -72,10 +112,28 @@ class SpeakerBloc extends SimpleBloc<AppState> {
     return state;
   }
 
+  AppState _refreshedSpeakerForConference(
+      AppState state, RefreshedSpeakerForConferenceAction action) {
+    if (state.speakers.containsKey(action.conferenceId)) {
+      return state.rebuild(
+        (b) => b
+          ..speakers[action.conferenceId] = b.speakers[action.conferenceId].rebuild(
+            (sb) => sb
+              ..removeWhere((s) => s.uuid == action.speaker.uuid)
+              ..add(action.speaker),
+          ),
+      );
+    }
+
+    return state;
+  }
+
   @override
   Action middleware(dispatcher, state, action) {
     if (action is RefreshSpeakersForConferenceAction) {
       return _refreshSpeakersForConference(dispatcher, state, action);
+    } else if (action is RefreshSpeakerForConferenceAction) {
+      return _refreshSpeakerForConference(dispatcher, state, action);
     } else if (action is RefreshedConferenceAction) {
       return action
         ..afterward(RefreshSpeakersForConferenceAction(action.conference.id));
@@ -88,6 +146,8 @@ class SpeakerBloc extends SimpleBloc<AppState> {
   AppState reducer(state, action) {
     if (action is RefreshedSpeakersForConferenceAction) {
       return _refreshedSpeakersForConference(state, action);
+    } else if (action is RefreshedSpeakerForConferenceAction) {
+      return _refreshedSpeakerForConference(state, action);
     }
 
     return state;

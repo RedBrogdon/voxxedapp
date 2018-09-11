@@ -213,7 +213,7 @@ class ConferenceDetailScreen extends StatelessWidget {
     } else {
       var count = 0;
       for (final speaker in speakers) {
-        children.add(SpeakerItem(speaker, alternateColor: count % 2 == 0));
+        children.add(SpeakerItem(speaker, id, alternateColor: count % 2 == 0));
         count++;
       }
     }

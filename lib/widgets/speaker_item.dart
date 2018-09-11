@@ -12,36 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:voxxedapp/models/speaker.dart';
+import 'package:voxxedapp/widgets/avatar.dart';
 
 class SpeakerItem extends StatelessWidget {
   final Speaker speaker;
+  final int conferenceId;
   final bool alternateColor;
 
   const SpeakerItem(
-    this.speaker, {
+    this.speaker,
+    this.conferenceId, {
     this.alternateColor,
   });
 
-  Widget _createFailIcon(IconData iconData) {
-    return Container(
-      color: Color(0x40000000),
-      child: Icon(
-        iconData,
-        color: Colors.grey,
-      ),
-    );
-  }
+  String get destination => '/conference/$conferenceId/speaker/${speaker.uuid}';
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
 
     return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed('/speaker/${speaker.uuid}'),
+      onTap: () {
+        Navigator.of(context).pushNamed(destination);
+      },
       child: DecoratedBox(
         decoration: BoxDecoration(
             color: alternateColor ? Color(0x08000000) : Colors.transparent),
@@ -52,27 +48,12 @@ class SpeakerItem extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(),
-                  shape: BoxShape.circle,
-                ),
-                padding: const EdgeInsets.all(2.0),
-                height: 50.0,
+              Avatar(
+                imageUrl: speaker.avatarURL,
+                placeholderIcon: Icons.person,
+                errorIcon: Icons.error,
                 width: 50.0,
-                child: ClipOval(
-                  child: speaker.avatarURL != null
-                      ? CachedNetworkImage(
-                          imageUrl: speaker.avatarURL,
-                          placeholder: _createFailIcon(Icons.person),
-                          errorWidget: _createFailIcon(Icons.error),
-                          height: 50.0,
-                          width: 50.0,
-                          fit: BoxFit.cover,
-                        )
-                      : _createFailIcon(Icons.person),
-                ),
+                height: 50.0,
               ),
               SizedBox(width: 12.0),
               Text(

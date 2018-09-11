@@ -70,7 +70,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.1+1"
+    version: "0.10.2"
   build_runner_core:
     dependency: transitive
     description:
@@ -363,6 +363,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.1"
+  pedantic:
+    dependency: transitive
+    description:
+      name: pedantic
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   petitparser:
     dependency: transitive
     description:
@@ -408,10 +415,10 @@ packages:
   rebloc:
     dependency: "direct main"
     description:
-      path: "../rebloc"
-      relative: true
-    source: path
-    version: "0.0.4"
+      name: rebloc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.5"
   rxdart:
     dependency: transitive
     description:
@@ -465,7 +472,7 @@ packages:
       name: source_gen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.0+1"
+    version: "0.9.1"
   source_map_stack_trace:
     dependency: transitive
     description:
