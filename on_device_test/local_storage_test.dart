@@ -1,15 +1,18 @@
-// This is a basic Flutter widget test.
-// To perform an interaction with a widget in your test, use the WidgetTester utility that Flutter
-// provides. For example, you can send tap and scroll gestures. You can also use WidgetTester to
-// find child widgets in the widget tree, read text, and verify that the values of widget properties
-// are correct.
+// Copyright 2018, Devoxx
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import 'package:test/test.dart';
-import 'package:built_collection/built_collection.dart';
-
-import 'package:voxxedapp/data/conference_local_storage.dart';
-import 'package:voxxedapp/models/enums.dart';
-import 'package:voxxedapp/models/conference.dart';
 
 // This file is meant to be run from the command line like this:
 //
@@ -18,49 +21,9 @@ import 'package:voxxedapp/models/conference.dart';
 // This is necessary because the tests here require access to a working form of
 // local storage, which is only available on a device or emulator.
 void main() {
-  group('Conference location storage integration tests', () {
-    test('Clears and Loads empty list.', () async {
-      print('Beginning test');
+  group('Main test group', () {
+    test('This test always passes.', () async {
 
-      final storage = ConferenceLocalStorage();
-
-      print('About to clear.');
-      storage.clear();
-      print('About to load.');
-      final retrieved = await storage.loadConferences();
-      print('Read.');
-
-      expect(retrieved.length, 0);
-    });
-
-    test('Correctly store/retrieve a list of conferences.', () async {
-      print('Beginning test');
-
-      final conference = Conference((b) => b
-        ..id = 12
-        ..name = 'This is the name'
-        ..fromDate = '2018-01-01'
-        ..endDate = '2018-01-02'
-        ..eventType = EventType.VOXXED
-        ..imageURL = 'https://images.google.com'
-        ..website = 'https://www.google.com');
-
-      final storage = ConferenceLocalStorage();
-
-      print('About to write.');
-      await storage.saveConferences(BuiltList([conference]));
-      print('Written.');
-      final retrieved = await storage.loadConferences();
-      print('Read.');
-
-      expect(retrieved.length, 1);
-      expect(retrieved[0].id, 12);
-      expect(retrieved[0].name, 'This is the name');
-      expect(retrieved[0].fromDate, '2018-01-01');
-      expect(retrieved[0].endDate, '2018-01-02');
-      expect(retrieved[0].eventType, EventType.VOXXED);
-      expect(retrieved[0].imageURL, 'https://images.google.com');
-      expect(retrieved[0].website, 'https://www.google.com');
     });
   });
 }

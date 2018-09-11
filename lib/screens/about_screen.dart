@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:test/test.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-// This file is meant to be run from the command line like this:
-//
-// flutter run on_device_test/conference_repository_test.dart
-//
-// This is necessary because the tests here require access to a working form of
-// local storage, which is only available on a device or emulator.
-void main() {
-  group('Conference repository integration tests', () {
-    test('This test always passes.', () async {});
-  });
+class AboutScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('About this app'),
+      ),
+      body: Center(
+        child: Text('Not yet implemented.'),
+      ),
+    );
+  }
 }
