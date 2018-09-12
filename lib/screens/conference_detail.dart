@@ -12,7 +12,6 @@
 //// See the License for the specific language governing permissions and
 //// limitations under the License.
 
-import 'package:built_collection/built_collection.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -20,34 +19,62 @@ import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/speaker.dart';
+import 'package:voxxedapp/widgets/avatar.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
 
-class ConferenceDetailViewModel {
-  final Conference conference;
-  final BuiltList<Speaker> speakers;
+class SpeakerPane extends StatelessWidget {
+  const SpeakerPane(this.conferenceId);
 
-  ConferenceDetailViewModel(AppState state, int conferenceId)
-      : this.conference = state.conferences[conferenceId],
-        this.speakers = state.speakers.containsKey(conferenceId)
-            ? state.speakers[conferenceId]
-            : BuiltList<Speaker>();
-}
+  final int conferenceId;
 
-class ConferenceDetailScreen extends StatelessWidget {
-  final int id;
+  @override
+  Widget build(BuildContext context) {
+    return ViewModelSubscriber<AppState, List<Speaker>>(
+      converter: (state) {
+        return state.speakers.containsKey(conferenceId)
+            ? (state.speakers[conferenceId].toList()..sort())
+            : <Speaker>[];
+      },
+      builder: (context, dispatcher, model) {
+        final theme = Theme.of(context);
 
-  const ConferenceDetailScreen(this.id);
+        var children = <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('Speakers', style: theme.textTheme.subhead),
+          ),
+        ];
 
-  Widget _createFailIcon(IconData iconData) {
-    return Container(
-      color: Color(0x40000000),
-      child: Icon(
-        iconData,
-        color: Colors.grey,
-      ),
+        if (model == null || model.length == 0) {
+          children.add(
+            Text(
+              'Not yet determined.',
+              style:
+                  theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+            ),
+          );
+        } else {
+          var count = 0;
+          for (final speaker in model) {
+            children.add(SpeakerItem(speaker, conferenceId,
+                alternateColor: count % 2 == 0));
+            count++;
+          }
+        }
+
+        return ListView(
+          children: children,
+        );
+      },
     );
   }
+}
+
+class ConferenceInfoPanel extends StatelessWidget {
+  const ConferenceInfoPanel(this.conferenceId);
+
+  final int conferenceId;
 
   Widget _buildHeader(
       BuildContext context, Conference conference, ThemeData theme) {
@@ -127,7 +154,7 @@ class ConferenceDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTrackList(
+  List<Widget> _buildTrackList(
       BuildContext context, Conference conference, ThemeData theme) {
     var children = <Widget>[
       Padding(
@@ -147,38 +174,34 @@ class ConferenceDetailScreen extends StatelessWidget {
       var count = 0;
       for (final track in conference.tracks) {
         children.add(
-          DecoratedBox(
-            decoration: BoxDecoration(
-                color: count % 2 == 0 ? Color(0x08000000) : Colors.transparent),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 8.0,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(),
+          GestureDetector(
+            onTap: () {
+              String dest = '/conference/$conferenceId/track/${track.id}';
+              Navigator.of(context).pushNamed(dest);
+            },
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                  color:
+                      count % 2 == 0 ? Color(0x08000000) : Colors.transparent),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 8.0,
+                ),
+                child: Row(
+                  children: [
+                    Avatar(
+                      width: 50.0,
+                      height: 50.0,
+                      imageUrl: track.imageURL,
+                      placeholderIcon: Icons.assignment,
+                      errorIcon: Icons.error,
+                      square: true,
                     ),
-                    padding: const EdgeInsets.all(2.0),
-                    height: 50.0,
-                    width: 50.0,
-                    child: track.imageURL != null
-                        ? CachedNetworkImage(
-                            imageUrl: track.imageURL,
-                            placeholder: _createFailIcon(Icons.assignment),
-                            errorWidget: _createFailIcon(Icons.error),
-                            height: 50.0,
-                            width: 50.0,
-                            fit: BoxFit.cover,
-                          )
-                        : _createFailIcon(Icons.assignment),
-                  ),
-                  SizedBox(width: 12.0),
-                  Text(track.name, style: theme.textTheme.body1),
-                ],
+                    SizedBox(width: 12.0),
+                    Text(track.name, style: theme.textTheme.subhead),
+                  ],
+                ),
               ),
             ),
           ),
@@ -188,68 +211,81 @@ class ConferenceDetailScreen extends StatelessWidget {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
-    );
-  }
-
-  Widget _buildSpeakerList(
-      BuildContext context, BuiltList<Speaker> speakers, ThemeData theme) {
-    var children = <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text('Speakers', style: theme.textTheme.subhead),
-      ),
-    ];
-
-    if (speakers == null || speakers.length == 0) {
-      children.add(
-        Text(
-          'Not yet determined.',
-          style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
-        ),
-      );
-    } else {
-      var count = 0;
-      for (final speaker in speakers) {
-        children.add(SpeakerItem(speaker, id, alternateColor: count % 2 == 0));
-        count++;
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
-    );
+    return children;
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
+
+    return ViewModelSubscriber<AppState, Conference>(
+      converter: (state) => state.conferences[conferenceId],
+      builder: (context, dispatcher, conference) => ListView(
+            children: <Widget>[
+              _buildHeader(context, conference, theme),
+              SizedBox(height: 12.0),
+              _buildInfoBlock(context, conference, theme),
+              SizedBox(height: 12.0),
+            ]..addAll(_buildTrackList(context, conference, theme)),
+          ),
+    );
+  }
+}
+
+class ConferenceDetailScreen extends StatefulWidget {
+  final int conferenceId;
+
+  const ConferenceDetailScreen(this.conferenceId);
+
+  @override
+  _ConferenceDetailScreenState createState() {
+    return new _ConferenceDetailScreenState();
+  }
+}
+
+class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
+  int navBarSelection = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+
+    if (navBarSelection == 0) {
+      body = ConferenceInfoPanel(widget.conferenceId);
+    } else if (navBarSelection == 1) {
+      body = Center(
+        child: Text('Not Yet Implemented'),
+      );
+    } else {
+      body = SpeakerPane(widget.conferenceId);
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Voxxed Day details'),
+        title: ViewModelSubscriber<AppState, String>(
+          converter: (state) => state.conferences[widget.conferenceId].name,
+          builder: (context, dispatcher, name) => Text(name),
+        ),
       ),
       drawer: MainDrawer(),
-      body: SingleChildScrollView(
-        child: ViewModelSubscriber<AppState, ConferenceDetailViewModel>(
-          converter: (state) => ConferenceDetailViewModel(state, id),
-          builder: (context, dispatcher, viewModel) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                _buildHeader(context, viewModel.conference, theme),
-                SizedBox(height: 12.0),
-                _buildInfoBlock(context, viewModel.conference, theme),
-                SizedBox(height: 12.0),
-                _buildTrackList(context, viewModel.conference, theme),
-                _buildSpeakerList(context, viewModel.speakers, theme),
-              ],
-            );
-          },
-        ),
+      body: body,
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) => setState(() => navBarSelection = index),
+        currentIndex: navBarSelection,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            title: Text('Info'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.schedule),
+            title: Text('Schedule'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            title: Text('Speakers'),
+          ),
+        ],
       ),
     );
   }

@@ -133,6 +133,20 @@ class SpeakerDetailScreen extends StatelessWidget {
     return widgets;
   }
 
+  Widget _createBio(Speaker speaker, TextTheme theme) {
+    if (speaker.bio != null) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+        child: Text(
+          speaker.bio,
+          style: theme.body1,
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
@@ -166,14 +180,7 @@ class SpeakerDetailScreen extends StatelessWidget {
                   style: theme.headline,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: 16.0, right: 16.0, bottom: 16.0),
-                child: Text(
-                  speaker.bio,
-                  style: theme.body1,
-                ),
-              ),
+              _createBio(speaker, theme),
             ]
               ..addAll(_createInfoRows(speaker, theme))
               ..add(SizedBox(height: 24.0)),

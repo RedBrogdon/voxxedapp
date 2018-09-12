@@ -16,12 +16,16 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+/// Displays a network-loaded image, with a placeholder during the load and an
+/// error icon in case of failure. If a null value is provided for [imageUrl],
+/// [placeholderIcon] is displayed.
 class Avatar extends StatelessWidget {
   final String imageUrl;
   final IconData placeholderIcon;
   final IconData errorIcon;
   final double width;
   final double height;
+  final bool square;
 
   const Avatar({
     @required this.imageUrl,
@@ -29,49 +33,54 @@ class Avatar extends StatelessWidget {
     @required this.errorIcon,
     @required this.width,
     @required this.height,
+    this.square = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final content = imageUrl != null
+        ? CachedNetworkImage(
+            imageUrl: imageUrl,
+            placeholder: Container(
+              color: Color(0x40000000),
+              child: Icon(
+                placeholderIcon,
+                color: Colors.grey,
+              ),
+            ),
+            errorWidget: Container(
+              color: Color(0x40000000),
+              child: Icon(
+                errorIcon,
+                color: Colors.grey,
+              ),
+            ),
+            height: height,
+            width: width,
+            fit: BoxFit.cover,
+          )
+        : Container(
+            color: Color(0x40000000),
+            child: Icon(
+              placeholderIcon,
+              color: Colors.grey,
+            ),
+          );
+
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(),
-        shape: BoxShape.circle,
+        shape: square ? BoxShape.rectangle : BoxShape.circle,
       ),
       padding: const EdgeInsets.all(2.0),
-      child: ClipOval(
-        child: imageUrl != null
-            ? CachedNetworkImage(
-                imageUrl: imageUrl,
-                placeholder: Container(
-                  color: Color(0x40000000),
-                  child: Icon(
-                    placeholderIcon,
-                    color: Colors.grey,
-                  ),
-                ),
-                errorWidget: Container(
-                  color: Color(0x40000000),
-                  child: Icon(
-                    errorIcon,
-                    color: Colors.grey,
-                  ),
-                ),
-                height: height,
-                width: width,
-                fit: BoxFit.cover,
-              )
-            : Container(
-                color: Color(0x40000000),
-                child: Icon(
-                  placeholderIcon,
-                  color: Colors.grey,
-                ),
-              ),
-      ),
+      child: square
+          ? content
+          : ClipOval(
+              child: content,
+            ),
     );
   }
 }

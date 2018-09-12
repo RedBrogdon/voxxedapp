@@ -18,7 +18,7 @@ import 'package:built_value/serializer.dart';
 
 part 'speaker.g.dart';
 
-abstract class Speaker implements Built<Speaker, SpeakerBuilder> {
+abstract class Speaker implements Built<Speaker, SpeakerBuilder>, Comparable<dynamic> {
   static Serializer<Speaker> get serializer => _$speakerSerializer;
 
   static const listSerializationType =
@@ -52,4 +52,20 @@ abstract class Speaker implements Built<Speaker, SpeakerBuilder> {
   Speaker._();
 
   factory Speaker([updates(SpeakerBuilder b)]) = _$Speaker;
+
+  @override
+  int compareTo(dynamic other) {
+    if (!identical(this, other) && other is Speaker) {
+      if (this.lastName == other.lastName) {
+        return this.firstName.compareTo(other.firstName);
+      } else {
+        return this.lastName.compareTo(other.lastName);
+      }
+    }
+
+    // If identical or of different types, return equality.
+    return 0;
+  }
+
+
 }

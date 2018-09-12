@@ -16,6 +16,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
@@ -26,8 +27,14 @@ import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 import 'package:voxxedapp/screens/speaker_detail.dart';
 import 'package:voxxedapp/screens/splash_screen.dart';
+import 'package:voxxedapp/screens/track_detail.dart';
 
 Future main() async {
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   runApp(new VoxxedDayApp());
 }
 
@@ -63,11 +70,11 @@ class VoxxedDayApp extends StatelessWidget {
 
     // Details page for a single conference.
     if (path[1] == 'conference') {
-      final id = int.parse(path[2]);
+      final conferenceId = int.parse(path[2]);
 
       if (path.length < 5) {
         return MaterialPageRoute(
-          builder: (context) => ConferenceDetailScreen(id),
+          builder: (context) => ConferenceDetailScreen(conferenceId),
           settings: settings,
         );
       }
@@ -76,7 +83,16 @@ class VoxxedDayApp extends StatelessWidget {
       if (path[3] == 'speaker') {
         final uuid = path[4];
         return MaterialPageRoute(
-          builder: (context) => SpeakerDetailScreen(id, uuid),
+          builder: (context) => SpeakerDetailScreen(conferenceId, uuid),
+          settings: settings,
+        );
+      }
+
+      // List of speakers for drill-down.
+      if (path[3] == 'track') {
+        final trackId = int.parse(path[4]);
+        return MaterialPageRoute(
+          builder: (context) => TrackDetailScreen(conferenceId, trackId),
           settings: settings,
         );
       }
