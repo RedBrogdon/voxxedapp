@@ -2,15 +2,16 @@ X Refactor stream subscriptions in blocs.
 X Refactor ViewModel class to get a dispatch function rather than store.
 X Refactor reducers to just return an object rather than a builder.
 X Implement Drawer and "pick a conference" navigation.
-- Refactor ViewModels to be a built_value (for equality)?
-- Rewrite/restructure tests.
-- Refactor error logging, exception handling.
-- Keys on lists.
-- Retheme everything to use Material correctly and be beautiful
-- About page
 - Schedule pane
 - Schedule item details
-- Cold boot JSON
-- Find a way to link out to a map
+- About page
 - Favoriting a talk or speaker
 - Notifications for favorite talks/speakers
+- Find a way to link out to a map
+- Cold boot JSON
+- Keys on lists.
+- Retheme everything to use Material correctly and be beautiful
+- Refactor ViewModels to be a built_value (for equality)?
+- Refactor error logging, exception handling.
+- Rewrite/restructure tests.
+
