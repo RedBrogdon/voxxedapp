@@ -16,6 +16,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/speaker.dart';
 
 part 'app_state.g.dart';
@@ -26,6 +27,10 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
   BuiltMap<int, Conference> get conferences;
 
   BuiltMap<int, BuiltList<Speaker>> get speakers;
+
+  BuiltMap<int, BuiltList<Schedule>> get schedules;
+
+  BuiltList<String> get favoriteSessions;
 
   int get selectedConferenceId;
 

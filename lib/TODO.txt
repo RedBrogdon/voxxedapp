@@ -7,6 +7,7 @@ X Implement Drawer and "pick a conference" navigation.
 - About page
 - Favoriting a talk or speaker
 - Notifications for favorite talks/speakers
+- Refreshing all speakers is blowing away deatils on individual speakers
 - Find a way to link out to a map
 - Cold boot JSON
 - Keys on lists.
@@ -14,4 +15,8 @@ X Implement Drawer and "pick a conference" navigation.
 - Refactor ViewModels to be a built_value (for equality)?
 - Refactor error logging, exception handling.
 - Rewrite/restructure tests.
+- Debounce App State saves.
+- Clean up reconciliation of speaker/schedule lists.
 
+TESTS
+- With garbage app state cache

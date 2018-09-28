@@ -24,9 +24,19 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(Conference.serializer)
       ..add(EventType.serializer)
       ..add(Language.serializer)
+      ..add(Schedule.serializer)
+      ..add(ScheduleBreak.serializer)
+      ..add(ScheduleSlot.serializer)
       ..add(SessionType.serializer)
       ..add(Speaker.serializer)
+      ..add(Talk.serializer)
       ..add(Track.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(ScheduleSlot)]),
+          () => new ListBuilder<ScheduleSlot>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => new ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Track)]),
           () => new ListBuilder<Track>())
@@ -45,5 +55,14 @@ Serializers _$serializers = (new Serializers().toBuilder()
             const FullType(int),
             const FullType(BuiltList, const [const FullType(Speaker)])
           ]),
-          () => new MapBuilder<int, BuiltList<Speaker>>()))
+          () => new MapBuilder<int, BuiltList<Speaker>>())
+      ..addBuilderFactory(
+          const FullType(BuiltMap, const [
+            const FullType(int),
+            const FullType(BuiltList, const [const FullType(Schedule)])
+          ]),
+          () => new MapBuilder<int, BuiltList<Schedule>>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(String)]),
+          () => new ListBuilder<String>()))
     .build();

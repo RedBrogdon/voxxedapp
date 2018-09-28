@@ -16,6 +16,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/conference_repository.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
 
@@ -118,8 +119,9 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       b.selectedConferenceId = selectedConferenceId;
     });
 
-    return newState
-        .rebuild((b) => b.speakers.replace(_reconcileSpeakerLists(newState)));
+    return newState.rebuild((b) => b
+      ..speakers.replace(_reconcileSpeakerLists(newState))
+      ..schedules.replace(_reconcileScheduleLists(newState)));
   }
 
   AppState _refreshedConference(
@@ -142,6 +144,26 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     // Add the new stuff and remove the stale.
     return state.speakers.rebuild((b) {
       b.addIterable(newIds, key: (i) => i, value: (_) => BuiltList<Speaker>());
+      for (int staleId in staleIds) {
+        b.remove(staleId);
+      }
+    });
+  }
+
+  BuiltMap<int, BuiltList<Schedule>> _reconcileScheduleLists(AppState state) {
+    // IDs that are no longer in the list of conferences, so their corresponding
+    // schedule lists should be removed.
+    final staleIds = state.schedules.keys.toList()
+      ..removeWhere((id) => state.conferences.containsKey(id));
+
+    // New conference IDs for which speaker lists haven't yet been created.
+    final newIds = state.conferences.keys
+        .where((id) => !state.schedules.containsKey(id))
+        .toList();
+
+    // Add the new stuff and remove the stale.
+    return state.schedules.rebuild((b) {
+      b.addIterable(newIds, key: (i) => i, value: (_) => BuiltList<Schedule>());
       for (int staleId in staleIds) {
         b.remove(staleId);
       }

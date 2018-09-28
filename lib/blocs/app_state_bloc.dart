@@ -16,6 +16,8 @@ import 'dart:async';
 
 import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/blocs/favorites_bloc.dart';
+import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/data/app_state_local_storage.dart';
 import 'package:voxxedapp/models/app_state.dart';
@@ -65,7 +67,10 @@ class AppStateBloc extends SimpleBloc<AppState> {
     } else if (action is RefreshedConferenceAction ||
         action is RefreshedConferencesAction ||
         action is RefreshedSpeakersForConferenceAction ||
-        action is RefreshedSpeakerForConferenceAction) {
+        action is RefreshedSpeakerForConferenceAction ||
+        action is RefreshedSchedulesAction ||
+        action is RefreshedScheduleSlotsAction ||
+        action is ToggleFavoriteAction) {
       // New data is arriving, so app state should be saved afterward.
       action.afterward(SaveAppStateAction());
     }

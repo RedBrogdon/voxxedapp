@@ -14,21 +14,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:voxxedapp/models/speaker.dart';
+import 'package:voxxedapp/models/track.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
 
-class SpeakerItem extends StatelessWidget {
-  final Speaker speaker;
+class TrackItem extends StatelessWidget {
+  final Track track;
   final int conferenceId;
   final bool alternateColor;
 
-  const SpeakerItem(
-    this.speaker,
+  const TrackItem(
+    this.track,
     this.conferenceId, {
-    this.alternateColor,
+    this.alternateColor = false,
   });
 
-  String get dest => '/conference/$conferenceId/speaker/${speaker.uuid}';
+  String get dest => '/conference/$conferenceId/track/${track.id}';
 
   @override
   Widget build(BuildContext context) {
@@ -49,17 +49,15 @@ class SpeakerItem extends StatelessWidget {
           child: Row(
             children: [
               Avatar(
-                imageUrl: speaker.avatarURL,
-                placeholderIcon: Icons.person,
-                errorIcon: Icons.error,
                 width: 50.0,
                 height: 50.0,
+                imageUrl: track.imageURL,
+                placeholderIcon: Icons.assignment,
+                errorIcon: Icons.error,
+                square: true,
               ),
               SizedBox(width: 12.0),
-              Text(
-                '${speaker.firstName} ${speaker.lastName}',
-                style: theme.subhead,
-              ),
+              Text(track.name, style: theme.subhead),
             ],
           ),
         ),

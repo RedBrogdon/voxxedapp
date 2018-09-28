@@ -1,4 +1,5 @@
-//// Copyright 2018, Devoxx
+import 'package:built_collection/built_collection.dart';
+
 ////
 //// Licensed under the Apache License, Version 2.0 (the "License");
 //// you may not use this file except in compliance with the License.
@@ -12,19 +13,24 @@
 //// See the License for the specific language governing permissions and
 //// limitations under the License.
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/schedule.dart';
+import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
+import 'package:voxxedapp/widgets/schedule_slot_item.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
+import 'package:voxxedapp/util/string_utils.dart' as strutils;
+import 'package:voxxedapp/widgets/track_item.dart';
 
-class SpeakerPane extends StatelessWidget {
-  const SpeakerPane(this.conferenceId);
+class SpeakerPanel extends StatelessWidget {
+  const SpeakerPanel(this.conferenceId);
 
   final int conferenceId;
 
@@ -48,10 +54,13 @@ class SpeakerPane extends StatelessWidget {
 
         if (model == null || model.length == 0) {
           children.add(
-            Text(
-              'Not yet determined.',
-              style:
-                  theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Not yet determined.',
+                style:
+                    theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+              ),
             ),
           );
         } else {
@@ -165,48 +174,19 @@ class ConferenceInfoPanel extends StatelessWidget {
 
     if (conference.tracks == null || conference.tracks.length == 0) {
       children.add(
-        Text(
-          'Not yet determined.',
-          style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Not yet determined.',
+            style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
+          ),
         ),
       );
     } else {
       var count = 0;
       for (final track in conference.tracks) {
         children.add(
-          GestureDetector(
-            onTap: () {
-              String dest = '/conference/$conferenceId/track/${track.id}';
-              Navigator.of(context).pushNamed(dest);
-            },
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                  color:
-                      count % 2 == 0 ? Color(0x08000000) : Colors.transparent),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 8.0,
-                ),
-                child: Row(
-                  children: [
-                    Avatar(
-                      width: 50.0,
-                      height: 50.0,
-                      imageUrl: track.imageURL,
-                      placeholderIcon: Icons.assignment,
-                      errorIcon: Icons.error,
-                      square: true,
-                    ),
-                    SizedBox(width: 12.0),
-                    Text(track.name, style: theme.textTheme.subhead),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-
+            TrackItem(track, conferenceId, alternateColor: count % 2 == 0));
         count++;
       }
     }
@@ -232,6 +212,126 @@ class ConferenceInfoPanel extends StatelessWidget {
   }
 }
 
+class ScheduleSlotViewModel {
+  final int conferenceId;
+  final speakers = <Speaker>[];
+  ScheduleSlot slot;
+  bool isFavorite;
+
+  ScheduleSlotViewModel(
+      AppState state, this.conferenceId, String day, String id) {
+    // Find a slot for the given conference with a Talk Id that matches id.
+    final slot = state.schedules[conferenceId]
+        ?.firstWhere((sch) => sch.day == day, orElse: () => null)
+        ?.slots
+        ?.firstWhere((s) => s.talk?.id == id, orElse: () => null);
+
+    if (slot == null) {
+      throw ArgumentError(
+          'ScheduleSlotViewModel couldn\'t locate slot $id for conference $conferenceId.');
+    }
+
+    if (slot.talk != null) {
+      isFavorite = state.favoriteSessions.contains(slot.talk.id);
+    } else {
+      isFavorite = false;
+    }
+
+    for (final uuid in slot.talk.speakerUuids) {
+      final speaker = state.speakers[conferenceId]
+          ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
+      if (speaker != null) {
+        speakers.add(speaker);
+      }
+    }
+  }
+
+  @override
+  int get hashCode {
+    int hash = slot.hashCode ^ conferenceId.hashCode;
+    for (final speaker in speakers) {
+      hash ^= speaker.hashCode;
+    }
+    return hash;
+  }
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) return true;
+
+    if (other is ScheduleSlotViewModel) {
+      if (conferenceId != other.conferenceId ||
+          slot != slot ||
+          speakers?.length != other.speakers?.length) {
+        return false;
+      }
+
+      if (speakers != null && speakers.length > 0) {
+        for (int i = 0; i < speakers.length; i++) {
+          if (speakers[i] != other.speakers[i]) return false;
+        }
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+}
+
+class SchedulePanel extends StatelessWidget {
+  const SchedulePanel(this.conferenceId);
+
+  final int conferenceId;
+
+  List<Widget> _buildScheduleWidgets(Schedule sched, ThemeData theme) {
+    final widgets = <Widget>[];
+
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          strutils.capitalize(sched.day),
+          style: theme.textTheme.headline,
+        ),
+      ),
+    );
+
+    for (final slot in sched.slots) {
+      widgets.add(ViewModelSubscriber<AppState, ScheduleSlotViewModel>(
+        converter: (state) => ScheduleSlotViewModel(state, conferenceId,
+            slot.day, slot.talk?.id ?? slot.scheduleBreak.id),
+        builder: (context, dispatcher, viewModel) {
+          return ScheduleSlotItem(slot, conferenceId, viewModel.speakers, isFavorite: viewModel.isFavorite);
+        },
+      ));
+    }
+
+    return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ViewModelSubscriber<AppState, BuiltList<Schedule>>(
+      converter: (state) => state.schedules[conferenceId],
+      builder: (context, dispatcher, schedules) {
+        final children = <Widget>[];
+
+        for (Schedule sched in schedules) {
+          children.addAll(_buildScheduleWidgets(sched, theme));
+          children.add(SizedBox(height: 16.0));
+        }
+
+        return ListView(
+          children: children,
+        );
+      },
+    );
+  }
+}
+
 class ConferenceDetailScreen extends StatefulWidget {
   final int conferenceId;
 
@@ -253,11 +353,9 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
     if (navBarSelection == 0) {
       body = ConferenceInfoPanel(widget.conferenceId);
     } else if (navBarSelection == 1) {
-      body = Center(
-        child: Text('Not Yet Implemented'),
-      );
+      body = SchedulePanel(widget.conferenceId);
     } else {
-      body = SpeakerPane(widget.conferenceId);
+      body = SpeakerPanel(widget.conferenceId);
     }
 
     return Scaffold(
@@ -269,23 +367,33 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       ),
       drawer: MainDrawer(),
       body: body,
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) => setState(() => navBarSelection = index),
-        currentIndex: navBarSelection,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            title: Text('Info'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.schedule),
-            title: Text('Schedule'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            title: Text('Speakers'),
-          ),
-        ],
+      bottomNavigationBar: ViewModelSubscriber<AppState, String>(
+        converter: (state) => state.conferences[widget.conferenceId].name,
+        builder: (context, dispatcher, viewModel) {
+          return BottomNavigationBar(
+            onTap: (index) {
+              if (index == 1) {
+                dispatcher(RefreshSchedulesAction(widget.conferenceId));
+              }
+              setState(() => navBarSelection = index);
+            },
+            currentIndex: navBarSelection,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.info),
+                title: Text('Info'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.schedule),
+                title: Text('Schedule'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                title: Text('Speakers'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

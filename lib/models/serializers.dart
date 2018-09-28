@@ -20,7 +20,11 @@ import 'package:built_value/standard_json_plugin.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/enums.dart';
 import 'package:voxxedapp/models/conference.dart';
+import 'package:voxxedapp/models/schedule.dart';
+import 'package:voxxedapp/models/schedule_break.dart';
+import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
+import 'package:voxxedapp/models/talk.dart';
 import 'package:voxxedapp/models/track.dart';
 import 'package:voxxedapp/models/language.dart';
 import 'package:voxxedapp/models/session_type.dart';
@@ -32,8 +36,12 @@ part 'serializers.g.dart';
   Conference,
   EventType,
   Language,
+  Schedule,
+  ScheduleBreak,
+  ScheduleSlot,
   SessionType,
   Speaker,
+  Talk,
   Track,
 ])
 // built_value doesn't include serializers for lists of values by default, so
@@ -42,7 +50,9 @@ part 'serializers.g.dart';
 final Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
           Conference.listSerializationType, () => new ListBuilder<Conference>())
-      ..addBuilderFactory(
-          Speaker.listSerializationType, () => new ListBuilder<Speaker>())
+  ..addBuilderFactory(
+      Schedule.listSerializationType, () => new ListBuilder<Schedule>())
+  ..addBuilderFactory(
+      Speaker.listSerializationType, () => new ListBuilder<Speaker>())
       ..addPlugin(StandardJsonPlugin()))
     .build();

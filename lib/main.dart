@@ -19,7 +19,9 @@ import 'package:rebloc/rebloc.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
+import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/screens/about_screen.dart';
@@ -27,6 +29,7 @@ import 'package:voxxedapp/screens/conference_detail.dart';
 import 'package:voxxedapp/screens/conference_list.dart';
 import 'package:voxxedapp/screens/speaker_detail.dart';
 import 'package:voxxedapp/screens/splash_screen.dart';
+import 'package:voxxedapp/screens/talk_detail.dart';
 import 'package:voxxedapp/screens/track_detail.dart';
 
 Future main() async {
@@ -46,6 +49,8 @@ class VoxxedDayApp extends StatelessWidget {
       AppStateBloc(),
       ConferenceBloc(),
       SpeakerBloc(),
+      ScheduleBloc(),
+      FavoritesBloc(),
     ],
   );
 
@@ -93,6 +98,15 @@ class VoxxedDayApp extends StatelessWidget {
         final trackId = int.parse(path[4]);
         return MaterialPageRoute(
           builder: (context) => TrackDetailScreen(conferenceId, trackId),
+          settings: settings,
+        );
+      }
+
+      // List of speakers for drill-down.
+      if (path[3] == 'talk') {
+        final talkId = path[4];
+        return MaterialPageRoute(
+          builder: (context) => TalkDetailScreen(conferenceId, talkId),
           settings: settings,
         );
       }

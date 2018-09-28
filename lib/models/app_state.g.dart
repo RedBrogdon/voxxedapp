@@ -41,6 +41,16 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
             const FullType(int),
             const FullType(BuiltList, const [const FullType(Speaker)])
           ])),
+      'schedules',
+      serializers.serialize(object.schedules,
+          specifiedType: const FullType(BuiltMap, const [
+            const FullType(int),
+            const FullType(BuiltList, const [const FullType(Schedule)])
+          ])),
+      'favoriteSessions',
+      serializers.serialize(object.favoriteSessions,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(String)])),
       'selectedConferenceId',
       serializers.serialize(object.selectedConferenceId,
           specifiedType: const FullType(int)),
@@ -80,6 +90,19 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
                 const FullType(BuiltList, const [const FullType(Speaker)])
               ])) as BuiltMap);
           break;
+        case 'schedules':
+          result.schedules.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltMap, const [
+                const FullType(int),
+                const FullType(BuiltList, const [const FullType(Schedule)])
+              ])) as BuiltMap);
+          break;
+        case 'favoriteSessions':
+          result.favoriteSessions.replace(serializers.deserialize(value,
+                  specifiedType:
+                      const FullType(BuiltList, const [const FullType(String)]))
+              as BuiltList);
+          break;
         case 'selectedConferenceId':
           result.selectedConferenceId = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int;
@@ -105,6 +128,10 @@ class _$AppState extends AppState {
   @override
   final BuiltMap<int, BuiltList<Speaker>> speakers;
   @override
+  final BuiltMap<int, BuiltList<Schedule>> schedules;
+  @override
+  final BuiltList<String> favoriteSessions;
+  @override
   final int selectedConferenceId;
   @override
   final bool readyToGo;
@@ -117,6 +144,8 @@ class _$AppState extends AppState {
   _$AppState._(
       {this.conferences,
       this.speakers,
+      this.schedules,
+      this.favoriteSessions,
       this.selectedConferenceId,
       this.readyToGo,
       this.willNeverBeReadyToGo})
@@ -126,6 +155,12 @@ class _$AppState extends AppState {
     }
     if (speakers == null) {
       throw new BuiltValueNullFieldError('AppState', 'speakers');
+    }
+    if (schedules == null) {
+      throw new BuiltValueNullFieldError('AppState', 'schedules');
+    }
+    if (favoriteSessions == null) {
+      throw new BuiltValueNullFieldError('AppState', 'favoriteSessions');
     }
     if (selectedConferenceId == null) {
       throw new BuiltValueNullFieldError('AppState', 'selectedConferenceId');
@@ -151,6 +186,8 @@ class _$AppState extends AppState {
     return other is AppState &&
         conferences == other.conferences &&
         speakers == other.speakers &&
+        schedules == other.schedules &&
+        favoriteSessions == other.favoriteSessions &&
         selectedConferenceId == other.selectedConferenceId &&
         readyToGo == other.readyToGo &&
         willNeverBeReadyToGo == other.willNeverBeReadyToGo;
@@ -160,7 +197,11 @@ class _$AppState extends AppState {
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, conferences.hashCode), speakers.hashCode),
+            $jc(
+                $jc(
+                    $jc($jc($jc(0, conferences.hashCode), speakers.hashCode),
+                        schedules.hashCode),
+                    favoriteSessions.hashCode),
                 selectedConferenceId.hashCode),
             readyToGo.hashCode),
         willNeverBeReadyToGo.hashCode));
@@ -171,6 +212,8 @@ class _$AppState extends AppState {
     return (newBuiltValueToStringHelper('AppState')
           ..add('conferences', conferences)
           ..add('speakers', speakers)
+          ..add('schedules', schedules)
+          ..add('favoriteSessions', favoriteSessions)
           ..add('selectedConferenceId', selectedConferenceId)
           ..add('readyToGo', readyToGo)
           ..add('willNeverBeReadyToGo', willNeverBeReadyToGo))
@@ -193,6 +236,18 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
   set speakers(MapBuilder<int, BuiltList<Speaker>> speakers) =>
       _$this._speakers = speakers;
 
+  MapBuilder<int, BuiltList<Schedule>> _schedules;
+  MapBuilder<int, BuiltList<Schedule>> get schedules =>
+      _$this._schedules ??= new MapBuilder<int, BuiltList<Schedule>>();
+  set schedules(MapBuilder<int, BuiltList<Schedule>> schedules) =>
+      _$this._schedules = schedules;
+
+  ListBuilder<String> _favoriteSessions;
+  ListBuilder<String> get favoriteSessions =>
+      _$this._favoriteSessions ??= new ListBuilder<String>();
+  set favoriteSessions(ListBuilder<String> favoriteSessions) =>
+      _$this._favoriteSessions = favoriteSessions;
+
   int _selectedConferenceId;
   int get selectedConferenceId => _$this._selectedConferenceId;
   set selectedConferenceId(int selectedConferenceId) =>
@@ -213,6 +268,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
     if (_$v != null) {
       _conferences = _$v.conferences?.toBuilder();
       _speakers = _$v.speakers?.toBuilder();
+      _schedules = _$v.schedules?.toBuilder();
+      _favoriteSessions = _$v.favoriteSessions?.toBuilder();
       _selectedConferenceId = _$v.selectedConferenceId;
       _readyToGo = _$v.readyToGo;
       _willNeverBeReadyToGo = _$v.willNeverBeReadyToGo;
@@ -242,6 +299,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
           new _$AppState._(
               conferences: conferences.build(),
               speakers: speakers.build(),
+              schedules: schedules.build(),
+              favoriteSessions: favoriteSessions.build(),
               selectedConferenceId: selectedConferenceId,
               readyToGo: readyToGo,
               willNeverBeReadyToGo: willNeverBeReadyToGo);
@@ -252,6 +311,10 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
         conferences.build();
         _$failedField = 'speakers';
         speakers.build();
+        _$failedField = 'schedules';
+        schedules.build();
+        _$failedField = 'favoriteSessions';
+        favoriteSessions.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'AppState', _$failedField, e.toString());
