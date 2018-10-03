@@ -23,7 +23,7 @@ abstract class Schedule implements Built<Schedule, ScheduleBuilder> {
   static Serializer<Schedule> get serializer => _$scheduleSerializer;
 
   static const listSerializationType =
-  const FullType(BuiltList, [FullType(Schedule)]);
+      const FullType(BuiltList, [FullType(Schedule)]);
 
   String get day;
 

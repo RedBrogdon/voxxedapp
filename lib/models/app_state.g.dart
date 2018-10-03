@@ -47,10 +47,13 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
             const FullType(int),
             const FullType(BuiltList, const [const FullType(Schedule)])
           ])),
-      'favoriteSessions',
-      serializers.serialize(object.favoriteSessions,
-          specifiedType:
-              const FullType(BuiltList, const [const FullType(String)])),
+      'sessionNotifications',
+      serializers.serialize(object.sessionNotifications,
+          specifiedType: const FullType(
+              BuiltMap, const [const FullType(String), const FullType(int)])),
+      'lastNotificationId',
+      serializers.serialize(object.lastNotificationId,
+          specifiedType: const FullType(int)),
       'selectedConferenceId',
       serializers.serialize(object.selectedConferenceId,
           specifiedType: const FullType(int)),
@@ -97,11 +100,16 @@ class _$AppStateSerializer implements StructuredSerializer<AppState> {
                 const FullType(BuiltList, const [const FullType(Schedule)])
               ])) as BuiltMap);
           break;
-        case 'favoriteSessions':
-          result.favoriteSessions.replace(serializers.deserialize(value,
-                  specifiedType:
-                      const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList);
+        case 'sessionNotifications':
+          result.sessionNotifications.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltMap, const [
+                const FullType(String),
+                const FullType(int)
+              ])) as BuiltMap);
+          break;
+        case 'lastNotificationId':
+          result.lastNotificationId = serializers.deserialize(value,
+              specifiedType: const FullType(int)) as int;
           break;
         case 'selectedConferenceId':
           result.selectedConferenceId = serializers.deserialize(value,
@@ -130,7 +138,9 @@ class _$AppState extends AppState {
   @override
   final BuiltMap<int, BuiltList<Schedule>> schedules;
   @override
-  final BuiltList<String> favoriteSessions;
+  final BuiltMap<String, int> sessionNotifications;
+  @override
+  final int lastNotificationId;
   @override
   final int selectedConferenceId;
   @override
@@ -145,7 +155,8 @@ class _$AppState extends AppState {
       {this.conferences,
       this.speakers,
       this.schedules,
-      this.favoriteSessions,
+      this.sessionNotifications,
+      this.lastNotificationId,
       this.selectedConferenceId,
       this.readyToGo,
       this.willNeverBeReadyToGo})
@@ -159,8 +170,11 @@ class _$AppState extends AppState {
     if (schedules == null) {
       throw new BuiltValueNullFieldError('AppState', 'schedules');
     }
-    if (favoriteSessions == null) {
-      throw new BuiltValueNullFieldError('AppState', 'favoriteSessions');
+    if (sessionNotifications == null) {
+      throw new BuiltValueNullFieldError('AppState', 'sessionNotifications');
+    }
+    if (lastNotificationId == null) {
+      throw new BuiltValueNullFieldError('AppState', 'lastNotificationId');
     }
     if (selectedConferenceId == null) {
       throw new BuiltValueNullFieldError('AppState', 'selectedConferenceId');
@@ -187,7 +201,8 @@ class _$AppState extends AppState {
         conferences == other.conferences &&
         speakers == other.speakers &&
         schedules == other.schedules &&
-        favoriteSessions == other.favoriteSessions &&
+        sessionNotifications == other.sessionNotifications &&
+        lastNotificationId == other.lastNotificationId &&
         selectedConferenceId == other.selectedConferenceId &&
         readyToGo == other.readyToGo &&
         willNeverBeReadyToGo == other.willNeverBeReadyToGo;
@@ -199,9 +214,13 @@ class _$AppState extends AppState {
         $jc(
             $jc(
                 $jc(
-                    $jc($jc($jc(0, conferences.hashCode), speakers.hashCode),
-                        schedules.hashCode),
-                    favoriteSessions.hashCode),
+                    $jc(
+                        $jc(
+                            $jc($jc(0, conferences.hashCode),
+                                speakers.hashCode),
+                            schedules.hashCode),
+                        sessionNotifications.hashCode),
+                    lastNotificationId.hashCode),
                 selectedConferenceId.hashCode),
             readyToGo.hashCode),
         willNeverBeReadyToGo.hashCode));
@@ -213,7 +232,8 @@ class _$AppState extends AppState {
           ..add('conferences', conferences)
           ..add('speakers', speakers)
           ..add('schedules', schedules)
-          ..add('favoriteSessions', favoriteSessions)
+          ..add('sessionNotifications', sessionNotifications)
+          ..add('lastNotificationId', lastNotificationId)
           ..add('selectedConferenceId', selectedConferenceId)
           ..add('readyToGo', readyToGo)
           ..add('willNeverBeReadyToGo', willNeverBeReadyToGo))
@@ -242,11 +262,16 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
   set schedules(MapBuilder<int, BuiltList<Schedule>> schedules) =>
       _$this._schedules = schedules;
 
-  ListBuilder<String> _favoriteSessions;
-  ListBuilder<String> get favoriteSessions =>
-      _$this._favoriteSessions ??= new ListBuilder<String>();
-  set favoriteSessions(ListBuilder<String> favoriteSessions) =>
-      _$this._favoriteSessions = favoriteSessions;
+  MapBuilder<String, int> _sessionNotifications;
+  MapBuilder<String, int> get sessionNotifications =>
+      _$this._sessionNotifications ??= new MapBuilder<String, int>();
+  set sessionNotifications(MapBuilder<String, int> sessionNotifications) =>
+      _$this._sessionNotifications = sessionNotifications;
+
+  int _lastNotificationId;
+  int get lastNotificationId => _$this._lastNotificationId;
+  set lastNotificationId(int lastNotificationId) =>
+      _$this._lastNotificationId = lastNotificationId;
 
   int _selectedConferenceId;
   int get selectedConferenceId => _$this._selectedConferenceId;
@@ -269,7 +294,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
       _conferences = _$v.conferences?.toBuilder();
       _speakers = _$v.speakers?.toBuilder();
       _schedules = _$v.schedules?.toBuilder();
-      _favoriteSessions = _$v.favoriteSessions?.toBuilder();
+      _sessionNotifications = _$v.sessionNotifications?.toBuilder();
+      _lastNotificationId = _$v.lastNotificationId;
       _selectedConferenceId = _$v.selectedConferenceId;
       _readyToGo = _$v.readyToGo;
       _willNeverBeReadyToGo = _$v.willNeverBeReadyToGo;
@@ -300,7 +326,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
               conferences: conferences.build(),
               speakers: speakers.build(),
               schedules: schedules.build(),
-              favoriteSessions: favoriteSessions.build(),
+              sessionNotifications: sessionNotifications.build(),
+              lastNotificationId: lastNotificationId,
               selectedConferenceId: selectedConferenceId,
               readyToGo: readyToGo,
               willNeverBeReadyToGo: willNeverBeReadyToGo);
@@ -313,8 +340,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
         speakers.build();
         _$failedField = 'schedules';
         schedules.build();
-        _$failedField = 'favoriteSessions';
-        favoriteSessions.build();
+        _$failedField = 'sessionNotifications';
+        sessionNotifications.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'AppState', _$failedField, e.toString());

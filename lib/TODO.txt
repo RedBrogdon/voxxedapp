@@ -2,12 +2,15 @@ X Refactor stream subscriptions in blocs.
 X Refactor ViewModel class to get a dispatch function rather than store.
 X Refactor reducers to just return an object rather than a builder.
 X Implement Drawer and "pick a conference" navigation.
-- Schedule pane
-- Schedule item details
-- About page
-- Favoriting a talk or speaker
+X Schedule pane
+X Schedule item details
+X About page
+X Favoriting a talk or speaker
+X Refreshing all speakers is blowing away deatils on individual speakers
+X Switch to https://api.voxxed.com/api/... for conference API calls
+
 - Notifications for favorite talks/speakers
-- Refreshing all speakers is blowing away deatils on individual speakers
+- Navigate to talk details when notification tapped (running or not).
 - Find a way to link out to a map
 - Cold boot JSON
 - Keys on lists.

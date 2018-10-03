@@ -56,10 +56,10 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       RefreshConferencesAction action) {
     repository.loadConferenceList().then((newList) {
       final action = RefreshedConferencesAction(newList.toList());
-
-      for (Conference conf in newList) {
-        action.afterward(RefreshConferenceAction(conf.id));
-      }
+      final id = (state.selectedConferenceId != 0)
+          ? state.selectedConferenceId
+          : newList.first.id;
+      action.afterward(RefreshConferenceAction(id));
       dispatcher(action);
     }).catchError((e, s) {
       dispatcher(RefreshConferencesFailedAction());

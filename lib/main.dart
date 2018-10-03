@@ -19,8 +19,11 @@ import 'package:rebloc/rebloc.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
+import 'package:voxxedapp/blocs/data_refresher_bloc.dart';
+import 'package:voxxedapp/blocs/debouncer_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
+import 'package:voxxedapp/blocs/navigation_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
@@ -42,24 +45,43 @@ Future main() async {
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  final Store<AppState> store = Store<AppState>(
-    initialState: AppState.initialState(),
-    blocs: [
-      LoggerBloc(),
-      AppStateBloc(),
-      ConferenceBloc(),
-      SpeakerBloc(),
-      ScheduleBloc(),
-      FavoritesBloc(),
-    ],
-  );
+  // By tagging the Navigator created By [MaterialApp] with a GlobalKey and
+  // providing it to the NavigationBloc, we give NavigationBloc a way to get
+  // access to the Navigator it's intended to manipulate.
+  final navigatorKey = GlobalKey<NavigatorState>();
+
+  // This is created separately so we can refer to it later in [build].
+  NavigationBloc navBloc;
+
+  // Holds and manages application state for the app.
+  Store<AppState> store;
 
   VoxxedDayApp() {
+    navBloc = NavigationBloc(navigatorKey);
+    store = Store<AppState>(
+      initialState: AppState.initialState(),
+      blocs: [
+        LoggerBloc(),
+        DebouncerBloc(
+          [SaveAppStateAction],
+          duration: Duration(seconds: 10),
+        ),
+        AppStateBloc(),
+        navBloc,
+        DataRefresherBloc(),
+        ConferenceBloc(),
+        SpeakerBloc(),
+        ScheduleBloc(),
+        FavoritesBloc(),
+      ],
+    );
+
     // This will attempt to load a previously-saved app state from disk. A
     // request to the server for the list of conferences will automatically
     // follow. If both fail, the app can't run, and will halt on the splash
     // screen with a warning message.
-    store.dispatcher(new LoadAppStateAction());
+    store.dispatcher(StartObservingNavigationAction());
+    store.dispatcher(LoadAppStateAction());
   }
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
@@ -93,7 +115,7 @@ class VoxxedDayApp extends StatelessWidget {
         );
       }
 
-      // List of speakers for drill-down.
+      // Details of a conference track.
       if (path[3] == 'track') {
         final trackId = int.parse(path[4]);
         return MaterialPageRoute(
@@ -102,7 +124,7 @@ class VoxxedDayApp extends StatelessWidget {
         );
       }
 
-      // List of speakers for drill-down.
+      // Details of a conference talk.
       if (path[3] == 'talk') {
         final talkId = path[4];
         return MaterialPageRoute(
@@ -137,6 +159,8 @@ class VoxxedDayApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         onGenerateRoute: _onGenerateRoute,
+        navigatorKey: navigatorKey,
+        navigatorObservers: [navBloc.observer],
       ),
     );
   }

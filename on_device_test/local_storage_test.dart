@@ -22,8 +22,6 @@ import 'package:test/test.dart';
 // local storage, which is only available on a device or emulator.
 void main() {
   group('Main test group', () {
-    test('This test always passes.', () async {
-
-    });
+    test('This test always passes.', () async {});
   });
 }

@@ -63,6 +63,7 @@ Serializers _$serializers = (new Serializers().toBuilder()
           ]),
           () => new MapBuilder<int, BuiltList<Schedule>>())
       ..addBuilderFactory(
-          const FullType(BuiltList, const [const FullType(String)]),
-          () => new ListBuilder<String>()))
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(int)]),
+          () => new MapBuilder<String, int>()))
     .build();

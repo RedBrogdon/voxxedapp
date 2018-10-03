@@ -18,7 +18,8 @@ import 'package:built_value/serializer.dart';
 
 part 'speaker.g.dart';
 
-abstract class Speaker implements Built<Speaker, SpeakerBuilder>, Comparable<dynamic> {
+abstract class Speaker
+    implements Built<Speaker, SpeakerBuilder>, Comparable<dynamic> {
   static Serializer<Speaker> get serializer => _$speakerSerializer;
 
   static const listSerializationType =
@@ -66,6 +67,4 @@ abstract class Speaker implements Built<Speaker, SpeakerBuilder>, Comparable<dyn
     // If identical or of different types, return equality.
     return 0;
   }
-
-
 }

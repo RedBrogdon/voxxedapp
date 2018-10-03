@@ -15,6 +15,7 @@
 import 'dart:async';
 
 import 'package:rebloc/rebloc.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
@@ -33,6 +34,28 @@ class AppStateLoadedAction extends Action {
   final AppState state;
 
   AppStateLoadedAction(this.state);
+}
+
+class SaveAppStateDebouncerBloc implements Bloc<AppState> {
+  SaveAppStateDebouncerBloc(this.duration);
+
+  final Duration duration;
+
+  @override
+  Stream<MiddlewareContext<AppState>> applyMiddleware(
+      Stream<MiddlewareContext<AppState>> input) {
+    return MergeStream<MiddlewareContext<AppState>>([
+      input.where((c) => !(c.action is SaveAppStateAction)),
+      Observable(input.where((c) => c.action is SaveAppStateAction))
+          .debounce(duration),
+    ]);
+  }
+
+  @override
+  Stream<Accumulator<AppState>> applyReducer(
+      Stream<Accumulator<AppState>> input) {
+    return input;
+  }
 }
 
 /// Manages the loading and caching of conference records.

@@ -218,7 +218,7 @@ class TalkDetailScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: ViewModelSubscriber<AppState, bool>(
-        converter: (state) => state.favoriteSessions.contains(talkId),
+        converter: (state) => state.sessionNotifications.containsKey(talkId),
         builder: (context, dispatcher, isFavorite) {
           return FloatingActionButton(
             backgroundColor: Colors.deepOrange,

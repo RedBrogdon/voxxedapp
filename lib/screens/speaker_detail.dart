@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
-import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
@@ -159,8 +158,6 @@ class SpeakerDetailScreen extends StatelessWidget {
         converter: (state) =>
             state.speakers[conferenceId].firstWhere((s) => s.uuid == uuid),
         builder: (context, dispatcher, speaker) {
-          dispatcher(RefreshSpeakerForConferenceAction(conferenceId, uuid));
-
           return ListView(
             children: [
               SizedBox(height: 24.0),

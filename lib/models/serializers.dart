@@ -50,9 +50,9 @@ part 'serializers.g.dart';
 final Serializers serializers = (_$serializers.toBuilder()
       ..addBuilderFactory(
           Conference.listSerializationType, () => new ListBuilder<Conference>())
-  ..addBuilderFactory(
-      Schedule.listSerializationType, () => new ListBuilder<Schedule>())
-  ..addBuilderFactory(
-      Speaker.listSerializationType, () => new ListBuilder<Speaker>())
+      ..addBuilderFactory(
+          Schedule.listSerializationType, () => new ListBuilder<Schedule>())
+      ..addBuilderFactory(
+          Speaker.listSerializationType, () => new ListBuilder<Speaker>())
       ..addPlugin(StandardJsonPlugin()))
     .build();

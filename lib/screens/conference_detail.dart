@@ -1,18 +1,18 @@
+// Copyright 2018, Devoxx
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import 'package:built_collection/built_collection.dart';
-
-////
-//// Licensed under the Apache License, Version 2.0 (the "License");
-//// you may not use this file except in compliance with the License.
-//// You may obtain a copy of the License at
-////
-//// http://www.apache.org/licenses/LICENSE-2.0
-////
-//// Unless required by applicable law or agreed to in writing, software
-//// distributed under the License is distributed on an "AS IS" BASIS,
-//// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//// See the License for the specific language governing permissions and
-//// limitations under the License.
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
@@ -22,11 +22,10 @@ import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
-import 'package:voxxedapp/widgets/avatar.dart';
+import 'package:voxxedapp/util/string_utils.dart' as strutils;
 import 'package:voxxedapp/widgets/main_drawer.dart';
 import 'package:voxxedapp/widgets/schedule_slot_item.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
-import 'package:voxxedapp/util/string_utils.dart' as strutils;
 import 'package:voxxedapp/widgets/track_item.dart';
 
 class SpeakerPanel extends StatelessWidget {
@@ -232,7 +231,7 @@ class ScheduleSlotViewModel {
     }
 
     if (slot.talk != null) {
-      isFavorite = state.favoriteSessions.contains(slot.talk.id);
+      isFavorite = state.sessionNotifications.containsKey(slot.talk.id);
     } else {
       isFavorite = false;
     }
@@ -302,7 +301,8 @@ class SchedulePanel extends StatelessWidget {
         converter: (state) => ScheduleSlotViewModel(state, conferenceId,
             slot.day, slot.talk?.id ?? slot.scheduleBreak.id),
         builder: (context, dispatcher, viewModel) {
-          return ScheduleSlotItem(slot, conferenceId, viewModel.speakers, isFavorite: viewModel.isFavorite);
+          return ScheduleSlotItem(slot, conferenceId, viewModel.speakers,
+              isFavorite: viewModel.isFavorite);
         },
       ));
     }

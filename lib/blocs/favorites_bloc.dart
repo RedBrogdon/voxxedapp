@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:voxxedapp/models/schedule_slot.dart';
+import 'package:voxxedapp/util/logger.dart';
 
 class ToggleFavoriteAction extends Action {
   final String talkId;
@@ -21,14 +26,82 @@ class ToggleFavoriteAction extends Action {
   ToggleFavoriteAction(this.talkId);
 }
 
+class SetAllNotificationsAction extends Action {}
+
 class FavoritesBloc extends SimpleBloc<AppState> {
+  FavoritesBloc() {
+    var initializationSettings = new InitializationSettings(
+      AndroidInitializationSettings('ic_session_start'),
+      IOSInitializationSettings(),
+    );
+
+    _plugin.initialize(
+      initializationSettings,
+      selectNotification: _handleNotificationSelection,
+    );
+  }
+
+  static final _notificationDetails = NotificationDetails(
+    AndroidNotificationDetails(
+        'voxxedapp_favorite_beginning',
+        'Session Beginning',
+        'Notifications that appear when a session marked as favorite is about '
+        'to begin.'),
+    IOSNotificationDetails(),
+  );
+
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> _handleNotificationSelection(String msg) async {
+    log.info('Notification selection: $msg');
+  }
+
+  Future<void> _scheduleNotification(int id, ScheduleSlot slot) async {
+    await _plugin.schedule(
+      id,
+      'Session starting',
+      '${slot.talk.title} begins in ten minutes in ${slot.roomName}.',
+      DateTime.now().add(Duration(seconds: 10)),
+      _notificationDetails,
+    );
+  }
+
+  Future<void> _cancelNotification(int id) async {
+    return await _plugin.cancel(id);
+  }
+
+  @override
+  FutureOr<Action> middleware(
+      DispatchFunction dispatcher, AppState state, Action action) {
+    if (action is SetAllNotificationsAction) {
+      for (final talkId in state.sessionNotifications.keys) {
+        final slot = state.getSlotByTalkId(talkId);
+        if (slot != null) {
+          _scheduleNotification(state.sessionNotifications[talkId], slot);
+        }
+      }
+    }
+
+    return action;
+  }
+
   @override
   AppState reducer(state, action) {
     if (action is ToggleFavoriteAction) {
-      if (state.favoriteSessions.contains(action.talkId)) {
-        return state.rebuild((b) => b.favoriteSessions.removeWhere((s) => s == action.talkId));
+      if (state.sessionNotifications.containsKey(action.talkId)) {
+        _cancelNotification(state.sessionNotifications[action.talkId]);
+        return state
+            .rebuild((b) => b.sessionNotifications.remove(action.talkId));
       } else {
-        return state.rebuild((b) => b.favoriteSessions.add(action.talkId));
+        final slot = state.getSlotByTalkId(action.talkId);
+        if (slot != null) {
+          final id = state.lastNotificationId + 1;
+          _scheduleNotification(id, slot);
+          return state.rebuild((b) => b
+            ..sessionNotifications[action.talkId] = id
+            ..lastNotificationId = b.lastNotificationId + 1);
+        }
       }
     }
 

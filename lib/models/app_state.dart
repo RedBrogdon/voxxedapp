@@ -17,6 +17,7 @@ import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
+import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 
 part 'app_state.g.dart';
@@ -30,7 +31,10 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
   BuiltMap<int, BuiltList<Schedule>> get schedules;
 
-  BuiltList<String> get favoriteSessions;
+  // If a session is present as a key in this map, it is "favorited."
+  BuiltMap<String, int> get sessionNotifications;
+
+  int get lastNotificationId;
 
   int get selectedConferenceId;
 
@@ -45,8 +49,23 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
   factory AppState.initialState() {
     return AppState((b) => b
+      ..lastNotificationId = 0
       .._selectedConferenceId = 0
       ..readyToGo = false
       .._willNeverBeReadyToGo = false);
+  }
+
+  ScheduleSlot getSlotByTalkId(String talkId) {
+    for (final scheduleList in schedules.values) {
+      for (final schedule in scheduleList) {
+        final slot = schedule.slots
+            .firstWhere((s) => s.talk?.id == talkId, orElse: () => null);
+        if (slot != null) {
+          return slot;
+        }
+      }
+    }
+
+    return null;
   }
 }

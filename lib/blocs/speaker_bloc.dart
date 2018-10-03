@@ -117,7 +117,8 @@ class SpeakerBloc extends SimpleBloc<AppState> {
     if (state.speakers.containsKey(action.conferenceId)) {
       return state.rebuild(
         (b) => b
-          ..speakers[action.conferenceId] = b.speakers[action.conferenceId].rebuild(
+          ..speakers[action.conferenceId] =
+              b.speakers[action.conferenceId].rebuild(
             (sb) => sb
               ..removeWhere((s) => s.uuid == action.speaker.uuid)
               ..add(action.speaker),

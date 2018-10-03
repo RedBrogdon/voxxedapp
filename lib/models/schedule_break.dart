@@ -18,11 +18,12 @@ import 'package:built_value/serializer.dart';
 
 part 'schedule_break.g.dart';
 
-abstract class ScheduleBreak implements Built<ScheduleBreak, ScheduleBreakBuilder> {
+abstract class ScheduleBreak
+    implements Built<ScheduleBreak, ScheduleBreakBuilder> {
   static Serializer<ScheduleBreak> get serializer => _$scheduleBreakSerializer;
 
   static const listSerializationType =
-  const FullType(BuiltList, [FullType(ScheduleBreak)]);
+      const FullType(BuiltList, [FullType(ScheduleBreak)]);
 
   String get id;
 

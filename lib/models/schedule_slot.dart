@@ -20,11 +20,12 @@ import 'package:voxxedapp/models/talk.dart';
 
 part 'schedule_slot.g.dart';
 
-abstract class ScheduleSlot implements Built<ScheduleSlot, ScheduleSlotBuilder> {
+abstract class ScheduleSlot
+    implements Built<ScheduleSlot, ScheduleSlotBuilder> {
   static Serializer<ScheduleSlot> get serializer => _$scheduleSlotSerializer;
 
   static const listSerializationType =
-  const FullType(BuiltList, [FullType(ScheduleSlot)]);
+      const FullType(BuiltList, [FullType(ScheduleSlot)]);
 
   String get slotId; //: a unique identifier for the room
 
@@ -45,7 +46,8 @@ abstract class ScheduleSlot implements Built<ScheduleSlot, ScheduleSlotBuilder> 
   @nullable
   ScheduleBreak get scheduleBreak;
 
-  @nullable Talk get talk;
+  @nullable
+  Talk get talk;
 
   ScheduleSlot._();
 

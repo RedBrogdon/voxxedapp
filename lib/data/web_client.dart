@@ -31,10 +31,10 @@ class WebClient {
   const WebClient();
 
   String createAllConferencesUrl() =>
-      'https://beta.voxxeddays.com/backend/api/voxxeddays/events/future/voxxed';
+      'https://api.voxxed.com/api/voxxeddays/events/future/voxxed';
 
   String createSingleConferenceUrl(int id) =>
-      'https://beta.voxxeddays.com/backend/api/voxxeddays/events/$id';
+      'https://api.voxxed.com/api/voxxeddays/events/$id';
 
   String createAllSpeakersUrl(String cfpUrl, String cfpVersion) =>
       '$cfpUrl/api/conferences/$cfpVersion/speakers';

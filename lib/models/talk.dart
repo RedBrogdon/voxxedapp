@@ -22,7 +22,7 @@ abstract class Talk implements Built<Talk, TalkBuilder> {
   static Serializer<Talk> get serializer => _$talkSerializer;
 
   static const listSerializationType =
-    const FullType(BuiltList, [FullType(Talk)]);
+      const FullType(BuiltList, [FullType(Talk)]);
 
   String get id;
 

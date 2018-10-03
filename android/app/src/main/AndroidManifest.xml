@@ -16,6 +16,15 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="voxxedapp"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- These two elements are required for flutter-local_notifications -->
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
