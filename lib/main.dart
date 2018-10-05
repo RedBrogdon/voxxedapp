@@ -45,19 +45,13 @@ Future main() async {
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  // By tagging the Navigator created By [MaterialApp] with a GlobalKey and
-  // providing it to the NavigationBloc, we give NavigationBloc a way to get
-  // access to the Navigator it's intended to manipulate.
-  final navigatorKey = GlobalKey<NavigatorState>();
-
   // This is created separately so we can refer to it later in [build].
-  NavigationBloc navBloc;
+  final navBloc = NavigationBloc();
 
   // Holds and manages application state for the app.
   Store<AppState> store;
 
   VoxxedDayApp() {
-    navBloc = NavigationBloc(navigatorKey);
     store = Store<AppState>(
       initialState: AppState.initialState(),
       blocs: [
@@ -159,7 +153,6 @@ class VoxxedDayApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         onGenerateRoute: _onGenerateRoute,
-        navigatorKey: navigatorKey,
         navigatorObservers: [navBloc.observer],
       ),
     );

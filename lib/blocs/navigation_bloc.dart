@@ -81,35 +81,22 @@ class _NavigationBlocObserver extends NavigatorObserver {
 /// pushes a new route, which can be useful for example, in automatically
 /// kicking off network requests absed on user navigation. It can also pop and
 /// push routes based on [Action]s it receives from the dispatch stream.
-///
-/// To use this class:
-///
-/// 1. Create a GlobalKey<NavigatorState>.
-/// 2. Call the constructor with that [GlobalKey].
-/// 3. Create a Navigator using the same GlobalKey, and register the
-///   [_NavigationBlocObserver] returned by [observer] as one of the navigator
-///   observers for that Navigator.
-/// 4. The NavigationBloc is now ready to respond to actions.
-/// 5. At some point, dispatch a [StartObservingNavigationAction].
-/// 6. The NavigationBloc will begin responding to new routes pushed by the
-///   Navigator.
 class NavigationBloc extends SimpleBloc<AppState> {
-  NavigationBloc(this.navigatorKey) {
-    observer = _NavigationBlocObserver(onActiveRouteChanged: onDidPush);
+  NavigationBloc() {
+    observer = _NavigationBlocObserver(onActiveRouteChanged: _onDidPush);
   }
-
-  /// GlobalKey identifying the Navigator this Bloc observes/manages.
-  final GlobalKey<NavigatorState> navigatorKey;
 
   /// NavigatorObserver that should be given the the Navigator observed by this
   /// Bloc.
   _NavigationBlocObserver observer;
 
   // Dispatcher that can be used to dispatch actions to the Store for which this
-  // Bloc acts as middleware.
+  // Bloc acts as middleware. This is set to a valid dispatch function when a
+  // StartObservingNavigationAction is received, and reset to null when a
+  // StopObservingNavigationAction is received.
   DispatchFunction _dispatcher;
 
-  void onDidPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void _onDidPush(Route<dynamic> route, Route<dynamic> previousRoute) {
     if (_dispatcher != null && route?.settings?.name != null) {
       _dispatcher(DidPushNamedRouteAction(route.settings.name));
     }
@@ -122,19 +109,14 @@ class NavigationBloc extends SimpleBloc<AppState> {
       _dispatcher = dispatcher;
     } else if (action is StopObservingNavigationAction) {
       _dispatcher = null;
-    } else {
-      final navigatorState = navigatorKey.currentState;
-      if (navigatorState != null && navigatorState is NavigatorState) {
-        if (action is PopRouteAction) {
-          navigatorState.pop();
-        } else if (action is PushNamedRouteAction) {
-          navigatorState.pushNamed(action.routeName);
-        } else if (action is PushNamedReplacementRouteAction) {
-          navigatorState.pushReplacementNamed(action.routeName);
-        } else if (action is PopAndPushNamedRouteAction) {
-          navigatorState.popAndPushNamed(action.routeName);
-        }
-      }
+    } else if (action is PopRouteAction) {
+      observer.navigator?.pop();
+    } else if (action is PushNamedRouteAction) {
+      observer.navigator?.pushNamed(action.routeName);
+    } else if (action is PushNamedReplacementRouteAction) {
+      observer.navigator?.pushReplacementNamed(action.routeName);
+    } else if (action is PopAndPushNamedRouteAction) {
+      observer.navigator?.popAndPushNamed(action.routeName);
     }
 
     return action;
