@@ -29,6 +29,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/json/cold_boot.json
+
 # This is the config for flutter_launcher_icons, which
 # generates iOS and Android launcher icons from a source image.
 flutter_icons:

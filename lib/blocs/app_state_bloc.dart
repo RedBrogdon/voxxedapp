@@ -15,7 +15,6 @@
 import 'dart:async';
 
 import 'package:rebloc/rebloc.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
@@ -36,36 +35,24 @@ class AppStateLoadedAction extends Action {
   AppStateLoadedAction(this.state);
 }
 
-class SaveAppStateDebouncerBloc implements Bloc<AppState> {
-  SaveAppStateDebouncerBloc(this.duration);
+class LoadColdAppStateAction extends Action {}
 
-  final Duration duration;
+class ColdAppStateLoadedAction extends Action {
+  final AppState state;
 
-  @override
-  Stream<MiddlewareContext<AppState>> applyMiddleware(
-      Stream<MiddlewareContext<AppState>> input) {
-    return MergeStream<MiddlewareContext<AppState>>([
-      input.where((c) => !(c.action is SaveAppStateAction)),
-      Observable(input.where((c) => c.action is SaveAppStateAction))
-          .debounce(duration),
-    ]);
-  }
-
-  @override
-  Stream<Accumulator<AppState>> applyReducer(
-      Stream<Accumulator<AppState>> input) {
-    return input;
-  }
+  ColdAppStateLoadedAction(this.state);
 }
+
+class ColdAppStateFailedToLoadAction extends Action {}
 
 /// Manages the loading and caching of conference records.
 class AppStateBloc extends SimpleBloc<AppState> {
-  final AppStateLocalStorage localStorage;
-
   AppStateBloc({this.localStorage = const AppStateLocalStorage()});
 
+  final AppStateLocalStorage localStorage;
+
   void _beginLoadingAppState(DispatchFunction dispatcher) {
-    localStorage.loadAppState().then((state) {
+    localStorage.loadAppStateFromCache().then((state) {
       if (state != null) {
         dispatcher(AppStateLoadedAction(state));
       } else {
@@ -77,16 +64,39 @@ class AppStateBloc extends SimpleBloc<AppState> {
     });
   }
 
+  void _beginLoadingColdAppState(DispatchFunction dispatcher) {
+    localStorage.loadAppStateFromAsset().then((state) {
+      if (state != null) {
+        dispatcher(ColdAppStateLoadedAction(state));
+      } else {
+        dispatcher(ColdAppStateFailedToLoadAction());
+      }
+    }).catchError((e, s) {
+      log.severe('Failed to load cold boot state asset: $e');
+      dispatcher(ColdAppStateFailedToLoadAction());
+    });
+  }
+
   @override
   FutureOr<Action> middleware(
       DispatchFunction dispatcher, AppState state, Action action) {
     if (action is SaveAppStateAction) {
-      localStorage.saveAppState(state);
+      localStorage.saveAppStateToCache(state);
     } else if (action is LoadAppStateAction) {
       _beginLoadingAppState(dispatcher);
-    } else if (action is LoadAppStateFailedAction ||
-        action is AppStateLoadedAction) {
-      dispatcher(RefreshConferencesAction());
+    } else if (action is LoadColdAppStateAction) {
+      _beginLoadingColdAppState(dispatcher);
+    } else if (action is LoadAppStateFailedAction) {
+      // If loading cached app state from disk has failed (e.g. this is the
+      // first run, or an app update has rendered previous state unusable), try
+      // loading app state from the cold boot json file.
+      action.afterward(LoadColdAppStateAction());
+    } else if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is ColdAppStateFailedToLoadAction) {
+      // Once the loading of app state from cache or asset has completed or
+      // errored out, attempt to refresh data for all conferences from network.
+      action.afterward(RefreshConferencesAction());
     } else if (action is RefreshedConferenceAction ||
         action is RefreshedConferencesAction ||
         action is RefreshedSpeakersForConferenceAction ||
@@ -119,6 +129,10 @@ class AppStateBloc extends SimpleBloc<AppState> {
       return action.state.rebuild((b) => b
         ..readyToGo = true
         ..willNeverBeReadyToGo = false);
+    }
+
+    if (action is ColdAppStateLoadedAction) {
+      return action.state;
     }
 
     return state;

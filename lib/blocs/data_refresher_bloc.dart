@@ -41,7 +41,7 @@ class DataRefresherBloc extends SimpleBloc<AppState> {
           return action..afterward(RefreshConferenceAction(conferenceId));
         }
 
-        // List of speakers for drill-down.
+        // Details page for a particular speaker.
         if (path[3] == 'speaker') {
           final uuid = path[4];
           return action

@@ -94,7 +94,16 @@ class SplashScreenState extends State<SplashScreen> {
       msg = '... loading ...';
     }
 
-    return Text(msg, style: theme.subhead.copyWith(color: Colors.white));
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24.0,
+        vertical: 16.0,
+      ),
+      child: Text(
+        msg,
+        style: theme.subhead.copyWith(color: Colors.white),
+      ),
+    );
   }
 
   @override

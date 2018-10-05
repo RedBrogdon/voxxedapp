@@ -1,0 +1,1184 @@
+asdfasdf{
+  "$": "AppState",
+  "conferences": {
+    "32": {
+      "id": 32,
+      "name": "Voxxed Days Ticino 2018",
+      "website": "https://ticino.voxxeddays.com",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/26c4381d-06c3-41e0-843f-1fd90765bc82.jpg",
+      "fromDate": "2018-10-20",
+      "endDate": "2018-10-20",
+      "eventType": "VOXXED",
+      "tracks": [
+        {
+          "id": 1,
+          "name": "Methodology & Culture",
+          "description": "Software development methodologies, developer culture, DevOps, CI/CD, etc",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/6a34bee7-5fb3-40b1-81d1-0e89c968cc74.png"
+        },
+        {
+          "id": 81,
+          "name": "Modern Web",
+          "description": "Web frameworks. Cross-compilation to JavaScript. Thick-clients working via Web (e.g. JavaFx).",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/5eb6b6b1-0b19-41ed-a49e-01316ba5539f.png"
+        },
+        {
+          "id": 2,
+          "name": "Programming languages",
+          "description": "Other languages running on the JVM, functional, emerging languages, tools, libraries, etc",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/0e97ea66-4c4c-4275-a243-71dcbbf7a8a2.png"
+        },
+        {
+          "id": 3,
+          "name": "Big Data & Machine Learning",
+          "description": "Big Data, NoSQL, Spark, Hadoop, Drill, Machine learning, etc",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/3069eb2e-4e1c-40a9-961f-53f4f1776750.png"
+        },
+        {
+          "id": 19,
+          "name": "future",
+          "description": "Future<Devoxx>",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/ab6fe04b-cb84-454b-9f12-aa9805551f9c.png"
+        },
+        {
+          "id": 4,
+          "name": "Java Language",
+          "description": "Java language, Java SE, JDK, performance, tuning, modularity, etc",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/15807c12-d887-40c6-9455-2f4b7ae5c7cf.png"
+        },
+        {
+          "id": 20,
+          "name": "Frontend and UX",
+          "description": "UI, UX, Prototyping, ",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/32a8774b-f5c4-4e43-85ce-9250ff183a3f.png"
+        },
+        {
+          "id": 9,
+          "name": "Cloud, Containers & Infrastructure",
+          "description": "Serverless, Docker, Kubernetes, Mesos, Service Mesh, Cloud, PaaS, Vagrant, etc",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/3d9de6f4-31c9-4571-930b-b0479604a9e9.png"
+        },
+        {
+          "id": 10,
+          "name": "Modern Web & UX",
+          "description": "Progressive web apps, Polymer, Web frameworks, Reactive, libraries, languages and tools to build web apps.",
+          "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/d5a23ff5-5a1f-4fff-adcb-0a89dff0a929.png"
+        }
+      ],
+      "languages": [
+        {
+          "id": 3,
+          "code": "en",
+          "name": "English"
+        },
+        {
+          "id": 4,
+          "code": "en-us",
+          "name": "English (United States)"
+        },
+        {
+          "id": 5,
+          "code": "it",
+          "name": "Italian"
+        },
+        {
+          "id": 6,
+          "code": "it-it",
+          "name": "Italian (Standard)"
+        }
+      ],
+      "sessionTypes": [
+        {
+          "id": 16,
+          "code": "",
+          "name": "Lunch",
+          "pause": true,
+          "duration": 70,
+          "color": "#ffcc00"
+        },
+        {
+          "id": 1,
+          "code": "conf",
+          "name": "Conference",
+          "pause": false,
+          "duration": 50
+        },
+        {
+          "id": 21,
+          "code": "other",
+          "name": "Coffee Break",
+          "pause": true,
+          "duration": 20,
+          "color": "#ffcc00"
+        },
+        {
+          "id": 6,
+          "code": "key",
+          "name": "Keynote",
+          "pause": false,
+          "duration": 45
+        },
+        {
+          "id": 24,
+          "code": "other",
+          "name": "Registration & Breakfast",
+          "pause": true,
+          "duration": 45,
+          "color": "#fff200"
+        },
+        {
+          "id": 25,
+          "code": "quick",
+          "name": "Quickie",
+          "pause": false,
+          "duration": 20,
+          "color": "#00ffff"
+        },
+        {
+          "id": 26,
+          "code": "key",
+          "name": "Keynote",
+          "pause": false,
+          "duration": 15
+        },
+        {
+          "id": 27,
+          "code": "other",
+          "name": "Break",
+          "pause": true,
+          "duration": 10,
+          "color": "#ff8c00"
+        },
+        {
+          "id": 14,
+          "code": "",
+          "name": "Break",
+          "pause": true,
+          "duration": 20,
+          "color": "#ffdd00"
+        }
+      ],
+      "description": "Allround developer conference",
+      "cfpURL": "https://cfpvdt18.confinabox.com",
+      "archived": false,
+      "locationId": 19,
+      "locationName": "Palazzo dei Congressi",
+      "timezone": "Europe/Zurich",
+      "cfpFromDate": "2018-04-09",
+      "cfpEndDate": "2018-06-18",
+      "cfpVersion": "CFPVDT18"
+    },
+    "38": {
+      "id": 38,
+      "name": "Voxxed Days Bristol 2018",
+      "website": "https://voxxeddays.com/bristol",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/1db5c69b-542a-4ec0-a035-230612e26f19.jpg",
+      "fromDate": "2018-10-25",
+      "endDate": "2018-10-25",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "39": {
+      "id": 39,
+      "name": "Voxxed Days Banff 2018",
+      "website": "https://voxxeddays.com/banff",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/ed914852-159b-408e-8411-4e90e7e53edf.jpg",
+      "fromDate": "2018-10-26",
+      "endDate": "2018-10-27",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "35": {
+      "id": 35,
+      "name": "Voxxed Days Microservices 2018",
+      "website": "https://voxxeddays.com/microservices/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/8f3a3267-f5c4-46f3-a64e-797d420e4a34.jpg",
+      "fromDate": "2018-10-29",
+      "endDate": "2018-10-31",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "24": {
+      "id": 24,
+      "name": "Voxxed Days Thessaloniki 2018",
+      "website": "https://voxxeddays.com/thessaloniki",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/dc58a482-029e-47c4-8c1e-20f6917cd712.jpg",
+      "fromDate": "2018-11-19",
+      "endDate": "2018-11-20",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "23": {
+      "id": 23,
+      "name": "Voxxed Days Cluj-Napoca 2018",
+      "website": "https://romania.voxxeddays.com/cluj-napoca/2018-11-22/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/be07ff63-3858-4a51-9706-09896af2bf68.jpg",
+      "fromDate": "2018-11-22",
+      "endDate": "2018-11-22",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": [],
+      "archived": false,
+      "cfpActive": true,
+      "locationId": 10,
+      "locationName": "Grand  Hotel Napoca",
+      "timezone": "Europe/Bucharest",
+      "cfpFromDate": "2018-06-11",
+      "cfpEndDate": "2018-07-31"
+    },
+    "46": {
+      "id": 46,
+      "name": "Voxxed Days Zürich 2019",
+      "website": "https://voxxeddays.com/zurich/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/19ebbed9-d5f5-4c65-a1a8-e982e71339be.jpg",
+      "fromDate": "2019-03-21",
+      "endDate": "2019-03-21",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "52": {
+      "id": 52,
+      "name": "Voxxed Days Bucharest 2019",
+      "website": "https://voxxeddays.com/romania/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/2495187d-dad8-4b04-9db1-75b43dfa5f5c.jpg",
+      "fromDate": "2019-03-21",
+      "endDate": "2019-03-22",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": [],
+      "archived": false,
+      "locationId": 26,
+      "locationName": "Marriott Hotel ",
+      "timezone": "Europe/Bucharest",
+      "cfpFromDate": "2018-09-12",
+      "cfpEndDate": "2018-11-22"
+    },
+    "51": {
+      "id": 51,
+      "name": "Voxxed Days Minsk 2019",
+      "website": "https://voxxeddays.com/minsk/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/232b9b06-4a53-41b4-b3c0-7a8cc015143e.png",
+      "fromDate": "2019-05-24",
+      "endDate": "2019-05-25",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": [],
+      "archived": false,
+      "locationId": 11,
+      "locationName": "Marriott hotel",
+      "timezone": "Europe/Minsk",
+      "cfpFromDate": "2018-11-27",
+      "cfpEndDate": "2018-12-31"
+    },
+    "54": {
+      "id": 54,
+      "name": "Voxxed Days Singapore 2019",
+      "website": "https://voxxeddays.com/singapore/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/78d09030-7dab-4207-9ac6-52ae902aa895.jpg",
+      "fromDate": "2019-05-30",
+      "endDate": "2019-05-31",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": []
+    },
+    "48": {
+      "id": 48,
+      "name": "Voxxed Days Athens 2019",
+      "website": "https://voxxeddays.com/athens/",
+      "imageURL": "https://s3-eu-west-1.amazonaws.com/voxxeddays/webapp/images/6e045f45-a09f-40a8-b8f9-3bfb9b044dff.jpg",
+      "fromDate": "2019-05-31",
+      "endDate": "2019-06-01",
+      "eventType": "VOXXED",
+      "tracks": [],
+      "languages": [],
+      "sessionTypes": [],
+      "archived": false,
+      "locationId": 14,
+      "locationName": "Athens",
+      "timezone": "Europe/Athens",
+      "cfpFromDate": "2018-12-03",
+      "cfpEndDate": "2019-01-25"
+    }
+  },
+  "speakers": {
+    "32": [
+      {
+        "uuid": "21e229dfb73cda3eed4beecc7c086e7a07b490e8",
+        "firstName": "Andrea",
+        "lastName": "Bettich",
+        "company": "Interdiscount",
+        "avatarURL": "https://www.gravatar.com/avatar/b610f9b86780aa2e4e4b9086e4a32e4c",
+        "twitter": "@AndreaBettich"
+      },
+      {
+        "uuid": "61e34684e327a6cd85e7540a3bb36182a640fde4",
+        "firstName": "Alberto",
+        "lastName": "Brandolini",
+        "company": "Avanscoperta S.r.l.",
+        "avatarURL": "https://lh4.googleusercontent.com/-9mvvjsy3FyI/AAAAAAAAAAI/AAAAAAAAAXU/qDbGlzL0Pmo/photo.jpg",
+        "twitter": "@ziobbrando"
+      },
+      {
+        "uuid": "976bd91f222179401fdc1be520db56c2e973d437",
+        "firstName": "Sebastien",
+        "lastName": "Broggi",
+        "company": "Post CH AG",
+        "avatarURL": "http://blog.xebia.fr/images/devoxxuk-2014-logo.png"
+      },
+      {
+        "uuid": "5fb8f26ced555ea09ff37df36bb389255c4881b4",
+        "firstName": "Emilia",
+        "lastName": "Ciardi",
+        "company": "Sparkling Labs",
+        "avatarURL": "http://blog.xebia.fr/images/devoxxuk-2014-logo.png",
+        "twitter": "@sparklinglabs"
+      },
+      {
+        "uuid": "9584d8c34bc4c42e46183a81b34cc1fc9e0f5410",
+        "firstName": "Rodolfo",
+        "lastName": "Dias",
+        "company": "Outfittery",
+        "avatarURL": "https://lh3.googleusercontent.com/X0Qj9Ng2FJPWmvx4G69Jugag5rVBOXdyhzynBe8JURNF0zP0ncikpf7aNuBKw-a29Z2SYbpo7chUO0E81ke6Xy9qmj0wPB25wHNU-2JEfTe4HvuL9tiJA2YxtxIMuS5278WOLNp0FesfgLprnE0x2c3QyegDayhlip6nCCunt2PsZ-nG7gHqpAh5BquIkYLzqcuJ0xPdpx-wL9VPD33JuFy5UjIAx8Z6fXaS2WMEIC1NBzOFQ06wI9rvcnX_XanWJcray__OVnLYdCdMmUTVfLVCuutZ9KcnqNrNRI8I_HlnR2NcCShg71ub8PsLyrq8ba1zRYPVKC-M43vZqs6rARc4UHTC2PTl5v6o8kLCcpowpWhdDHseFCxdLU76KhCEVZURxISLKaHDrDYi7O0iMIjYvHT9zfouF_BHL5dsy4IkTYfcXM9KR19jH7McJ9JR-SClAosvoj8Jp22IiLtOAHYslMbI-G0SdF57pCxq_hoheTZiDcqb0GJ4KbupgaW4mj4xllfEdTtXZ1ca_3Ga3o2RQrRqEbh6hXbpqqxIQCR_1fGYUN6EIsA0qJHxTA0g=w3840-h2206",
+        "twitter": "@r_mdias"
+      },
+      {
+        "uuid": "239a5576d50318aa2d31a74b09e593dfcaa4c285",
+        "firstName": "Fabrizio",
+        "lastName": "Duroni",
+        "company": "lastminute.com group",
+        "avatarURL": "https://www.fabrizioduroni.it/assets/images/fabrizio-duroni.jpg",
+        "twitter": "@chicio86"
+      },
+      {
+        "uuid": "3bafc518a2f9afa4e85a0b8b2a343d830203c279",
+        "firstName": "Nicola",
+        "lastName": "Fiorillo",
+        "company": "White Peaks Mobile Software Sagl",
+        "avatarURL": "https://en.gravatar.com/userimage/55163182/1e3cd61a31086e5baa3beb6c24eda647.png",
+        "twitter": "@nicolafiorillo"
+      },
+      {
+        "uuid": "4b9e6e19761f794c90aa7c768b8bd96c95cb6b16",
+        "firstName": "Mario",
+        "lastName": "Fusco",
+        "company": "Red Hat",
+        "avatarURL": "https://lh3.googleusercontent.com/-bF-0LvPUDqU/AAAAAAAAAAI/AAAAAAAAAbU/Zu2Fo5TdGVA/photo.jpg",
+        "twitter": "@mariofusco"
+      },
+      {
+        "uuid": "5354632ce9f4f3b4633ba14d8e6cc178574fc104",
+        "firstName": "Vanni",
+        "lastName": "Galli",
+        "company": "Scuola universitaria professionale della Svizzera italiana (SUPSI)",
+        "avatarURL": "https://www.dropbox.com/s/k1jjhluxhhfcq3k/me.jpg?dl=0",
+        "twitter": "galliva"
+      },
+      {
+        "uuid": "b3057a67c9dfde1687208d635dcd3bb048253c19",
+        "firstName": "Alessandro",
+        "lastName": "Giusti",
+        "company": "Dalle Molle Institute for Artificial Intelligence (IDSIA), USI-SUPSI",
+        "avatarURL": "http://blog.xebia.fr/images/devoxxuk-2014-logo.png"
+      },
+      {
+        "uuid": "d29f3c0eed6977745e2ef2726240783d66ef1ce0",
+        "firstName": "Hans-Peter",
+        "lastName": "Grahsl",
+        "company": "NETCONOMY",
+        "avatarURL": "http://blog.xebia.fr/images/devoxxuk-2014-logo.png",
+        "twitter": "@hpgrahsl"
+      },
+      {
+        "uuid": "417cc2f1a3a4da7db8477f71a0e2df03c1d49e06",
+        "firstName": "Marharyta",
+        "lastName": "Nedzelska",
+        "company": "Wix.com",
+        "avatarURL": "https://drive.google.com/file/d/1uvLL22koZV745tYsP19Qd_-rHYsv0PRX/view?usp=sharing",
+        "twitter": "@jMargaritaN"
+      },
+      {
+        "uuid": "ccf97dd8258070e653936af0d153bf5cd9d2f373",
+        "firstName": "Alessandro",
+        "lastName": "Romano",
+        "company": "Lastminute.com group",
+        "avatarURL": "https://watchneighbors-5796e.firebaseapp.com/static/linkedin_small.jpeg",
+        "twitter": "@axel92dev"
+      },
+      {
+        "uuid": "3634026a43bd25d8e2238bb3814580ad616a81dc",
+        "firstName": "Stefano",
+        "lastName": "Sarioli",
+        "company": "XPeppers",
+        "avatarURL": "http://www.gravatar.com/avatar/0c2b0b229768933c91879b64c806214c"
+      },
+      {
+        "uuid": "4b47f7ff2d3ebc2521d745ebd5c13093d164e2f7",
+        "firstName": "Alessio",
+        "lastName": "Soldano",
+        "company": "Red Hat",
+        "avatarURL": "https://avatars2.githubusercontent.com/u/410976?s=460&v=4",
+        "twitter": "@alepalin"
+      },
+      {
+        "uuid": "ba0c9ced7dffb7d2c41e947cb9b3d190ffa6638c",
+        "firstName": "Federico",
+        "lastName": "Yankelevich",
+        "company": "Exteso Sagl",
+        "avatarURL": "http://blog.xebia.fr/images/devoxxuk-2014-logo.png",
+        "twitter": "@yanke46"
+      },
+      {
+        "uuid": "e55d298b360d0db47174699b7b6f4a4d2b1fe008",
+        "firstName": "Sendil",
+        "lastName": "Kumar N",
+        "lang": "en-US",
+        "bioAsHtml": "<p>🚶explorer, (re)learn ♻️ 📚\nCore team member @webpack @jhipster ❤ JS, 👍 Java, Rust 🦀 | Golang  | author🖋 | speaker 🗣 | WASM 🕸</p>\n",
+        "bio": "🚶explorer, (re)learn ♻️ 📚 \r\nCore team member @webpack @jhipster ❤ JS, 👍 Java, Rust 🦀 | Golang  | author🖋 | speaker 🗣 | WASM 🕸",
+        "company": "@xebialabs",
+        "blog": "https://sendilkumarn.js.org",
+        "avatarURL": "http://www.gravatar.com/avatar/32e6a76c61f41da3beca909251498c60",
+        "twitter": "@sendilkumarn"
+      },
+      {
+        "uuid": "f01fee90e3aa0b81e01eb92f2bef772095ecebf7",
+        "firstName": "Ray",
+        "lastName": "Tsang",
+        "lang": "en",
+        "bioAsHtml": "<p>Ray is a Developer Advocate for the Google Cloud Platform. Ray had extensive hands on cross-industry enterprise systems integration delivery and management experiences during his time at Accenture, managed full stack application development, DevOps, and ITOps. Ray specialized in middleware, big data, and PaaS products during his time at Red Hat while contributing to open source projects, such as Infinispan. Aside from technology, Ray enjoys traveling and adventures.</p>\n",
+        "bio": "Ray is a Developer Advocate for the Google Cloud Platform. Ray had extensive hands on cross-industry enterprise systems integration delivery and management experiences during his time at Accenture, managed full stack application development, DevOps, and ITOps. Ray specialized in middleware, big data, and PaaS products during his time at Red Hat while contributing to open source projects, such as Infinispan. Aside from technology, Ray enjoys traveling and adventures.",
+        "company": "Google",
+        "avatarURL": "https://pbs.twimg.com/profile_images/520392325818621952/EpPGuHIY_400x400.jpeg",
+        "twitter": "@saturnism"
+      },
+      {
+        "uuid": "a60d3e8bb32aec208302323283ddc3a71d624de0",
+        "firstName": "Martin",
+        "lastName": "Beeby",
+        "lang": "fr",
+        "bioAsHtml": "<p>I am a Developer Evangelist at Oracle. While I work across all of our technologies, my particular passion is Cloud. I regularly speak and blog about all aspects of Cloud development and implementation. I have been a developer since I was 16 and over the past 19 years have worked on projects with many Major brands. Prior to joining Oracle I worked at Microsoft as a developer and evangelist for 8 years. I’ve written articles for and featured in, NET Magazine, ZDNet, NOUPE,\nSitePoint, TutsPlus and Channel 9.</p>\n",
+        "bio": "I am a Developer Evangelist at Oracle. While I work across all of our technologies, my particular passion is Cloud. I regularly speak and blog about all aspects of Cloud development and implementation. I have been a developer since I was 16 and over the past 19 years have worked on projects with many Major brands. Prior to joining Oracle I worked at Microsoft as a developer and evangelist for 8 years. I’ve written articles for and featured in, NET Magazine, ZDNet, NOUPE,\r\nSitePoint, TutsPlus and Channel 9.",
+        "company": "Oracle",
+        "blog": "https://thebeebs.co.uk/",
+        "avatarURL": "https://pbs.twimg.com/profile_images/943774946739871744/2RcSH0Mc_400x400.jpg",
+        "twitter": "@thebeebs"
+      },
+      {
+        "uuid": "4f9886693f5b2ca65b5ba8e8ca38ae4158368402",
+        "firstName": "Pietro",
+        "lastName": "Di Bello",
+        "lang": "fr",
+        "bioAsHtml": "<p>Hi! I&#x27;m Pietro. I love to code and build stuff that brings value and to help other people and teams improve at coding and building software.</p>\n",
+        "bio": "Hi! I'm Pietro. I love to code and build stuff that brings value and to help other people and teams improve at coding and building software.",
+        "company": "XPeppers",
+        "blog": "http://xpepper.github.io/AboutMe/",
+        "avatarURL": "http://www.gravatar.com/avatar/82fc2e147a526cd405d88550bb9d533d",
+        "twitter": "@pierodibello"
+      }
+    ],
+    "38": [],
+    "39": [],
+    "35": [],
+    "24": [],
+    "23": [],
+    "46": [],
+    "52": [],
+    "51": [],
+    "54": [],
+    "48": []
+  },
+  "schedules": {
+    "32": [
+      {
+        "day": "saturday",
+        "title": "sw.show.title.sat",
+        "slots": [
+          {
+            "slotId": "key_RoomB1_saturday_20_9h0_9h15",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "09:00",
+            "fromTimeMillis": 1540018800000,
+            "toTime": "09:15",
+            "toTimeMillis": 1540019700000,
+            "talk": {
+              "id": "UXI-9380",
+              "title": "Welcome",
+              "talkType": "Keynote",
+              "track": "Methodology & Culture",
+              "lang": "en",
+              "summary": "Welcome to the 4th edition of Voxxed Days Ticino.\r\nPresent the team behind the event and the community supporting it.",
+              "speakerUuids": [
+                "ba0c9ced7dffb7d2c41e947cb9b3d190ffa6638c"
+              ]
+            }
+          },
+          {
+            "slotId": "key_RoomB1_saturday_20_9h15_10h0",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "09:15",
+            "fromTimeMillis": 1540019700000,
+            "toTime": "10:00",
+            "toTimeMillis": 1540022400000,
+            "talk": {
+              "id": "DDT-9872",
+              "title": "The gordian knot",
+              "talkType": "Keynote",
+              "track": "Methodology & Culture",
+              "lang": "en",
+              "summary": "Some companies are going “full DevOps” and apparently releasing at the speed of light. Other companies are still struggling with estimations and slowly thinking about going microservices. Other are happy with their monolith, but struggling with recruiting.\r\nWe’re all developers, but we’re not doing the same job. The line connecting a problem to its solution is relatively straight in some organizations and incredibly convoluted in some hours.\r\nProcesses, Software architectures and Organization are not separate concerns, neither are orthogonal. Pretending to fix one thing without touching others is a losing battle.\r\nWe’re part of the problem. Our software is part of the problem. We can be part of the solution too.",
+              "speakerUuids": [
+                "61e34684e327a6cd85e7540a3bb36182a640fde4"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_10h20_11h10",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "10:20",
+            "fromTimeMillis": 1540023600000,
+            "toTime": "11:10",
+            "toTimeMillis": 1540026600000,
+            "talk": {
+              "id": "ORF-2666",
+              "title": "Set your code on fire with FlameGraphs",
+              "talkType": "Conference",
+              "track": "Java Language",
+              "lang": "it",
+              "summary": "Currently there are several tools to analyze the behavior and performance of an application, but traditionally the way of displaying results is that of tabular, either flat or tree.\r\nIn this talk we will take a peek at some alternative tool that \"enlightens\" the darkest corners of the behavior of our applications and the JVM, showing them in a completely new and more visual way: the FlameGraphs.\r\nDuring the intervention a \"peek under the hood\" will be given to some JVM mechanisms to understand the reasons behind the failures of most well known profilers.",
+              "speakerUuids": [
+                "373f485d04da9835ec134c2704cc9a140b02f993"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_10h20_11h10",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "10:20",
+            "fromTimeMillis": 1540023600000,
+            "toTime": "11:10",
+            "toTimeMillis": 1540026600000,
+            "talk": {
+              "id": "AAM-6070",
+              "title": "How Well Relational Database Engines Support JSON?",
+              "talkType": "Conference",
+              "track": "Big Data & Machine Learning",
+              "lang": "it",
+              "summary": "Once upon a time, decent JSON support was provided by NoSQL database engines only. But, since the database engines providing that support missed other critical features, it was difficult to choose a single database engine that provided all the expected features. Times have changed. In fact, today, a number of relational databases provide JSON support. But how good it is?\r\nThe aim of this presentation is to review JSON-related features provided by the most commonly used open source and commercial database engines. Challenges and possibilities related to the use of the JSON-related features as well as adherence with the SQL standard is discussed.",
+              "speakerUuids": [
+                "0f4a31ac71a1da526888f354b04ef76751302087"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_10h20_11h10",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "10:20",
+            "fromTimeMillis": 1540023600000,
+            "toTime": "11:10",
+            "toTimeMillis": 1540026600000,
+            "talk": {
+              "id": "GWF-9509",
+              "title": "Twitter's quest for a wholly Graal runtime",
+              "talkType": "Conference",
+              "track": "Programming languages",
+              "lang": "en",
+              "summary": "Twitter is a massively distributed system with thousands of machines running thousands of JVMs.  In any similar big system a small change in performance and CPU utilization is multiplied thousandfold and results in big savings.  Electricity costs, cooling costs, and possibly reduction of server farm size.  One way to improve Java performance and reduce CPU utilization is to simply generate better machine code.  Simply is obviously not trivial but doable.  Twitter is going down that road and experimenting with Graal to generate better code and reduce cost.",
+              "speakerUuids": [
+                "884222b1ad6ba7c29650833f617156c193f5405b"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomE_saturday_20_10h20_11h10",
+            "roomId": "RoomE",
+            "roomName": "Room E",
+            "day": "saturday",
+            "fromTime": "10:20",
+            "fromTimeMillis": 1540023600000,
+            "toTime": "11:10",
+            "toTimeMillis": 1540026600000,
+            "talk": {
+              "id": "PXC-5601",
+              "title": "Stateful & Reactive Stream Processing Applications Without a Database",
+              "talkType": "Conference",
+              "track": "Modern Web & UX",
+              "lang": "en",
+              "summary": "Time and again we should move out of our comfort zone and take the opportunity to experiment with new ways to build applications. Based on an easy to understand example we will look at a different, for some of us unconventional and radical way to build modern data-centric applications. For that purpose, we are going to discuss a stateful streaming application on top of Apache Kafka and integrate with Spring Boot 2.0 in order to provide a reactive WebAPI which allows clients to consume data changes in near real-time. All of this without explicitly using or managing an external database.",
+              "speakerUuids": [
+                "d29f3c0eed6977745e2ef2726240783d66ef1ce0"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_11h20_12h10",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "11:20",
+            "fromTimeMillis": 1540027200000,
+            "toTime": "12:10",
+            "toTimeMillis": 1540030200000,
+            "talk": {
+              "id": "KMS-5028",
+              "title": "Camel microservices with Spring Boot and Kubernetes",
+              "talkType": "Conference",
+              "track": "Cloud, Containers & Infrastructure",
+              "lang": "en",
+              "summary": "Apache Camel has fundamentally changed the way enterprise Java developers think about system-to-system integration by making enterprise integration patterns (EIP) a simple declaration in a lightweight application wrapped and delivered as a single JAR.\r\n\r\nIn this session, we’ll show you how to bring the best practices from the EIP world together with containers, running on top of Kubernetes, and deployed as Spring Boot microservices, which are both cloud-native and cloud-portable.\r\n\r\nBuilding and designing cloud-native microservices impacts how we develop. We’ll discuss practices how to build distributed and fault-tolerant microservices with technologies such as Kubernetes Services, Netflix Hystrix, Camel EIP patterns, and Istio. You will see live demos of us killing containers to test fault tolerance, and more.\r\n",
+              "speakerUuids": [
+                "b21980d9cc50b78e02fe5defcbc4549486f5e7aa"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_11h20_12h10",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "11:20",
+            "fromTimeMillis": 1540027200000,
+            "toTime": "12:10",
+            "toTimeMillis": 1540030200000,
+            "talk": {
+              "id": "OEU-1420",
+              "title": "Playtrip: a CQRS/ES architecture in Erlang",
+              "talkType": "Conference",
+              "track": "Programming languages",
+              "lang": "it",
+              "summary": "Su come abbiamo sviluppato una soluzione mobile con backend Erlang applicando una architettura Command-Query Responsibility Segregation/Event Sourcing e sul perché ne siamo decisamente soddisfatti.\u2028\r\nVediamo come CQRS/ES può sfruttare concetti chiave come Actor Model, processi leggeri e distribuiti che l’ecosistema di Erlang mette a disposizione ormai da più di trenta anni.",
+              "speakerUuids": [
+                "3bafc518a2f9afa4e85a0b8b2a343d830203c279"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomE_saturday_20_11h20_12h10",
+            "roomId": "RoomE",
+            "roomName": "Room E",
+            "day": "saturday",
+            "fromTime": "11:20",
+            "fromTimeMillis": 1540027200000,
+            "toTime": "12:10",
+            "toTimeMillis": 1540030200000,
+            "talk": {
+              "id": "UFA-1836",
+              "title": "Sopravvivere ad una codebase legacy: tattiche e strumenti per tenere la retta via",
+              "talkType": "Conference",
+              "track": "Methodology & Culture",
+              "lang": "it",
+              "summary": "Vi faremo vedere come riprendere il controllo di una codebase legacy in Java che mostra alcuni classici problemi di design ed esprime male il dominio del problema che si vuole risolvere.\r\n\r\nNel corso della sessione faremo refactoring dal vivo, in pair programming, e mostreremo come la qualità ed espressività del codice possa migliorare progressivamente quando si applicano buone pratiche di sviluppo, facendosi supportare da alcuni strumenti efficaci.\r\n",
+              "speakerUuids": [
+                "21b1bce7dffc7347f2eb96b57c38289845529dd3",
+                "4f9886693f5b2ca65b5ba8e8ca38ae4158368402"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_11h20_12h10",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "11:20",
+            "fromTimeMillis": 1540027200000,
+            "toTime": "12:10",
+            "toTimeMillis": 1540030200000,
+            "talk": {
+              "id": "XAU-2186",
+              "title": "Do things blazingly fast with WebAssembly",
+              "talkType": "Conference",
+              "track": "Frontend and UX",
+              "lang": "en",
+              "summary": "The future of web development is webassembly. How can you port your native library and run them on your browsers? How easy for JVM developers to get started with webassembly? What benefits does it give for your web applications?",
+              "speakerUuids": [
+                "e55d298b360d0db47174699b7b6f4a4d2b1fe008"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomB1_saturday_20_12h20_12h40",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "12:20",
+            "fromTimeMillis": 1540030800000,
+            "toTime": "12:40",
+            "toTimeMillis": 1540032000000,
+            "talk": {
+              "id": "UHO-0086",
+              "title": "A Developers Guide to a Blue-Green Deployment Using Kubernetes",
+              "talkType": "Quickie",
+              "track": "Cloud, Containers & Infrastructure",
+              "lang": "en",
+              "summary": "In this fast-paced 20 minute session, you will learn how you can accomplish a blue-green deployment of a web application on Kubernetes to reduce downtime and risk.\r\n\r\nUsing live-coding, you will see how easy it is to ensure that your application stays online and is fully responsive while we update our application and switch our customers over to the new version. \r\n\r\nYou'll also see how straightforward it is for us to roll back should an issue arise. \r\nThis technique will allow you to deploy with confidence and enable you to deliver better software, faster.",
+              "speakerUuids": [
+                "a60d3e8bb32aec208302323283ddc3a71d624de0"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomC_saturday_20_12h20_12h40",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "12:20",
+            "fromTimeMillis": 1540030800000,
+            "toTime": "12:40",
+            "toTimeMillis": 1540032000000,
+            "talk": {
+              "id": "EWH-5804",
+              "title": "Artificial Intelligence, Machine Learning, Deep Learning... ma quindi di cosa stiamo parlando?",
+              "talkType": "Quickie",
+              "track": "Big Data & Machine Learning",
+              "lang": "it",
+              "summary": "AI, ML, DL e RL, ormai sentiamo in continuazione utilizzare questi acronimi da chiunque, ma ci rendiamo davvero conto di cosa stiamo parlando, cosa è leggenda e cosa è realtà?\r\nIn questo talk proverò in 20 minuti a dare una panoramica delle buzzword più parlate dei nostri giorni, cercando di spiegare in termini semplici di cosa si tratta per provare a far intuire quali sono i benefici e quali i limiti, per essere in grado di utilizzare al meglio queste nuove tecnologie a nostra disposizione per risolvere problemi prima impossibili da affrontare.",
+              "speakerUuids": [
+                "3634026a43bd25d8e2238bb3814580ad616a81dc"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomB3_saturday_20_12h20_12h40",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "12:20",
+            "fromTimeMillis": 1540030800000,
+            "toTime": "12:40",
+            "toTimeMillis": 1540032000000,
+            "talk": {
+              "id": "MYF-3141",
+              "title": "OpenCV e TensorFlow in pratica: identificazione e classificazione di oggetti in uno stream video",
+              "talkType": "Quickie",
+              "track": "Big Data & Machine Learning",
+              "lang": "it",
+              "summary": "In questo talk viene presentato un sistema in grado di identificare e classificare degli oggetti (persone o veicoli) che appaiono in uno stream video.\r\n\r\nIl talk si concentra in particolar modo sull'utilizzo pratico di frameworks esistenti (*OpenCV* per la parte di computer vision e *TensorFlow* per la parte di machine learning) per riuscire a:\r\n\r\n- identificare gli oggetti presenti in uno stream video\r\n- classificare questi oggetti (per tipo di oggetto, colore, ...)\r\n- salvare ogni oggetto in un database, assieme ai suoi metadati\r\n\r\nDurante il talk verrà posto anche l'accento sulle problematiche di scalabilità di un sistema simile, e sulle possibili soluzioni.\r\n\r\n",
+              "speakerUuids": [
+                "5354632ce9f4f3b4633ba14d8e6cc178574fc104"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomB1_saturday_20_13h0_13h20",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "13:00",
+            "fromTimeMillis": 1540033200000,
+            "toTime": "13:20",
+            "toTimeMillis": 1540034400000,
+            "talk": {
+              "id": "FGS-0973",
+              "title": "Leveraging Feature Toggles for your Microservices",
+              "talkType": "Quickie",
+              "track": "Programming languages",
+              "lang": "en",
+              "summary": "**Feature Toggle**  *(enable or disable features at runtime through web UI)* can help you for your distributed and microservice architectures. Setup a functions once (eg:monitoring) and all services get immediately updated at micro but also macro level.\r\n\r\n**FF4j** is the leading implementation of the pattern for Java platform. In this session i will show how to setup quickly an existing spring-boot application and immediately provide not only Feature Toggle but also *configuration Management* and *feature monitoring.* ",
+              "speakerUuids": [
+                "a3809f0046926680d28e25f209d6756a5c40b873"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomC_saturday_20_13h0_13h20",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "13:00",
+            "fromTimeMillis": 1540033200000,
+            "toTime": "13:20",
+            "toTimeMillis": 1540034400000,
+            "talk": {
+              "id": "GGF-1400",
+              "title": "Challenges in Mixed Reality",
+              "talkType": "Quickie",
+              "track": "future",
+              "lang": "en",
+              "summary": "Developing productive solutions for a mixed reality device like the Microsoft Hololens results in a whole lot of new challenges like where to place holograms, how to interact with them and how to design an intuitive user interaction within the mixed reality application.\r\n\r\nBased on a real world case of Swiss Post, Sébastien will elaborate their findings on what the biggest challenges in mixed reality development are, and how to tackle some of them.",
+              "speakerUuids": [
+                "976bd91f222179401fdc1be520db56c2e973d437",
+                "12a82b4b65ac7a308a34f3c55042acd924ebe3f3"
+              ]
+            }
+          },
+          {
+            "slotId": "quick_RoomB3_saturday_20_13h0_13h20",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "13:00",
+            "fromTimeMillis": 1540033200000,
+            "toTime": "13:20",
+            "toTimeMillis": 1540034400000,
+            "talk": {
+              "id": "EFC-0313",
+              "title": "Sweet Web Animations API",
+              "talkType": "Quickie",
+              "track": "Frontend and UX",
+              "lang": "en",
+              "summary": "We'll figure out how awesome is the web platform and how fast it's evolving. Back in the days, we used flash to make powerful animations, then the platform evolved and we had the power on the hands to make animations using JS libraries to make it a bit easier. Now you can simply do it using this sweet dream called Web animations API, it'll provide you a bunch of interfaces and power to create lovely animations in applications. Well try it and feel the sweet taste ;)\r\n",
+              "speakerUuids": [
+                "9584d8c34bc4c42e46183a81b34cc1fc9e0f5410"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_13h30_14h20",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "13:30",
+            "fromTimeMillis": 1540035000000,
+            "toTime": "14:20",
+            "toTimeMillis": 1540038000000,
+            "talk": {
+              "id": "XRT-2493",
+              "title": "Java 9/10/11 - What's new and why you should upgrade",
+              "talkType": "Conference",
+              "track": "Java Language",
+              "lang": "en",
+              "summary": "Java 9, 10 and 11 are now available and bring many updates and new features.\r\nIn this session we will look at the most important new features, from the module system to jshell (the REPL interface), from VarHandles to local variable type inference (var), etc.\r\nMost importantly, we will discuss the most common problems that you can encounter while updating to JDK 9 or later and how you should address them.",
+              "speakerUuids": [
+                "54cb77fff7f29c9551b19c3c07cb229110c64574"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_13h30_14h20",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "13:30",
+            "fromTimeMillis": 1540035000000,
+            "toTime": "14:20",
+            "toTimeMillis": 1540038000000,
+            "talk": {
+              "id": "UYJ-6934",
+              "title": "RESTEasy beyond JAX-RS 2.1: reactive, non-blocking IO and more",
+              "talkType": "Conference",
+              "track": "Modern Web",
+              "lang": "it",
+              "summary": "Last year, JAX-RS 2.1 (JSR-370) brought few fresh additions to the Java API for REST services. Today RESTEasy, which is the Red Hat / JBoss certified implementation of JAX-RS, moves even forward and fully embrace reactive programming. The presentation will provide an overwiew (with code examples) of reactive additions on both client and server side; it will also cover few other new features around asynchronous processing and non-blocking I/O.",
+              "speakerUuids": [
+                "4b47f7ff2d3ebc2521d745ebd5c13093d164e2f7"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_13h30_14h20",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "13:30",
+            "fromTimeMillis": 1540035000000,
+            "toTime": "14:20",
+            "toTimeMillis": 1540038000000,
+            "talk": {
+              "id": "UDN-7391",
+              "title": "How Modern SQL Databases Come up with Algorithms that You Would Have Never Dreamed Of",
+              "talkType": "Conference",
+              "track": "Big Data & Machine Learning",
+              "lang": "en",
+              "summary": "SQL is the only ever successful, mainstream, and general-purpose 4GL (Fourth Generation Programming Language) and it is awesome!\r\n\r\nWith modern cost based optimisation, relational databases like Oracle, SQL Server, PostgreSQL finally keep up to the promise of a powerful declarative programming model by adapting to ever changing productive data without performance penalties. Thousand-line-long, complex SQL statements can be run in far below a millisecond against billion-row strong tables if database developers know their ways around the SQL language - and the best news is: It's not that hard!\r\n\r\nIn this talk, I'll show how the SQL database will constantly outperform any hand written data retrieval algorithm - or in other words - how SQL, being a logic language, is the best language for business logic.\r\n",
+              "speakerUuids": [
+                "71591552300bcdeed99c8afce6fff0350031b011"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomE_saturday_20_13h30_14h20",
+            "roomId": "RoomE",
+            "roomName": "Room E",
+            "day": "saturday",
+            "fromTime": "13:30",
+            "fromTimeMillis": 1540035000000,
+            "toTime": "14:20",
+            "toTimeMillis": 1540038000000,
+            "talk": {
+              "id": "JTA-0728",
+              "title": "Domain Driven Testing: Know What You're Doing",
+              "talkType": "Conference",
+              "track": "Methodology & Culture",
+              "lang": "en",
+              "summary": "“I tested it how you told me to”,  “Acceptance Criteria said this is expected”, “I assumed it is fine” – these are frequent thoughts of teams which more likely to end up with customer cases in Production. Having an opinion about the product and ability to put themselves in its customers’ shoes is what makes a good tester, great. These great testers become the last line of defense before releasing functional but unusable product.\r\n            In this talk, we will discuss on how to apply Domain Driven Development practices and principles in a testing field, creating Domain Driven Testing. We will learn why it is important to understand exactly what you are working on, and why “Programming by Coincidence” is the main danger to User Experience.\r\n           The speaker will share his experience in starting in a new domain of Website Building Software, and how learning about other products in the industry allowed him and his team to avoid reinventing the wheel, and as a result to prevent problems which were previously solved by other organizations.",
+              "speakerUuids": [
+                "b7c11b9ecfacc339592ad1ed74f1dc8f0cc93ab3"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_14h30_15h20",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "14:30",
+            "fromTimeMillis": 1540038600000,
+            "toTime": "15:20",
+            "toTimeMillis": 1540041600000,
+            "talk": {
+              "id": "MWU-5262",
+              "title": "It's all about you - Tecniche di personalizzazione della Mobile UX ",
+              "talkType": "Conference",
+              "track": "Frontend and UX",
+              "lang": "it",
+              "summary": "Dopo aver convinto l'utente a scaricare un'App, la sfida è far sì che continui ad utilizzarla. Questo talk affronta il tema, presentando una panoramica delle tecniche di personalizzazione della User Experience più utilizzate per migliorare gli aspetti di engagement e retention delle app mobile. Le tecniche verranno illustrate con esempi e casi d'uso tratti dal mondo delle mobile app a livello internazionale per dare una panoramica sui più recenti approcci. ",
+              "speakerUuids": [
+                "5fb8f26ced555ea09ff37df36bb389255c4881b4"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_14h30_15h20",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "14:30",
+            "fromTimeMillis": 1540038600000,
+            "toTime": "15:20",
+            "toTimeMillis": 1540041600000,
+            "talk": {
+              "id": "KFP-2434",
+              "title": "Google Cloud Native with Spring Boot",
+              "talkType": "Conference",
+              "track": "Cloud, Containers & Infrastructure",
+              "lang": "en",
+              "summary": "Spring Framework and Spring Boot made a huge stride to make it easier than ever to develop the next generation of cloud native applications. More importantly, a number of Spring projects provides cloud-vendor agnostic abstractions to developers, so that with a simple configuration switch, you are able to move your local application to run in an on-prem datacenter, or in the cloud with managed services.\r\n\r\nGoogle and Pivotal partnered to develop Spring Cloud adapters for Google Cloud Platform. With Spring Cloud GCP, you can quickly develop cloud native applications & harness the power of Google infrastructure. We'll introduce a number of projects we've been working on, including:\r\n\r\n* Spring Cloud Sleuth integration to send trace data to Stackdriver Trace\r\n* Spring Data for Cloud Spanner to quickly access globally distributed Spanner database with Object Relational Mapping.\r\n* Spring Integration channel adapters for Cloud Pub/Sub to use with Spring Messaging.\r\n* Spring Boot Starters for Google Cloud SQL to quickly connect to managed MySQL or PostgreSQL databases.\r\n* Spring Resource abstraction for Cloud Storage to inject shared file resources.\r\n\r\nIn this session, we'll show how to build",
+              "speakerUuids": [
+                "f01fee90e3aa0b81e01eb92f2bef772095ecebf7"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_14h30_15h20",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "14:30",
+            "fromTimeMillis": 1540038600000,
+            "toTime": "15:20",
+            "toTimeMillis": 1540041600000,
+            "talk": {
+              "id": "WLW-4342",
+              "title": "React (Native) and Typescript: a journey to a unified team using a common language",
+              "talkType": "Conference",
+              "track": "Programming languages",
+              "lang": "en",
+              "summary": "Writing the same business logic multiple times just to support different platforms is a common pain of the app development world. This inefficiency becomes even more severe if that same logic needs to be implemented on a web application as well, leading to three different platforms to maintain and evolve. This setting not only leads to frustration, higher costs, and lower delivery times but also fragments your team into a heterogeneous and fragile set of specialists, one for each supported platform. At lastminute.com we were facing this exact painful scenario few months ago and we solved it applying a quite unique mix of React, React Native, and Typescript. This talk is is about the journey from being a team that writes the same code three times, to being one that writes it once and just deploy it three times. We will discuss the architectural challenges you need to solve, the pitfalls you must avoid, and the positive side effects your team will benefit from such a new setting.",
+              "speakerUuids": [
+                "ccf97dd8258070e653936af0d153bf5cd9d2f373",
+                "239a5576d50318aa2d31a74b09e593dfcaa4c285"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomE_saturday_20_14h30_15h20",
+            "roomId": "RoomE",
+            "roomName": "Room E",
+            "day": "saturday",
+            "fromTime": "14:30",
+            "fromTimeMillis": 1540038600000,
+            "toTime": "15:20",
+            "toTimeMillis": 1540041600000,
+            "talk": {
+              "id": "FZR-7984",
+              "title": "Principles and Patterns for Streaming Data Analysis",
+              "talkType": "Conference",
+              "track": "Big Data & Machine Learning",
+              "lang": "en",
+              "summary": "Data is overwhelming us both in terms of size and speed. How do we deal with these huge amount of real-time, streaming data? We need to combine tools, platform, patterns, and principles to overcome this situation.\r\n\r\nJoin on us this session where we’ll identify critical patterns and principles that enable us to achieve greater scale and responde speed. We’ll provide you with a live demo demonstrating how an In-Memory Data Grid like Infinispan and a platform like Kubernetes can leverage these patterns and principles creating a state-of-the-art distributed data processing architecture.",
+              "speakerUuids": [
+                "e233b063d2c0ccc68e41db1458cf0bc8ad1f07d2"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_15h40_16h30",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "15:40",
+            "fromTimeMillis": 1540042800000,
+            "toTime": "16:30",
+            "toTimeMillis": 1540045800000,
+            "talk": {
+              "id": "ZNN-0644",
+              "title": "OOP v̶s̶ and FP",
+              "talkType": "Conference",
+              "track": "Java Language",
+              "lang": "it",
+              "summary": "Object Oriented Programming dominated the software development landscape in the last decade of XX century and in the first of XXI. In more recent years, even as a consequence of the advent of multicore CPUs, Functional Programming and its principles started attracting more interest, becoming at least equally relevant in our industry. The biggest mistake made by programmers nowadays is considering OOP and FP as two mutually exclusive paradigms. This misconception is also the product of a misunderstanding about what OOP actually means and its founding principles. The biggest pros of OOP are polymorphism and encapsulation while FP strengths are immutabilty and its declarative style, but these features are orthogonal and there's no reason why they cannot coexist in the same program. The final purpose of this talk is twofold: debunking the misconceptions on OOP and showing that OOP and FP are actually complementary techniques that can happily coexist in the same codebase. It is the duty of experienced developers to fill their toolbox with both OOP and FP tools and to know from time to time how to choose and employ the tool that is the best fit for the problem at hand.",
+              "speakerUuids": [
+                "4b9e6e19761f794c90aa7c768b8bd96c95cb6b16"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_15h40_16h30",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "15:40",
+            "fromTimeMillis": 1540042800000,
+            "toTime": "16:30",
+            "toTimeMillis": 1540045800000,
+            "talk": {
+              "id": "BNN-9566",
+              "title": "Open Source as a Business: Strategy, Struggle & Success",
+              "talkType": "Conference",
+              "track": "Methodology & Culture",
+              "lang": "en",
+              "summary": "How do you build a lasting and successful company that also stays true to its open source roots? This talk takes a look at why open source is important to business and three essential elements of this path:\r\n\r\n* Strategy: How can you monetize your open source product? Is it support, an open core approach, cloud services, or a combination of the three? And which ones are the features you can even commercialize without alienating your community?\r\n* Struggle: \"You received a 100 million dollars in venture capital and yet you have so many open issues?!\" Once money is involved the dynamics often change. How can you manage expectations and still build on a flourishing open source community?\r\n* Success: How do you balance open source and commercial success? How do you align engineering and sales decisions?\r\n\r\nThis talk takes the perspective of Elastic, the company behind the open source products Elasticsearch, Kibana, Beats, and Logstash, which makes its money with support, the commercial X-Pack extensions, and cloud offerings. But we are also taking a look at how others are approaching this challenge, what worked, and what failed.",
+              "speakerUuids": [
+                "a0a34a4955bf9f8ee3d60b9b9e681bc9d8d4dc1b"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_15h40_16h30",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "15:40",
+            "fromTimeMillis": 1540042800000,
+            "toTime": "16:30",
+            "toTimeMillis": 1540045800000,
+            "talk": {
+              "id": "ESQ-2110",
+              "title": "JavaScript Design Patterns",
+              "talkType": "Conference",
+              "track": "Frontend and UX",
+              "lang": "it",
+              "summary": "In JavaScript we can discover unique, idiomatic, design patterns, of the kind you will not find covered in the classic pattern catalogues, because the nature of the language and the way we use it lead to somewhat peculiar use cases. Let's explore some of these patterns together, like: Event Delegation, Options/Setup, Context-based Inheritance and a few more.",
+              "speakerUuids": [
+                "8295896619759b2d6d0db6c54ffafadd0caa6331"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB1_saturday_20_16h40_17h30",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "16:40",
+            "fromTimeMillis": 1540046400000,
+            "toTime": "17:30",
+            "toTimeMillis": 1540049400000,
+            "talk": {
+              "id": "HIC-9228",
+              "title": "Kotlin: lazy language for lazy people",
+              "talkType": "Conference",
+              "track": "Programming languages",
+              "lang": "en",
+              "summary": "A few years ago you had to work hard to succeed in some fields. Nowadays you don’t need to work hard but to work smart. So this means that most of the time laziness (of course not extremely) is useful for our productivity. On the other hand, laziness is extremely important when you work with a large amount of data and reduced space or power. In this talk we will try to cover all aspects of laziness in Kotlin: starting from lazy initialization of properties using delegates, lazy collections, sequences and, finally, laziness with coroutines. The main thing we would like to talk about is how to use this laziness and be productive with it. To see one more benefit of laziness in Kotlin we’ll refactor a real application to use lazy calculations.\r\n",
+              "speakerUuids": [
+                "417cc2f1a3a4da7db8477f71a0e2df03c1d49e06"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomB3_saturday_20_16h40_17h30",
+            "roomId": "RoomB3",
+            "roomName": "Room B3",
+            "day": "saturday",
+            "fromTime": "16:40",
+            "fromTimeMillis": 1540046400000,
+            "toTime": "17:30",
+            "toTimeMillis": 1540049400000,
+            "talk": {
+              "id": "DAG-5630",
+              "title": "A Practical Introduction to Convnets for Image Classification",
+              "talkType": "Conference",
+              "track": "Big Data & Machine Learning",
+              "lang": "en",
+              "summary": "An introduction to developing a complete pipeline based on convolutional neural networks (CNNs) to solve supervised image classification tasks.  We consider the task of classifying hand gestures from images as rock, paper or scissors, and present the whole pipeline discussing pratical issues such as dataset acquisition, splitting training/testing data, CNN architectures, training and evaluating models.  The journey will encounter a few setbacks, which introduces important machine learning concepts such as overfitting, generalization ability, dataset augmentation strategies.  The talk is concluded by discussing a few spectacular applications of similar techniques in various fields (robotics, industry, biomedicine).\r\n\r\nThe talk is delivered through slides and a Python Jupyter notebook, using keras and tensorflow as a backend.  The main messages, however, are conceptual and language-independent.  The talk has no prerequisites.",
+              "speakerUuids": [
+                "b3057a67c9dfde1687208d635dcd3bb048253c19"
+              ]
+            }
+          },
+          {
+            "slotId": "conf_RoomC_saturday_20_16h40_17h30",
+            "roomId": "RoomC",
+            "roomName": "Room C",
+            "day": "saturday",
+            "fromTime": "16:40",
+            "fromTimeMillis": 1540046400000,
+            "toTime": "17:30",
+            "toTimeMillis": 1540049400000,
+            "talk": {
+              "id": "DHR-9051",
+              "title": "Integration tests: testcontainers to the rescue",
+              "talkType": "Conference",
+              "track": "Cloud, Containers & Infrastructure",
+              "lang": "en",
+              "summary": "Integration testing is hard, and often teams are tempted to do it in production. Testcontainers allows writing meaningful integration tests spawning Docker containers for databases, queue systems, kv-store, other services. Don't mock your database with fake data anymore, work with real data!\r\n",
+              "speakerUuids": [
+                "6e2e888d64b28256e2f8ae6ff65d93ff53dca267"
+              ]
+            }
+          },
+          {
+            "slotId": "key_RoomB1_saturday_20_17h45_18h0",
+            "roomId": "RoomB1",
+            "roomName": "Room B1",
+            "day": "saturday",
+            "fromTime": "17:45",
+            "fromTimeMillis": 1540050300000,
+            "toTime": "18:00",
+            "toTimeMillis": 1540051200000,
+            "talk": {
+              "id": "GMU-4546",
+              "title": "Closing thoughts",
+              "talkType": "Keynote",
+              "track": "Methodology & Culture",
+              "lang": "en",
+              "summary": "Let's close the event all together, collecting feedbacks and speaking about next edition",
+              "speakerUuids": [
+                "ba0c9ced7dffb7d2c41e947cb9b3d190ffa6638c"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "38": [],
+    "39": [],
+    "35": [],
+    "24": [],
+    "23": [],
+    "46": [],
+    "52": [],
+    "51": [],
+    "54": [],
+    "48": []
+  },
+  "sessionNotifications": {
+    "GWF-9509": 7
+  },
+  "lastNotificationId": 7,
+  "selectedConferenceId": 32,
+  "readyToGo": true,
+  "willNeverBeReadyToGo": false
+}
