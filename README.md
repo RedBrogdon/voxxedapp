@@ -1,8 +1,26 @@
-# voxxedapp
+# voxxedapp - a Voxxed Days schedule app made with Flutter
 
-Displays details about upcoming Voxxed Days
+## What is voxxedapp?
 
-## Getting Started
+It's an app that displays info about upcoming
+[Voxxed Days](https://beta.voxxeddays.com/) conferences, including
+location details, tracks, speaker lists, and schedules. Built using
+[Flutter](https://flutter.io), voxxedapp is written in Dart and compiles
+for both iOS and Android from a single codebase.
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+The app is currently in an open beta, but will be arriving in the App
+and Play stores within a few weeks.
+
+## Building the project
+
+First, make sure you have the Flutter SDK installed on your machine and
+[configured correctly](https://flutter.io/get-started/install/). Then
+either open the project in your choice of IDE or run `flutter run` from
+the project root.
+
+## Contributing
+
+This app is built and maintained by the Flutter and Devoxx communities,
+so contributions are encouraged! Befor you start coding, please open an
+issue explaining what you'd like to add, so we can avoid doubling up
+work.
