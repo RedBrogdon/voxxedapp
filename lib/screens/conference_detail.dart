@@ -367,9 +367,8 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       ),
       drawer: MainDrawer(),
       body: body,
-      bottomNavigationBar: ViewModelSubscriber<AppState, String>(
-        converter: (state) => state.conferences[widget.conferenceId].name,
-        builder: (context, dispatcher, viewModel) {
+      bottomNavigationBar: DispatchSubscriber<AppState>(
+        builder: (context, dispatcher) {
           return BottomNavigationBar(
             onTap: (index) {
               if (index == 1) {

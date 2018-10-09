@@ -8,11 +8,11 @@ X About page
 X Favoriting a talk or speaker
 X Refreshing all speakers is blowing away deatils on individual speakers
 X Switch to https://api.voxxed.com/api/... for conference API calls
+X Cold boot JSON
 
 - Notifications for favorite talks/speakers
 - Navigate to talk details when notification tapped (running or not).
 - Find a way to link out to a map
-- Cold boot JSON
 - Keys on lists.
 - Retheme everything to use Material correctly and be beautiful
 - Refactor ViewModels to be a built_value (for equality)?

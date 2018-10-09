@@ -20,7 +20,6 @@ import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/data_refresher_bloc.dart';
-import 'package:voxxedapp/blocs/debouncer_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
 import 'package:voxxedapp/blocs/navigation_bloc.dart';
@@ -56,7 +55,7 @@ class VoxxedDayApp extends StatelessWidget {
       initialState: AppState.initialState(),
       blocs: [
         LoggerBloc(),
-        DebouncerBloc(
+        DebouncerBloc<AppState>(
           [SaveAppStateAction],
           duration: Duration(seconds: 10),
         ),
@@ -70,11 +69,12 @@ class VoxxedDayApp extends StatelessWidget {
       ],
     );
 
+    store.dispatcher(StartObservingNavigationAction());
+
     // This will attempt to load a previously-saved app state from disk. A
     // request to the server for the list of conferences will automatically
     // follow. If both fail, the app can't run, and will halt on the splash
     // screen with a warning message.
-    store.dispatcher(StartObservingNavigationAction());
     store.dispatcher(LoadAppStateAction());
   }
 
