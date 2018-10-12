@@ -34,6 +34,11 @@ class ScheduleRepository {
 
   Future<BuiltList<ScheduleSlot>> refreshScheduleSlots(
       String cfpUrl, String cfpVersion, String uuid) async {
-    return await webClient.fetchScheduleSlots(cfpUrl, cfpVersion, uuid);
+    final slots = await webClient.fetchScheduleSlots(cfpUrl, cfpVersion, uuid);
+
+    // It's possible for a schedule slot to be "unallocated" and therefore
+    // not have a scheduled break or talk associated with it. Eventually these
+    // will be displayed as such in the app, but for now they're filtered out.
+    return slots?.where((s) => s.talk != null || s.scheduleBreak != null);
   }
 }
