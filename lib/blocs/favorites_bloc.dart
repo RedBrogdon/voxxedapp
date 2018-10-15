@@ -58,11 +58,15 @@ class FavoritesBloc extends SimpleBloc<AppState> {
   }
 
   Future<void> _scheduleNotification(int id, ScheduleSlot slot) async {
+    DateTime notificationTime =
+        DateTime.fromMillisecondsSinceEpoch(slot.fromTimeMillis, isUtc: true)
+            .subtract(Duration(minutes: 10));
+
     await _plugin.schedule(
       id,
       'Session starting',
       '${slot.talk.title} begins in ten minutes in ${slot.roomName}.',
-      DateTime.now().add(Duration(seconds: 10)),
+      notificationTime,
       _notificationDetails,
     );
   }

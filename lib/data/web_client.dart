@@ -37,18 +37,25 @@ class WebClient {
       'https://api.voxxed.com/api/voxxeddays/events/$id';
 
   String createAllSpeakersUrl(String cfpUrl, String cfpVersion) =>
-      '$cfpUrl/api/conferences/$cfpVersion/speakers';
+      '${_trimFinalSlash(cfpUrl)}/api/conferences/$cfpVersion/speakers';
 
   String createSingleSpeakerUrl(
           String cfpUrl, String cfpVersion, String uuid) =>
-      '$cfpUrl/api/conferences/CFPVDT18/speakers/$uuid';
+      '${_trimFinalSlash(cfpUrl)}/api/conferences/$cfpVersion/speakers/$uuid';
 
   String createAllSchedulesUrl(String cfpUrl, String cfpVersion) =>
-      '$cfpUrl/api/conferences/$cfpVersion/schedules/';
+      '${_trimFinalSlash(cfpUrl)}/api/conferences/$cfpVersion/schedules/';
 
   String createSingleScheduleUrl(
           String cfpUrl, String cfpVersion, String day) =>
-      '$cfpUrl/api/conferences/$cfpVersion/schedules/$day/';
+      '${_trimFinalSlash(cfpUrl)}/api/conferences/$cfpVersion/schedules/$day/';
+
+  // Some (but not all) CFP Urls come back with a trailing slash. This method
+  // removes any that are found, so the URL creation getters above always return
+  // a URL that doesn't have double-up slashes.
+  String _trimFinalSlash(String url) {
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  }
 
   Future<http.Response> _makeRequest(String url) async {
     int attempts = 0;

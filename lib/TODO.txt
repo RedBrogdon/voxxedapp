@@ -9,8 +9,9 @@ X Favoriting a talk or speaker
 X Refreshing all speakers is blowing away deatils on individual speakers
 X Switch to https://api.voxxed.com/api/... for conference API calls
 X Cold boot JSON
+X Notifications for favorite talks
+X Debounce App State saves.
 
-- Notifications for favorite talks/speakers
 - Navigate to talk details when notification tapped (running or not).
 - Find a way to link out to a map
 - Keys on lists.
@@ -18,7 +19,6 @@ X Cold boot JSON
 - Refactor ViewModels to be a built_value (for equality)?
 - Refactor error logging, exception handling.
 - Rewrite/restructure tests.
-- Debounce App State saves.
 - Clean up reconciliation of speaker/schedule lists.
 
 TESTS

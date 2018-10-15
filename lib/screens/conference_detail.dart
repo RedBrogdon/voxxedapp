@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
+import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
@@ -44,31 +45,24 @@ class SpeakerPanel extends StatelessWidget {
       builder: (context, dispatcher, model) {
         final theme = Theme.of(context);
 
-        var children = <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Speakers', style: theme.textTheme.subhead),
-          ),
-        ];
-
         if (model == null || model.length == 0) {
-          children.add(
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Not yet determined.',
-                style:
-                    theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
-              ),
+          return Center(
+            child: Text(
+              'Speaker list not yet finalized.',
+              style:
+                  theme.textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
             ),
           );
-        } else {
-          var count = 0;
-          for (final speaker in model) {
-            children.add(SpeakerItem(speaker, conferenceId,
-                alternateColor: count % 2 == 0));
-            count++;
-          }
+        }
+
+        var children = <Widget>[];
+
+        var count = 0;
+
+        for (final speaker in model) {
+          children.add(SpeakerItem(speaker, conferenceId,
+              alternateColor: count % 2 == 0));
+          count++;
         }
 
         return ListView(
@@ -176,7 +170,7 @@ class ConferenceInfoPanel extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            'Not yet determined.',
+            'Not yet finalized.',
             style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
           ),
         ),
@@ -286,17 +280,10 @@ class SchedulePanel extends StatelessWidget {
   List<Widget> _buildScheduleWidgets(Schedule sched, ThemeData theme) {
     final widgets = <Widget>[];
 
-    widgets.add(
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          strutils.capitalize(sched.day),
-          style: theme.textTheme.headline,
-        ),
-      ),
-    );
+    widgets.add(SizedBox(height: 16.0));
 
-    for (final slot in sched.slots) {
+    for (final slot in sched.slots
+        .where((s) => s.talk != null || s.scheduleBreak != null)) {
       widgets.add(ViewModelSubscriber<AppState, ScheduleSlotViewModel>(
         converter: (state) => ScheduleSlotViewModel(state, conferenceId,
             slot.day, slot.talk?.id ?? slot.scheduleBreak.id),
@@ -312,24 +299,57 @@ class SchedulePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return ViewModelSubscriber<AppState, BuiltList<Schedule>>(
       converter: (state) => state.schedules[conferenceId],
       builder: (context, dispatcher, schedules) {
-        final children = <Widget>[];
+        final theme = Theme.of(context);
 
-        for (Schedule sched in schedules) {
-          children.addAll(_buildScheduleWidgets(sched, theme));
-          children.add(SizedBox(height: 16.0));
+        if (schedules == null || schedules.isEmpty) {
+          return Center(
+            child: Text(
+              'Schedule not yet finalized',
+              style:
+                  theme.textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
+            ),
+          );
         }
 
-        return ListView(
+        final children = <Widget>[];
+
+        for (final sched in schedules) {
+          if (sched.slots == null || sched.slots.length == 0) {
+            children.add(Center(
+              child: Text(
+                '${strutils.capitalize(sched.day)} schedule not yet finalized.',
+                style: theme.textTheme.subhead
+                    .copyWith(fontStyle: FontStyle.italic),
+              ),
+            ));
+          } else {
+            children.add(
+              ListView(
+                children: _buildScheduleWidgets(sched, theme),
+              ),
+            );
+          }
+        }
+
+        return TabBarView(
           children: children,
         );
       },
     );
   }
+}
+
+class ConferenceDetailScreenViewModel {
+  final String name;
+  final List<String> scheduleDays;
+
+  ConferenceDetailScreenViewModel(AppState state, int conferenceId)
+      : name = state.conferences[conferenceId].name,
+        scheduleDays =
+            state.schedules[conferenceId]?.map<String>((s) => s.day)?.toList();
 }
 
 class ConferenceDetailScreen extends StatefulWidget {
@@ -358,42 +378,67 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       body = SpeakerPanel(widget.conferenceId);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: ViewModelSubscriber<AppState, String>(
-          converter: (state) => state.conferences[widget.conferenceId].name,
-          builder: (context, dispatcher, name) => Text(name),
-        ),
-      ),
-      drawer: MainDrawer(),
-      body: body,
-      bottomNavigationBar: DispatchSubscriber<AppState>(
-        builder: (context, dispatcher) {
-          return BottomNavigationBar(
-            onTap: (index) {
-              if (index == 1) {
-                dispatcher(RefreshSchedulesAction(widget.conferenceId));
-              }
-              setState(() => navBarSelection = index);
+    return ViewModelSubscriber<AppState, ConferenceDetailScreenViewModel>(
+      converter: (state) =>
+          ConferenceDetailScreenViewModel(state, widget.conferenceId),
+      builder: (context, dispatcher, viewModel) {
+        final scaffold = Scaffold(
+          appBar: AppBar(
+            title: ViewModelSubscriber<AppState, String>(
+              converter: (state) => state.conferences[widget.conferenceId].name,
+              builder: (context, dispatcher, name) => Text(name),
+            ),
+            bottom: (viewModel.scheduleDays.length > 1 && navBarSelection == 1)
+                ? TabBar(
+                    tabs: viewModel.scheduleDays
+                        .map<Widget>((s) => Tab(text: strutils.capitalize(s)))
+                        .toList(),
+                  )
+                : null,
+          ),
+          drawer: MainDrawer(),
+          body: body,
+          bottomNavigationBar: DispatchSubscriber<AppState>(
+            builder: (context, dispatcher) {
+              return BottomNavigationBar(
+                onTap: (index) {
+                  if (index == 1) {
+                    dispatcher(RefreshSchedulesAction(widget.conferenceId));
+                  } else if (index == 2) {
+                    dispatcher(RefreshSpeakersForConferenceAction(
+                        widget.conferenceId));
+                  }
+                  setState(() => navBarSelection = index);
+                },
+                currentIndex: navBarSelection,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.info),
+                    title: Text('Info'),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.schedule),
+                    title: Text('Schedule'),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    title: Text('Speakers'),
+                  ),
+                ],
+              );
             },
-            currentIndex: navBarSelection,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.info),
-                title: Text('Info'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.schedule),
-                title: Text('Schedule'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                title: Text('Speakers'),
-              ),
-            ],
-          );
-        },
-      ),
+          ),
+        );
+
+        if (navBarSelection != 1) {
+          return scaffold;
+        }
+
+        return DefaultTabController(
+          length: 3,
+          child: scaffold,
+        );
+      },
     );
   }
 }

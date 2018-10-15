@@ -31,6 +31,18 @@ flutter:
   assets:
     - assets/json/cold_boot.json
 
+  fonts:
+  - family: Lato
+    fonts:
+    - asset: assets/font/Lato-Regular.ttf
+    - asset: assets/font/Lato-Italic.ttf
+      style: italic
+    - asset: assets/font/Lato-Bold.ttf
+      weight: 700
+    - asset: assets/font/Lato-BoldItalic.ttf
+      weight: 700
+      style: italic
+
 # This is the config for flutter_launcher_icons, which
 # generates iOS and Android launcher icons from a source image.
 flutter_icons:

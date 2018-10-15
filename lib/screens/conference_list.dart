@@ -19,47 +19,35 @@ import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
-import 'package:voxxedapp/models/conference.dart';
+
+class ConferenceListItemViewModel {
+  const ConferenceListItemViewModel(
+      this.id, this.name, this.imageURL, this.fromDate, this.endDate);
+
+  final int id;
+  final String name;
+  final String imageURL;
+  final String fromDate;
+  final String endDate;
+}
 
 class ConferenceListViewModel {
-  final List<Conference> conferences;
+  final List<ConferenceListItemViewModel> conferences;
 
   ConferenceListViewModel(AppState state)
-      : this.conferences = state.conferences.values.toList();
+      : conferences = state.conferences.values.map<ConferenceListItemViewModel>(
+            (c) => ConferenceListItemViewModel(
+                  c.id,
+                  c.name,
+                  c.imageURL,
+                  c.fromDate,
+                  c.endDate,
+                )).toList();
 }
 
-class ConferenceListScreen extends StatefulWidget {
-  @override
-  _ConferenceListScreenState createState() => _ConferenceListScreenState();
-}
-
-class _ConferenceListScreenState extends State<ConferenceListScreen> {
-  Widget _buildTitleText(BuildContext context, Conference conference) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
-      color: Colors.white,
-      child: Text(
-        conference.name,
-        style: Theme.of(context).textTheme.headline,
-      ),
-    );
-  }
-
-  Widget _buildDateText(BuildContext context, Conference conference) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
-      color: Color(0xa0000000),
-      child: Text(
-        '${conference.fromDate} - ${conference.endDate}',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildListItem(
-      BuildContext context, Conference conference, VoidCallback onTap) {
+class ConferenceListScreen extends StatelessWidget {
+  Widget _buildListItem(BuildContext context,
+      ConferenceListItemViewModel conference, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2.0),
       child: GestureDetector(
@@ -99,12 +87,34 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
               Positioned(
                 bottom: 0.0,
                 left: 0.0,
-                child: _buildTitleText(context, conference),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6.0,
+                    horizontal: 10.0,
+                  ),
+                  color: Colors.white,
+                  child: Text(
+                    conference.name,
+                    style: Theme.of(context).textTheme.headline,
+                  ),
+                ),
               ),
               Positioned(
                 top: 10.0,
                 right: 0.0,
-                child: _buildDateText(context, conference),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6.0,
+                    horizontal: 10.0,
+                  ),
+                  color: Color(0xa0000000),
+                  child: Text(
+                    '${conference.fromDate} - ${conference.endDate}',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               )
             ],
           ),
@@ -129,14 +139,16 @@ class _ConferenceListScreenState extends State<ConferenceListScreen> {
             },
             child: ListView.builder(
               itemCount: viewModel.conferences.length,
-              itemBuilder: (context, i) => _buildListItem(
-                    context,
-                    viewModel.conferences[i],
-                    () {
-                      int id = viewModel.conferences[i].id;
-                      Navigator.of(context).pop(id);
-                    },
-                  ),
+              itemBuilder: (context, i) {
+                return _buildListItem(
+                  context,
+                  viewModel.conferences[i],
+                  () {
+                    int id = viewModel.conferences[i].id;
+                    Navigator.of(context).pop(id);
+                  },
+                );
+              },
             ),
           );
         },

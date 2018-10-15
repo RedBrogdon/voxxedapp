@@ -151,6 +151,7 @@ class VoxxedDayApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          fontFamily: 'Lato',
         ),
         onGenerateRoute: _onGenerateRoute,
         navigatorObservers: [navBloc.observer],
