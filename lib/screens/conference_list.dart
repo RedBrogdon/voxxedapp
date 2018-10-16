@@ -12,42 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:async';
-
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
-import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
-
-class ConferenceListItemViewModel {
-  const ConferenceListItemViewModel(
-      this.id, this.name, this.imageURL, this.fromDate, this.endDate);
-
-  final int id;
-  final String name;
-  final String imageURL;
-  final String fromDate;
-  final String endDate;
-}
+import 'package:voxxedapp/models/conference.dart';
 
 class ConferenceListViewModel {
-  final List<ConferenceListItemViewModel> conferences;
+  final BuiltMap<int, Conference> conferences;
 
-  ConferenceListViewModel(AppState state)
-      : conferences = state.conferences.values.map<ConferenceListItemViewModel>(
-            (c) => ConferenceListItemViewModel(
-                  c.id,
-                  c.name,
-                  c.imageURL,
-                  c.fromDate,
-                  c.endDate,
-                )).toList();
+  ConferenceListViewModel(AppState state) : conferences = state.conferences;
+
+  @override
+  int get hashCode => conferences.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is ConferenceListViewModel &&
+              runtimeType == other.runtimeType &&
+              conferences == other.conferences;
 }
 
 class ConferenceListScreen extends StatelessWidget {
-  Widget _buildListItem(BuildContext context,
-      ConferenceListItemViewModel conference, VoidCallback onTap) {
+  Widget _buildListItem(
+      BuildContext context, Conference conference, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2.0),
       child: GestureDetector(
@@ -132,24 +122,19 @@ class ConferenceListScreen extends StatelessWidget {
       body: ViewModelSubscriber<AppState, ConferenceListViewModel>(
         converter: (state) => ConferenceListViewModel(state),
         builder: (context, dispatcher, viewModel) {
-          return RefreshIndicator(
-            onRefresh: () {
-              dispatcher(RefreshConferencesAction());
-              return Future.delayed(Duration(seconds: 2), () {});
+          List<Conference> conferences = viewModel.conferences.values.toList();
+          return ListView.builder(
+            itemCount: conferences.length,
+            itemBuilder: (context, i) {
+              return _buildListItem(
+                context,
+                conferences[i],
+                () {
+                  int id = conferences[i].id;
+                  Navigator.of(context).pop(id);
+                },
+              );
             },
-            child: ListView.builder(
-              itemCount: viewModel.conferences.length,
-              itemBuilder: (context, i) {
-                return _buildListItem(
-                  context,
-                  viewModel.conferences[i],
-                  () {
-                    int id = viewModel.conferences[i].id;
-                    Navigator.of(context).pop(id);
-                  },
-                );
-              },
-            ),
           );
         },
       ),

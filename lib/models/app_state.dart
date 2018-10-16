@@ -43,6 +43,13 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
   bool get willNeverBeReadyToGo;
 
+  // This field holds a rough approximation of the time (in milliseconds) at
+  // which the app began executing. It's not serialized, since it shouldn't be
+  // persisted between executions.
+  @nullable
+  @BuiltValueField(serialize: false)
+  int get launchTime;
+
   AppState._();
 
   factory AppState([updates(AppStateBuilder b)]) = _$AppState;
@@ -51,6 +58,7 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
     return AppState((b) => b
       ..lastNotificationId = 0
       .._selectedConferenceId = 0
+      ..launchTime = DateTime.now().millisecondsSinceEpoch
       ..readyToGo = false
       .._willNeverBeReadyToGo = false);
   }

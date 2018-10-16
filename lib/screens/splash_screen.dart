@@ -53,35 +53,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
-  static const _displayMilliseconds = 2000;
-  final _timeOfCreation = DateTime.now().millisecondsSinceEpoch;
-  Future<void> _redirectFuture;
-
-  // TODO(redbrogdon): This seems like a terrible hack. Consider
-  // building a ReblocRouter or something.
-  void _checkAndBuildFuture(SplashScreenViewModel model) {
-    if (model.readyToGo && _redirectFuture == null) {
-      Duration delay;
-      final currentTime = DateTime.now().millisecondsSinceEpoch;
-
-      // If this widget has been around for at least [_displayMilliseconds],
-      // navigate to the conference details screen immediately. Otherwise
-      // delay for the remaining time, and then do the navigation. This
-      // guarantees the splash is up long enough for people to see the logo.
-      if (currentTime - _timeOfCreation > _displayMilliseconds) {
-        delay = Duration.zero;
-      } else {
-        final remainingTime =
-            _displayMilliseconds + _timeOfCreation - currentTime;
-        delay = Duration(milliseconds: remainingTime);
-      }
-
-      String destination = '/conference/${model.selectedConferenceId}';
-      _redirectFuture = Future.delayed(
-          delay, () => Navigator.of(context).pushReplacementNamed(destination));
-    }
-  }
-
   Widget _createStatusText(SplashScreenViewModel model, TextTheme theme) {
     String msg;
 
@@ -113,8 +84,6 @@ class SplashScreenState extends State<SplashScreen> {
     return ViewModelSubscriber<AppState, SplashScreenViewModel>(
       converter: (state) => SplashScreenViewModel(state),
       builder: (context, dispatcher, model) {
-        _checkAndBuildFuture(model);
-
         return DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.black,

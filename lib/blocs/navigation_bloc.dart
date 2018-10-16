@@ -18,8 +18,8 @@ import 'package:flutter/widgets.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:rebloc/rebloc.dart';
 
-typedef void NewRouteCallback(
-    Route<dynamic> route, Route<dynamic> previousRoute);
+typedef void NewRouteCallback(Route<dynamic> route,
+    Route<dynamic> previousRoute);
 
 class StartObservingNavigationAction extends Action {}
 
@@ -42,6 +42,8 @@ class PushNamedReplacementRouteAction extends Action {
 
   PushNamedReplacementRouteAction(this.routeName);
 }
+
+class LeaveSplashScreenAction extends Action {}
 
 class PopRouteAction extends Action {}
 
@@ -82,6 +84,10 @@ class _NavigationBlocObserver extends NavigatorObserver {
 /// kicking off network requests absed on user navigation. It can also pop and
 /// push routes based on [Action]s it receives from the dispatch stream.
 class NavigationBloc extends SimpleBloc<AppState> {
+  static const int _minimumSplashScreenTime = 2000;
+
+  Future<void> _leaveSplashScreen;
+
   NavigationBloc() {
     observer = _NavigationBlocObserver(onActiveRouteChanged: _onDidPush);
   }
@@ -102,9 +108,30 @@ class NavigationBloc extends SimpleBloc<AppState> {
     }
   }
 
+  Action _handleLeaveSplashScreen(AppState state,
+      LeaveSplashScreenAction action) {
+    if (_leaveSplashScreen == null) {
+      final timeSplashHasBeenUp = DateTime
+          .now()
+          .millisecondsSinceEpoch - state.launchTime;
+
+      final remainingTime = (timeSplashHasBeenUp < _minimumSplashScreenTime)
+          ? _minimumSplashScreenTime - timeSplashHasBeenUp
+          : 0;
+
+      final destination = '/conference/${state.selectedConferenceId}';
+
+      _leaveSplashScreen = Future.delayed(
+          Duration(milliseconds: remainingTime),
+              () => observer.navigator?.pushReplacementNamed(destination));
+    }
+
+    return action;
+  }
+
   @override
-  FutureOr<Action> middleware(
-      DispatchFunction dispatcher, AppState state, Action action) {
+  FutureOr<Action> middleware(DispatchFunction dispatcher, AppState state,
+      Action action) {
     if (action is StartObservingNavigationAction) {
       _dispatcher = dispatcher;
     } else if (action is StopObservingNavigationAction) {
@@ -117,6 +144,8 @@ class NavigationBloc extends SimpleBloc<AppState> {
       observer.navigator?.pushReplacementNamed(action.routeName);
     } else if (action is PopAndPushNamedRouteAction) {
       observer.navigator?.popAndPushNamed(action.routeName);
+    } else if (action is LeaveSplashScreenAction) {
+      return _handleLeaveSplashScreen(state, action);
     }
 
     return action;

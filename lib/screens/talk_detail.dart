@@ -35,7 +35,7 @@ class TalkDetailViewModel {
   TalkDetailViewModel(AppState state, int conferenceId, String talkId) {
     slot = state.schedules[conferenceId]
         ?.firstWhere((sch) => sch.slots.any((s) => s.talk?.id == talkId),
-        orElse: () => null)
+            orElse: () => null)
         ?.slots
         ?.firstWhere((s) => s.talk?.id == talkId, orElse: () => null);
 
@@ -111,6 +111,17 @@ class TalkDetailScreen extends StatelessWidget {
     }
   }
 
+  String _createTimeString(TalkDetailViewModel model) {
+    if (model.slot.day == null ||
+        model.slot.fromTime == null ||
+        model.slot.toTime == null) {
+      return '';
+    }
+
+    return '${strutils.capitalize(model.slot.day)}, ${model.slot.fromTime}'
+        ' to ${model.slot.toTime}';
+  }
+
   List<Widget> _createInfoRows(TalkDetailViewModel model, TextTheme theme) {
     final widgets = <Widget>[];
 
@@ -124,43 +135,35 @@ class TalkDetailScreen extends StatelessWidget {
       ),
     ]);
 
-    String roomStr = model.slot.roomName ?? '';
-    String timeStr = '';
-
-    if (model.slot.day != null &&
-        model.slot.fromTime != null &&
-        model.slot.toTime != null) {
-      timeStr = '${strutils.capitalize(model.slot.day)}, ${model.slot.fromTime}'
-          ' to ${model.slot.toTime}';
-    }
-
-    widgets.add(Row(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Expanded(
-          child: Padding(
+    widgets.add(
+      Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _createTimeString(model),
+                style: theme.subhead.copyWith(
+                  color: Colors.deepOrange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              timeStr,
+              model.slot.roomName ?? '',
               style: theme.subhead.copyWith(
                 color: Colors.deepOrange,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            roomStr,
-            style: theme.subhead.copyWith(
-              color: Colors.deepOrange,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
 
     widgets.addAll([
       Padding(
@@ -179,13 +182,15 @@ class TalkDetailScreen extends StatelessWidget {
       ),
     ]);
 
-    widgets.add(Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-      child: Text(
-        model.slot.talk.summary,
-        style: theme.body1,
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+        child: Text(
+          model.slot.talk.summary,
+          style: theme.body1,
+        ),
       ),
-    ));
+    );
 
     if (model.track != null) {
       widgets.addAll([
@@ -202,23 +207,27 @@ class TalkDetailScreen extends StatelessWidget {
     }
 
     if (model.speakers.length > 0) {
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
-        child: Text(
-          model.speakers.length > 1 ? 'Speakers' : 'Speaker',
-          style: theme.subhead.copyWith(fontWeight: FontWeight.bold),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+          child: Text(
+            model.speakers.length > 1 ? 'Speakers' : 'Speaker',
+            style: theme.subhead.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
-      ));
+      );
     }
 
     int rowCount = 0;
 
     for (final speaker in model.speakers) {
-      widgets.add(SpeakerItem(
-        speaker,
-        conferenceId,
-        alternateColor: rowCount % 2 == 0,
-      ));
+      widgets.add(
+        SpeakerItem(
+          speaker,
+          conferenceId,
+          alternateColor: rowCount % 2 == 0,
+        ),
+      );
     }
 
     widgets.add(SizedBox(height: 16.0));
@@ -228,9 +237,7 @@ class TalkDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return ViewModelSubscriber<AppState, TalkDetailViewModel>(
       converter: (state) => TalkDetailViewModel(state, conferenceId, talkId),
@@ -238,16 +245,17 @@ class TalkDetailScreen extends StatelessWidget {
         if (model.slot == null) {
           // Talk was not found.
           return Scaffold(
-              appBar: AppBar(
-                title: Text('Talk not found'),
+            appBar: AppBar(
+              title: Text('Talk not found'),
+            ),
+            body: Center(
+              child: Text(
+                'Conference record could not be found.\n\n'
+                    'Use the menu to select another.',
+                style: textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
               ),
-              body: Center(
-                child: Text(
-                    'Conference record could not be found.\n\n'
-                        'Use the menu to select another.',
-                    style: textTheme.subhead
-                        .copyWith(fontStyle: FontStyle.italic)),
-              ));
+            ),
+          );
         }
 
         return Scaffold(
@@ -259,8 +267,7 @@ class TalkDetailScreen extends StatelessWidget {
           ),
           floatingActionButton: Builder(
             // Needed to get a context w/ Scaffold.
-            builder: (context) =>
-                FloatingActionButton(
+            builder: (context) => FloatingActionButton(
                   backgroundColor: Colors.deepOrange,
                   onPressed: () {
                     Scaffold.of(context).showSnackBar(

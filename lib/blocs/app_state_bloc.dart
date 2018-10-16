@@ -17,6 +17,7 @@ import 'dart:async';
 import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
+import 'package:voxxedapp/blocs/navigation_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/data/app_state_local_storage.dart';
@@ -82,22 +83,40 @@ class AppStateBloc extends SimpleBloc<AppState> {
       DispatchFunction dispatcher, AppState state, Action action) {
     if (action is SaveAppStateAction) {
       localStorage.saveAppStateToCache(state);
-    } else if (action is LoadAppStateAction) {
+    }
+
+    if (action is LoadAppStateAction) {
       _beginLoadingAppState(dispatcher);
-    } else if (action is LoadColdAppStateAction) {
+    }
+
+    if (action is LoadColdAppStateAction) {
       _beginLoadingColdAppState(dispatcher);
-    } else if (action is LoadAppStateFailedAction) {
+    }
+
+    if (action is LoadAppStateFailedAction) {
       // If loading cached app state from disk has failed (e.g. this is the
       // first run, or an app update has rendered previous state unusable), try
       // loading app state from the cold boot json file.
       action.afterward(LoadColdAppStateAction());
-    } else if (action is AppStateLoadedAction ||
+    }
+
+    if (action is AppStateLoadedAction ||
         action is ColdAppStateLoadedAction ||
         action is ColdAppStateFailedToLoadAction) {
       // Once the loading of app state from cache or asset has completed or
       // errored out, attempt to refresh data for all conferences from network.
       action.afterward(RefreshConferencesAction());
-    } else if (action is RefreshedConferenceAction ||
+    }
+
+    if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is RefreshedConferencesAction) {
+      // Any of these three indicate that an app state has been loaded and the
+      // splash screen, if open, should be closed.
+      action.afterward(LeaveSplashScreenAction());
+    }
+
+    if (action is RefreshedConferenceAction ||
         action is RefreshedConferencesAction ||
         action is RefreshedSpeakersForConferenceAction ||
         action is RefreshedSpeakerForConferenceAction ||
@@ -127,12 +146,14 @@ class AppStateBloc extends SimpleBloc<AppState> {
 
     if (action is AppStateLoadedAction) {
       return action.state.rebuild((b) => b
+        ..launchTime = state.launchTime
         ..readyToGo = true
         ..willNeverBeReadyToGo = false);
     }
 
     if (action is ColdAppStateLoadedAction) {
-      return action.state;
+      return action.state.rebuild((b) => b
+      ..launchTime = state.launchTime);
     }
 
     return state;
