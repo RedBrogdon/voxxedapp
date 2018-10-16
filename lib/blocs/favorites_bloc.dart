@@ -15,20 +15,24 @@
 import 'dart:async';
 
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/blocs/navigation_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/util/logger.dart';
 
 class ToggleFavoriteAction extends Action {
+  final int conferenceId;
   final String talkId;
 
-  ToggleFavoriteAction(this.talkId);
+  ToggleFavoriteAction(this.conferenceId, this.talkId);
 }
 
 class SetAllNotificationsAction extends Action {}
 
 class FavoritesBloc extends SimpleBloc<AppState> {
+  DispatchFunction _dispatcher;
+
   FavoritesBloc() {
     var initializationSettings = new InitializationSettings(
       AndroidInitializationSettings('ic_session_start'),
@@ -55,19 +59,28 @@ class FavoritesBloc extends SimpleBloc<AppState> {
 
   Future<void> _handleNotificationSelection(String msg) async {
     log.info('Notification selection: $msg');
+    if (_dispatcher != null) {
+      _dispatcher(PushNamedRouteAction(msg));
+    }
   }
 
-  Future<void> _scheduleNotification(int id, ScheduleSlot slot) async {
+  Future<void> _scheduleNotification(
+      int id, int conferenceId, ScheduleSlot slot) async {
     DateTime notificationTime =
         DateTime.fromMillisecondsSinceEpoch(slot.fromTimeMillis, isUtc: true)
             .subtract(Duration(minutes: 10));
+
+    // Payload for the notification is the route to which the app should
+    // navigate when the user taps on the notification.
+    String payload = '/conference/$conferenceId/talk/${slot.talk.id}';
 
     await _plugin.schedule(
       id,
       'Session starting',
       '${slot.talk.title} begins in ten minutes in ${slot.roomName}.',
-      notificationTime,
+      DateTime.now().add(Duration(seconds: 10)), //notificationTime,
       _notificationDetails,
+      payload: payload,
     );
   }
 
@@ -78,11 +91,16 @@ class FavoritesBloc extends SimpleBloc<AppState> {
   @override
   FutureOr<Action> middleware(
       DispatchFunction dispatcher, AppState state, Action action) {
+    // Store dispatcher for future use.
+    _dispatcher = dispatcher;
+
     if (action is SetAllNotificationsAction) {
       for (final talkId in state.sessionNotifications.keys) {
         final slot = state.getSlotByTalkId(talkId);
-        if (slot != null) {
-          _scheduleNotification(state.sessionNotifications[talkId], slot);
+        final conferenceId = state.getConferenceIdForTalkId(talkId);
+        if (slot != null && conferenceId != null) {
+          _scheduleNotification(
+              state.sessionNotifications[talkId], conferenceId, slot);
         }
       }
     }
@@ -100,10 +118,10 @@ class FavoritesBloc extends SimpleBloc<AppState> {
       } else {
         final slot = state.getSlotByTalkId(action.talkId);
         if (slot != null) {
-          final id = state.lastNotificationId + 1;
-          _scheduleNotification(id, slot);
+          final notificationId = state.lastNotificationId + 1;
+          _scheduleNotification(notificationId, action.conferenceId, slot);
           return state.rebuild((b) => b
-            ..sessionNotifications[action.talkId] = id
+            ..sessionNotifications[action.talkId] = notificationId
             ..lastNotificationId = b.lastNotificationId + 1);
         }
       }

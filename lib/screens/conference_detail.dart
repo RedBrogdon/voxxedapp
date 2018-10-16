@@ -347,7 +347,7 @@ class ConferenceDetailScreenViewModel {
   final List<String> scheduleDays;
 
   ConferenceDetailScreenViewModel(AppState state, int conferenceId)
-      : name = state.conferences[conferenceId].name,
+      : name = state.conferences[conferenceId]?.name,
         scheduleDays =
             state.schedules[conferenceId]?.map<String>((s) => s.day)?.toList();
 }
@@ -368,6 +368,7 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     Widget body;
 
     if (navBarSelection == 0) {
@@ -382,6 +383,22 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       converter: (state) =>
           ConferenceDetailScreenViewModel(state, widget.conferenceId),
       builder: (context, dispatcher, viewModel) {
+        if (viewModel.name == null) {
+          // No name means conferenceId doesn't match a real conference.
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Conference not found'),
+            ),
+            body: Center(
+              child: Text(
+                  'Conference record could not be found.\n\n'
+                  'Use the menu to select another.',
+                  style: textTheme.subhead
+                      .copyWith(fontStyle: FontStyle.italic)),
+            ),
+          );
+        }
+
         final scaffold = Scaffold(
           appBar: AppBar(
             title: ViewModelSubscriber<AppState, String>(

@@ -28,42 +28,67 @@ class TalkDetailViewModel {
   ScheduleSlot slot;
   final speakers = <Speaker>[];
   Track track;
+  bool isFavorite;
 
   // Use the provided arguments to locate the correct schedule slot in [state],
   // or throw an error if it cannot be located.
   TalkDetailViewModel(AppState state, int conferenceId, String talkId) {
     slot = state.schedules[conferenceId]
         ?.firstWhere((sch) => sch.slots.any((s) => s.talk?.id == talkId),
-            orElse: () => null)
+        orElse: () => null)
         ?.slots
         ?.firstWhere((s) => s.talk?.id == talkId, orElse: () => null);
 
-    if (slot == null) {
-      throw ArgumentError('Couldn\'t find ScheduleSlot for $talkId at '
-          'conference $conferenceId');
-    }
+    if (slot != null) {
+      track = state.conferences[conferenceId].tracks
+          .firstWhere((t) => t.name == slot.talk.track, orElse: () => null);
 
-    track = state.conferences[conferenceId].tracks
-        .firstWhere((t) => t.name == slot.talk.track, orElse: () => null);
-
-    for (final uuid in slot.talk.speakerUuids) {
-      final speaker = state.speakers[conferenceId]
-          ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
-      if (speaker != null) {
-        speakers.add(speaker);
+      for (final uuid in slot.talk.speakerUuids) {
+        final speaker = state.speakers[conferenceId]
+            ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
+        if (speaker != null) {
+          speakers.add(speaker);
+        }
       }
+
+      isFavorite = state.sessionNotifications.containsKey(talkId);
     }
   }
 
   @override
   int get hashCode {
-    return slot.hashCode;
+    int hash = slot.hashCode ^ track.hashCode ^ isFavorite.hashCode;
+
+    if (speakers != null) {
+      for (final speaker in speakers) {
+        hash = hash ^ speaker.hashCode;
+      }
+    }
+
+    return hash;
   }
 
   @override
   bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
     if (other is TalkDetailViewModel) {
-      return slot == other.slot;
+      if (slot != other.slot ||
+          track != other.track ||
+          isFavorite != other.isFavorite ||
+          speakers?.length != other.speakers?.length) {
+        return false;
+      }
+
+      if (speakers != null && speakers.length > 0) {
+        for (int i = 0; i < speakers.length; i++) {
+          if (speakers[i] != other.speakers[i]) {
+            return false;
+          }
+        }
+      }
     }
 
     return false;
@@ -203,40 +228,58 @@ class TalkDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).textTheme;
+    final textTheme = Theme
+        .of(context)
+        .textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Talk details'),
-      ),
-      body: ViewModelSubscriber<AppState, TalkDetailViewModel>(
-        converter: (state) => TalkDetailViewModel(state, conferenceId, talkId),
-        builder: (context, dispatcher, model) {
-          return ListView(
-            children: _createInfoRows(model, theme),
-          );
-        },
-      ),
-      floatingActionButton: ViewModelSubscriber<AppState, bool>(
-        converter: (state) => state.sessionNotifications.containsKey(talkId),
-        builder: (context, dispatcher, isFavorite) {
-          return FloatingActionButton(
-            backgroundColor: Colors.deepOrange,
-            onPressed: () {
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  duration: Duration(seconds: 2),
-                  content: Text(isFavorite
-                      ? 'Removing this talk from your list of favorites.'
-                      : 'Adding this talk to your list of favorites.'),
+    return ViewModelSubscriber<AppState, TalkDetailViewModel>(
+      converter: (state) => TalkDetailViewModel(state, conferenceId, talkId),
+      builder: (context, dispatcher, model) {
+        if (model.slot == null) {
+          // Talk was not found.
+          return Scaffold(
+              appBar: AppBar(
+                title: Text('Talk not found'),
+              ),
+              body: Center(
+                child: Text(
+                    'Conference record could not be found.\n\n'
+                        'Use the menu to select another.',
+                    style: textTheme.subhead
+                        .copyWith(fontStyle: FontStyle.italic)),
+              ));
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Talk details'),
+          ),
+          body: ListView(
+            children: _createInfoRows(model, textTheme),
+          ),
+          floatingActionButton: Builder(
+            // Needed to get a context w/ Scaffold.
+            builder: (context) =>
+                FloatingActionButton(
+                  backgroundColor: Colors.deepOrange,
+                  onPressed: () {
+                    Scaffold.of(context).showSnackBar(
+                      SnackBar(
+                        duration: Duration(seconds: 2),
+                        content: Text(model.isFavorite
+                            ? 'Removing this talk from your list of favorites.'
+                            : 'Adding this talk to your list of favorites.'),
+                      ),
+                    );
+                    dispatcher(ToggleFavoriteAction(conferenceId, talkId));
+                  },
+                  child: Icon(model.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border),
                 ),
-              );
-              dispatcher(ToggleFavoriteAction(talkId));
-            },
-            child: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

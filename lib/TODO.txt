@@ -6,13 +6,14 @@ X Schedule pane
 X Schedule item details
 X About page
 X Favoriting a talk or speaker
-X Refreshing all speakers is blowing away deatils on individual speakers
+X Refreshing all speakers is blowing away details on individual speakers
 X Switch to https://api.voxxed.com/api/... for conference API calls
 X Cold boot JSON
 X Notifications for favorite talks
 X Debounce App State saves.
+X Navigate to talk details when notification tapped (running or not).
 
-- Navigate to talk details when notification tapped (running or not).
+- Refactor networking, and add LinearProgressIndicator into the views
 - Find a way to link out to a map
 - Keys on lists.
 - Retheme everything to use Material correctly and be beautiful

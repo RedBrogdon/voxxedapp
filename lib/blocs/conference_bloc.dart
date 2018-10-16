@@ -20,6 +20,12 @@ import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
 
+class SelectConferenceAction extends Action {
+  final int selectedConferenceId;
+
+  SelectConferenceAction(this.selectedConferenceId);
+}
+
 /// Refresh the entire conference list (partial data for each conference):
 class RefreshConferencesAction extends Action {}
 
@@ -170,6 +176,15 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     });
   }
 
+  AppState _selectConference(AppState state, SelectConferenceAction action) {
+    if (state.conferences.containsKey(action.selectedConferenceId)) {
+      return state.rebuild(
+          (b) => b..selectedConferenceId = action.selectedConferenceId);
+    }
+
+    return state;
+  }
+
   @override
   Action middleware(dispatcher, state, action) {
     if (action is RefreshConferencesAction) {
@@ -187,6 +202,8 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       return _refreshedConferences(state, action);
     } else if (action is RefreshedConferenceAction) {
       return _refreshedConference(state, action);
+    } else if (action is SelectConferenceAction) {
+      return _selectConference(state, action);
     }
 
     return state;

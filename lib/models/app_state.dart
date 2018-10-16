@@ -68,4 +68,18 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
     return null;
   }
+
+  int getConferenceIdForTalkId(String talkId) {
+    for (final conferenceId in schedules.keys) {
+      for (final schedule in schedules[conferenceId]) {
+        final slot = schedule.slots
+            .firstWhere((s) => s.talk?.id == talkId, orElse: () => null);
+        if (slot != null) {
+          return conferenceId;
+        }
+      }
+    }
+
+    return null;
+  }
 }
