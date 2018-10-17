@@ -28,7 +28,8 @@ class SpeakerItem extends StatelessWidget {
     this.alternateColor,
   });
 
-  String get dest => '/conference/$conferenceId/speaker/${speaker.uuid}';
+  String get dest =>
+      '/conference/$conferenceId/speaker/300'; //${speaker.uuid}';
 
   @override
   Widget build(BuildContext context) {

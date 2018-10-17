@@ -14,6 +14,8 @@ X Debounce App State saves.
 X Navigate to talk details when notification tapped (running or not).
 
 - Refactor networking, and add LinearProgressIndicator into the views
+- Verify how to show accepted but not scheduled talks
+- Verify how to show empty schedule sessions
 - Find a way to link out to a map
 - Keys on lists.
 - Retheme everything to use Material correctly and be beautiful

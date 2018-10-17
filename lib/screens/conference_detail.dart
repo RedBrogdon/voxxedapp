@@ -24,6 +24,7 @@ import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/util/string_utils.dart' as strutils;
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 import 'package:voxxedapp/widgets/schedule_slot_item.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
@@ -368,7 +369,6 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
     Widget body;
 
     if (navBarSelection == 0) {
@@ -385,17 +385,10 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       builder: (context, dispatcher, viewModel) {
         if (viewModel.name == null) {
           // No name means conferenceId doesn't match a real conference.
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Conference not found'),
-            ),
-            body: Center(
-              child: Text(
-                  'Conference record could not be found.\n\n'
-                  'Use the menu to select another.',
-                  style: textTheme.subhead
-                      .copyWith(fontStyle: FontStyle.italic)),
-            ),
+          return InvalidNavigationNotice(
+            'Conference not found',
+            'Conference record could not be found or is no longer valid.\n\n'
+                'Use the menu to select another.',
           );
         }
 

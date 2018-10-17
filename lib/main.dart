@@ -40,43 +40,44 @@ Future main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(new VoxxedDayApp());
-}
-
-class VoxxedDayApp extends StatelessWidget {
   // This is created separately so we can refer to it later in [build].
   final navBloc = NavigationBloc();
 
   // Holds and manages application state for the app.
-  Store<AppState> store;
+  final store = Store<AppState>(
+    initialState: AppState.initialState(),
+    blocs: [
+      LoggerBloc(),
+      DebouncerBloc<AppState>(
+        [SaveAppStateAction],
+        duration: Duration(seconds: 10),
+      ),
+      AppStateBloc(),
+      navBloc,
+      DataRefresherBloc(),
+      ConferenceBloc(),
+      SpeakerBloc(),
+      ScheduleBloc(),
+      FavoritesBloc(),
+    ],
+  );
 
-  VoxxedDayApp() {
-    store = Store<AppState>(
-      initialState: AppState.initialState(),
-      blocs: [
-        LoggerBloc(),
-        DebouncerBloc<AppState>(
-          [SaveAppStateAction],
-          duration: Duration(seconds: 10),
-        ),
-        AppStateBloc(),
-        navBloc,
-        DataRefresherBloc(),
-        ConferenceBloc(),
-        SpeakerBloc(),
-        ScheduleBloc(),
-        FavoritesBloc(),
-      ],
-    );
+  store.dispatcher(StartObservingNavigationAction());
 
-    store.dispatcher(StartObservingNavigationAction());
+  // This will attempt to load a previously-saved app state from disk. A
+  // request to the server for the list of conferences will automatically
+  // follow. If both fail, the app can't run, and will halt on the splash
+  // screen with a warning message.
+  store.dispatcher(LoadAppStateAction());
 
-    // This will attempt to load a previously-saved app state from disk. A
-    // request to the server for the list of conferences will automatically
-    // follow. If both fail, the app can't run, and will halt on the splash
-    // screen with a warning message.
-    store.dispatcher(LoadAppStateAction());
-  }
+  runApp(new VoxxedDayApp(store, navBloc));
+}
+
+class VoxxedDayApp extends StatelessWidget {
+  VoxxedDayApp(this.store, this.navBloc);
+
+  final Store<AppState> store;
+  final NavigationBloc navBloc;
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
     var path = settings.name.split('/');

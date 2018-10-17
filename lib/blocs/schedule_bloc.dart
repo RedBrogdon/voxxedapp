@@ -14,7 +14,7 @@
 
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
-import 'package:voxxedapp/data/schedule_repository.dart';
+import 'package:voxxedapp/data/web_client.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/schedule.dart';
 import 'package:rebloc/rebloc.dart';
@@ -28,7 +28,7 @@ class RefreshSchedulesAction extends Action {
 }
 
 class RefreshedSchedulesAction extends Action {
-  final List<Schedule> schedules;
+  final BuiltList<Schedule> schedules;
   final int conferenceId;
 
   RefreshedSchedulesAction(this.schedules, this.conferenceId);
@@ -58,12 +58,12 @@ class RefreshScheduleSlotsFailedAction extends Action {
 }
 
 class ScheduleBloc extends SimpleBloc<AppState> {
-  final ScheduleRepository repository;
+  final WebClient webClient;
 
-  ScheduleBloc({this.repository = const ScheduleRepository()});
+  ScheduleBloc({this.webClient = const WebClient()});
 
-  Action _refreshSchedules(DispatchFunction dispatch, AppState state,
-      RefreshSchedulesAction action) {
+  Future<void> _refreshSchedules(DispatchFunction dispatcher, AppState state,
+      RefreshSchedulesAction action) async {
     String cfpVersion = state.conferences[action.conferenceId]?.cfpVersion;
     String cfpUrl = state.conferences[action.conferenceId]?.cfpURL;
 
@@ -71,19 +71,18 @@ class ScheduleBloc extends SimpleBloc<AppState> {
       log.warning(
           'Couldn\'t refresh schedules for conference ${action.conferenceId}.');
     } else {
-      repository.refreshSchedules(cfpUrl, cfpVersion).then((newList) {
-        dispatch(
-            RefreshedSchedulesAction(newList.toList(), action.conferenceId));
-      }).catchError((e, s) {
-        dispatch(RefreshSchedulesFailedAction());
-      });
+      try {
+        final schedules = await webClient.fetchSchedules(cfpUrl, cfpVersion);
+        dispatcher(RefreshedSchedulesAction(schedules, action.conferenceId));
+      } on WebClientException catch (e) {
+        logException('_refreshSchedules', e.message);
+        dispatcher(RefreshSchedulesFailedAction());
+      }
     }
-
-    return action;
   }
 
-  Action _refreshScheduleSlots(DispatchFunction dispatch, AppState state,
-      RefreshScheduleSlotsAction action) {
+  Future<void> _refreshScheduleSlots(DispatchFunction dispatcher,
+      AppState state, RefreshScheduleSlotsAction action) async {
     String cfpVersion = state.conferences[action.conferenceId]?.cfpVersion;
     String cfpUrl = state.conferences[action.conferenceId]?.cfpURL;
 
@@ -91,17 +90,15 @@ class ScheduleBloc extends SimpleBloc<AppState> {
       log.warning('Couldn\'t refresh schedule for conference'
           ' #${action.conferenceId}.');
     } else {
-      repository
-          .refreshScheduleSlots(cfpUrl, cfpVersion, action.day)
-          .then((schedule) {
-        dispatch(RefreshedScheduleSlotsAction(
-          schedule,
-          action.conferenceId,
-          action.day,
-        ));
-      }).catchError((e, s) {
-        dispatch(RefreshScheduleSlotsFailedAction());
-      });
+      try {
+        final slots =
+            await webClient.fetchScheduleSlots(cfpUrl, cfpVersion, action.day);
+        dispatcher(RefreshedScheduleSlotsAction(
+            slots, action.conferenceId, action.day));
+      } on WebClientException catch (e) {
+        logException('_refreshScheduleSlots', e.message);
+        dispatcher(RefreshScheduleSlotsFailedAction());
+      }
     }
 
     return action;
@@ -156,18 +153,23 @@ class ScheduleBloc extends SimpleBloc<AppState> {
 
   @override
   Action middleware(dispatcher, state, action) {
-    if (action is RefreshSchedulesAction) {
-      return _refreshSchedules(dispatcher, state, action);
-    } else if (action is RefreshScheduleSlotsAction) {
-      return _refreshScheduleSlots(dispatcher, state, action);
-    } else if (action is RefreshedConferenceAction) {
+    if (action is RefreshedConferenceAction) {
       return action..afterward(RefreshSchedulesAction(action.conference.id));
-    } else if (action is RefreshedSchedulesAction) {
+    }
+
+    if (action is RefreshSchedulesAction) {
+      _refreshSchedules(dispatcher, state, action);
+    }
+
+    if (action is RefreshScheduleSlotsAction) {
+      _refreshScheduleSlots(dispatcher, state, action);
+    }
+
+    if (action is RefreshedSchedulesAction) {
       for (final schedule in action.schedules) {
         action.afterward(
             RefreshScheduleSlotsAction(action.conferenceId, schedule.day));
       }
-      return action;
     }
 
     return action;
@@ -177,7 +179,9 @@ class ScheduleBloc extends SimpleBloc<AppState> {
   AppState reducer(state, action) {
     if (action is RefreshedSchedulesAction) {
       return _refreshedSchedules(state, action);
-    } else if (action is RefreshedScheduleSlotsAction) {
+    }
+
+    if (action is RefreshedScheduleSlotsAction) {
       return _refreshedScheduleSlots(state, action);
     }
 

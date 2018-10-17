@@ -25,3 +25,7 @@ void logObject(String msg, Object o) {
     log.info('-- $line');
   }
 }
+
+void logException(String source, String message) {
+  log.warning('Exception ($source): $message');
+}

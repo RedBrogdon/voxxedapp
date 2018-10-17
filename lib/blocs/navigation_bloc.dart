@@ -18,8 +18,8 @@ import 'package:flutter/widgets.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:rebloc/rebloc.dart';
 
-typedef void NewRouteCallback(Route<dynamic> route,
-    Route<dynamic> previousRoute);
+typedef void NewRouteCallback(
+    Route<dynamic> route, Route<dynamic> previousRoute);
 
 class StartObservingNavigationAction extends Action {}
 
@@ -108,12 +108,11 @@ class NavigationBloc extends SimpleBloc<AppState> {
     }
   }
 
-  Action _handleLeaveSplashScreen(AppState state,
-      LeaveSplashScreenAction action) {
+  Action _handleLeaveSplashScreen(
+      AppState state, LeaveSplashScreenAction action) {
     if (_leaveSplashScreen == null) {
-      final timeSplashHasBeenUp = DateTime
-          .now()
-          .millisecondsSinceEpoch - state.launchTime;
+      final timeSplashHasBeenUp =
+          DateTime.now().millisecondsSinceEpoch - state.launchTime;
 
       final remainingTime = (timeSplashHasBeenUp < _minimumSplashScreenTime)
           ? _minimumSplashScreenTime - timeSplashHasBeenUp
@@ -121,17 +120,16 @@ class NavigationBloc extends SimpleBloc<AppState> {
 
       final destination = '/conference/${state.selectedConferenceId}';
 
-      _leaveSplashScreen = Future.delayed(
-          Duration(milliseconds: remainingTime),
-              () => observer.navigator?.pushReplacementNamed(destination));
+      _leaveSplashScreen = Future.delayed(Duration(milliseconds: remainingTime),
+          () => observer.navigator?.pushReplacementNamed(destination));
     }
 
     return action;
   }
 
   @override
-  FutureOr<Action> middleware(DispatchFunction dispatcher, AppState state,
-      Action action) {
+  FutureOr<Action> middleware(
+      DispatchFunction dispatcher, AppState state, Action action) {
     if (action is StartObservingNavigationAction) {
       _dispatcher = dispatcher;
     } else if (action is StopObservingNavigationAction) {

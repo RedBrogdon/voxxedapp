@@ -19,6 +19,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 
 class SpeakerDetailScreen extends StatelessWidget {
   const SpeakerDetailScreen(this.conferenceId, this.uuid);
@@ -155,9 +156,17 @@ class SpeakerDetailScreen extends StatelessWidget {
         title: Text('Speaker details'),
       ),
       body: ViewModelSubscriber<AppState, Speaker>(
-        converter: (state) =>
-            state.speakers[conferenceId].firstWhere((s) => s.uuid == uuid),
+        converter: (state) => state.speakers[conferenceId]
+            .firstWhere((s) => s.uuid == uuid, orElse: () => null),
         builder: (context, dispatcher, speaker) {
+          if (speaker == null) {
+            return InvalidNavigationNotice(
+              'Unknown speaker',
+              'A record for the selected speaker could not be found. '
+                  'or is no longer valid',
+            );
+          }
+
           return ListView(
             children: [
               SizedBox(height: 24.0),

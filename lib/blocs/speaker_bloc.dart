@@ -14,7 +14,7 @@
 
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
-import 'package:voxxedapp/data/speaker_repository.dart';
+import 'package:voxxedapp/data/web_client.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
@@ -27,7 +27,7 @@ class RefreshSpeakersForConferenceAction extends Action {
 }
 
 class RefreshedSpeakersForConferenceAction extends Action {
-  final List<Speaker> speakers;
+  final BuiltList<Speaker> speakers;
   final int conferenceId;
 
   RefreshedSpeakersForConferenceAction(this.speakers, this.conferenceId);
@@ -56,12 +56,12 @@ class RefreshSpeakerForConferenceFailedAction extends Action {
 }
 
 class SpeakerBloc extends SimpleBloc<AppState> {
-  final SpeakerRepository repository;
+  final WebClient webClient;
 
-  SpeakerBloc({this.repository = const SpeakerRepository()});
+  SpeakerBloc({this.webClient = const WebClient()});
 
-  Action _refreshSpeakersForConference(DispatchFunction dispatch,
-      AppState state, RefreshSpeakersForConferenceAction action) {
+  Future<void> _refreshSpeakersForConference(DispatchFunction dispatch,
+      AppState state, RefreshSpeakersForConferenceAction action) async {
     String cfpVersion = state.conferences[action.conferenceId]?.cfpVersion;
     String cfpUrl = state.conferences[action.conferenceId]?.cfpURL;
 
@@ -69,19 +69,19 @@ class SpeakerBloc extends SimpleBloc<AppState> {
       log.warning(
           'Couldn\'t refresh speakers for conference ${action.conferenceId}.');
     } else {
-      repository.refreshSpeakers(cfpUrl, cfpVersion).then((newList) {
+      try {
+        final speakers = await webClient.fetchSpeakers(cfpUrl, cfpVersion);
         dispatch(RefreshedSpeakersForConferenceAction(
-            newList.toList(), action.conferenceId));
-      }).catchError((_) {
+            speakers, action.conferenceId));
+      } on WebClientException catch (e) {
+        logException('_refreshSpeakersForConference', e.message);
         dispatch(RefreshSpeakersForConferenceFailedAction());
-      });
+      }
     }
-
-    return action;
   }
 
-  Action _refreshSpeakerForConference(DispatchFunction dispatch, AppState state,
-      RefreshSpeakerForConferenceAction action) {
+  Future<void> _refreshSpeakerForConference(DispatchFunction dispatch,
+      AppState state, RefreshSpeakerForConferenceAction action) async {
     String cfpVersion = state.conferences[action.conferenceId]?.cfpVersion;
     String cfpUrl = state.conferences[action.conferenceId]?.cfpURL;
 
@@ -89,17 +89,16 @@ class SpeakerBloc extends SimpleBloc<AppState> {
       log.warning('Couldn\'t refresh speaker ${action.uuid} for conference'
           ' #${action.conferenceId}.');
     } else {
-      repository
-          .refreshSpeaker(cfpUrl, cfpVersion, action.uuid)
-          .then((speaker) {
+      try {
+        final speaker =
+            await webClient.fetchSpeaker(cfpUrl, cfpVersion, action.uuid);
         dispatch(
             RefreshedSpeakerForConferenceAction(speaker, action.conferenceId));
-      }).catchError((_) {
+      } on WebClientException catch (e) {
+        logException('_refreshSpeakerForConference', e.message);
         dispatch(RefreshSpeakerForConferenceFailedAction());
-      });
+      }
     }
-
-    return action;
   }
 
   AppState _refreshedSpeakersForConference(
@@ -131,13 +130,17 @@ class SpeakerBloc extends SimpleBloc<AppState> {
 
   @override
   Action middleware(dispatcher, state, action) {
-    if (action is RefreshSpeakersForConferenceAction) {
-      return _refreshSpeakersForConference(dispatcher, state, action);
-    } else if (action is RefreshSpeakerForConferenceAction) {
-      return _refreshSpeakerForConference(dispatcher, state, action);
-    } else if (action is RefreshedConferenceAction) {
+    if (action is RefreshedConferenceAction) {
       return action
         ..afterward(RefreshSpeakersForConferenceAction(action.conference.id));
+    }
+
+    if (action is RefreshSpeakersForConferenceAction) {
+      _refreshSpeakersForConference(dispatcher, state, action);
+    }
+
+    if (action is RefreshSpeakerForConferenceAction) {
+      _refreshSpeakerForConference(dispatcher, state, action);
     }
 
     return action;

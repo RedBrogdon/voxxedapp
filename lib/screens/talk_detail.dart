@@ -21,6 +21,7 @@ import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/models/track.dart';
 import 'package:voxxedapp/util/string_utils.dart' as strutils;
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
 import 'package:voxxedapp/widgets/track_item.dart';
 
@@ -244,17 +245,10 @@ class TalkDetailScreen extends StatelessWidget {
       builder: (context, dispatcher, model) {
         if (model.slot == null) {
           // Talk was not found.
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Talk not found'),
-            ),
-            body: Center(
-              child: Text(
-                'Conference record could not be found.\n\n'
-                    'Use the menu to select another.',
-                style: textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
-              ),
-            ),
+          return InvalidNavigationNotice(
+            'Talk not found',
+            'The selected conference session could not be found. '
+                'or is no longer valid',
           );
         }
 

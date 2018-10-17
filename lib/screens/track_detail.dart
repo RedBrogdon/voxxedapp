@@ -18,6 +18,7 @@ import 'package:rebloc/rebloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/track.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 
 class TrackDetailScreen extends StatelessWidget {
   const TrackDetailScreen(this.conferenceId, this.trackId);
@@ -45,8 +46,16 @@ class TrackDetailScreen extends StatelessWidget {
 
     return ViewModelSubscriber<AppState, Track>(
       converter: (state) => state.conferences[conferenceId].tracks
-          .firstWhere((t) => t.id == trackId),
+          .firstWhere((t) => t.id == trackId, orElse: () => null),
       builder: (context, dispatcher, track) {
+        if (track == null) {
+          return InvalidNavigationNotice(
+            'Track not found',
+            'The selected conference track could not be found '
+                'or is no longer valid',
+          );
+        }
+
         return Scaffold(
           appBar: AppBar(
             title: Text('Conference track details'),

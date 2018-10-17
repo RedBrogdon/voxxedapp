@@ -30,9 +30,9 @@ class ConferenceListViewModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ConferenceListViewModel &&
-              runtimeType == other.runtimeType &&
-              conferences == other.conferences;
+      other is ConferenceListViewModel &&
+          runtimeType == other.runtimeType &&
+          conferences == other.conferences;
 }
 
 class ConferenceListScreen extends StatelessWidget {

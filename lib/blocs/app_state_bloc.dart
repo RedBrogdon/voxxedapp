@@ -152,8 +152,7 @@ class AppStateBloc extends SimpleBloc<AppState> {
     }
 
     if (action is ColdAppStateLoadedAction) {
-      return action.state.rebuild((b) => b
-      ..launchTime = state.launchTime);
+      return action.state.rebuild((b) => b..launchTime = state.launchTime);
     }
 
     return state;
