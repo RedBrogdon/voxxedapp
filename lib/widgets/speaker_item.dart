@@ -29,7 +29,7 @@ class SpeakerItem extends StatelessWidget {
   });
 
   String get dest =>
-      '/conference/$conferenceId/speaker/300'; //${speaker.uuid}';
+      '/conference/$conferenceId/speaker/${speaker.uuid}';
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class SpeakerItem extends StatelessWidget {
               ),
               SizedBox(width: 12.0),
               Text(
-                '${speaker.firstName} ${speaker.lastName}',
+                speaker.fullName,
                 style: theme.subhead,
               ),
             ],

@@ -45,7 +45,7 @@ class TalkItem extends StatelessWidget {
         speakerText.write(', ');
       }
 
-      speakerText.write('${speaker.firstName} ${speaker.lastName}');
+      speakerText.write(speaker.fullName);
     }
 
     return GestureDetector(

@@ -151,23 +151,23 @@ class SpeakerDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Speaker details'),
-      ),
-      body: ViewModelSubscriber<AppState, Speaker>(
-        converter: (state) => state.speakers[conferenceId]
-            .firstWhere((s) => s.uuid == uuid, orElse: () => null),
-        builder: (context, dispatcher, speaker) {
-          if (speaker == null) {
-            return InvalidNavigationNotice(
-              'Unknown speaker',
-              'A record for the selected speaker could not be found. '
-                  'or is no longer valid',
-            );
-          }
+    return ViewModelSubscriber<AppState, Speaker>(
+      converter: (state) => state.speakers[conferenceId]
+          .firstWhere((s) => s.uuid == uuid, orElse: () => null),
+      builder: (context, dispatcher, speaker) {
+        if (speaker == null) {
+          return InvalidNavigationNotice(
+            'Unknown speaker',
+            'A record for the selected speaker could not be found '
+                'or is no longer valid',
+          );
+        }
 
-          return ListView(
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Speaker details'),
+          ),
+          body: ListView(
             children: [
               SizedBox(height: 24.0),
               Center(
@@ -182,7 +182,7 @@ class SpeakerDetailScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  '${speaker.firstName} ${speaker.lastName}',
+                  speaker.fullName,
                   style: theme.headline,
                 ),
               ),
@@ -190,9 +190,9 @@ class SpeakerDetailScreen extends StatelessWidget {
             ]
               ..addAll(_createInfoRows(speaker, theme))
               ..add(SizedBox(height: 24.0)),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

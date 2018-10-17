@@ -26,7 +26,11 @@ abstract class Speaker
       const FullType(BuiltList, [FullType(Speaker)]);
 
   String get uuid;
+
+  @nullable
   String get firstName;
+
+  @nullable
   String get lastName;
 
   @nullable
@@ -50,6 +54,13 @@ abstract class Speaker
   @nullable
   String get twitter;
 
+  String get fullName {
+    final firstStr = firstName ?? '';
+    final lastStr = lastName ?? '';
+    final midStr = (firstStr.length > 0 && lastStr.length > 0) ? ' ' : '';
+    return '$firstStr$midStr$lastStr';
+  }
+
   Speaker._();
 
   factory Speaker([updates(SpeakerBuilder b)]) = _$Speaker;
@@ -58,13 +69,25 @@ abstract class Speaker
   int compareTo(dynamic other) {
     if (!identical(this, other) && other is Speaker) {
       if (this.lastName == other.lastName) {
-        return this.firstName.compareTo(other.firstName);
+        if (this.firstName == null && other.firstName == null) {
+          return 0;
+        } else if (this.firstName == null) {
+          return -1;
+        } else {
+          return 1;
+        }
       } else {
-        return this.lastName.compareTo(other.lastName);
+        if (this.lastName == null && other.lastName == null) {
+          return 0;
+        } else if (this.lastName == null) {
+          return -1;
+        } else {
+          return 1;
+        }
       }
     }
 
-    // If identical or of different types, return equality.
+    // If identical or of different types, return equality, because who knows?
     return 0;
   }
 }

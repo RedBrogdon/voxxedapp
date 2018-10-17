@@ -29,11 +29,14 @@ class InvalidNavigationNotice extends StatelessWidget {
         title: Text(title),
       ),
       body: Center(
-        child: Text(message,
-            style: Theme.of(context)
-                .textTheme
-                .subhead
-                .copyWith(fontStyle: FontStyle.italic)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(message,
+              style: Theme.of(context)
+                  .textTheme
+                  .subhead
+                  .copyWith(fontStyle: FontStyle.italic)),
+        ),
       ),
     );
   }
