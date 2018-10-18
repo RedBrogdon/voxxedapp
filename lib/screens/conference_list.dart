@@ -16,6 +16,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 
@@ -119,24 +120,27 @@ class ConferenceListScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Current Voxxed Days'),
       ),
-      body: ViewModelSubscriber<AppState, ConferenceListViewModel>(
-        converter: (state) => ConferenceListViewModel(state),
-        builder: (context, dispatcher, viewModel) {
-          List<Conference> conferences = viewModel.conferences.values.toList();
-          return ListView.builder(
-            itemCount: conferences.length,
-            itemBuilder: (context, i) {
-              return _buildListItem(
-                context,
-                conferences[i],
-                () {
-                  int id = conferences[i].id;
-                  Navigator.of(context).pop(id);
-                },
-              );
-            },
-          );
-        },
+      body: FirstBuildDispatcher<AppState>(
+        action: RefreshConferencesAction(),
+        child: ViewModelSubscriber<AppState, ConferenceListViewModel>(
+          converter: (state) => ConferenceListViewModel(state),
+          builder: (context, dispatcher, viewModel) {
+            List<Conference> conferences = viewModel.conferences.values.toList();
+            return ListView.builder(
+              itemCount: conferences.length,
+              itemBuilder: (context, i) {
+                return _buildListItem(
+                  context,
+                  conferences[i],
+                  () {
+                    int id = conferences[i].id;
+                    Navigator.of(context).pop(id);
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/widgets/avatar.dart';
@@ -151,48 +152,51 @@ class SpeakerDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).textTheme;
 
-    return ViewModelSubscriber<AppState, Speaker>(
-      converter: (state) => state.speakers[conferenceId]
-          .firstWhere((s) => s.uuid == uuid, orElse: () => null),
-      builder: (context, dispatcher, speaker) {
-        if (speaker == null) {
-          return InvalidNavigationNotice(
-            'Unknown speaker',
-            'A record for the selected speaker could not be found '
-                'or is no longer valid',
-          );
-        }
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshSpeakerForConferenceAction(conferenceId, uuid),
+      child: ViewModelSubscriber<AppState, Speaker>(
+        converter: (state) => state.speakers[conferenceId]
+            .firstWhere((s) => s.uuid == uuid, orElse: () => null),
+        builder: (context, dispatcher, speaker) {
+          if (speaker == null) {
+            return InvalidNavigationNotice(
+              'Unknown speaker',
+              'A record for the selected speaker could not be found '
+                  'or is no longer valid',
+            );
+          }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('Speaker details'),
-          ),
-          body: ListView(
-            children: [
-              SizedBox(height: 24.0),
-              Center(
-                child: Avatar(
-                  imageUrl: speaker.avatarURL,
-                  placeholderIcon: Icons.person,
-                  errorIcon: Icons.error,
-                  width: 150.0,
-                  height: 150.0,
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Speaker details'),
+            ),
+            body: ListView(
+              children: [
+                SizedBox(height: 24.0),
+                Center(
+                  child: Avatar(
+                    imageUrl: speaker.avatarURL,
+                    placeholderIcon: Icons.person,
+                    errorIcon: Icons.error,
+                    width: 150.0,
+                    height: 150.0,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  speaker.fullName,
-                  style: theme.headline,
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    speaker.fullName,
+                    style: theme.headline,
+                  ),
                 ),
-              ),
-              _createBio(speaker, theme),
-            ]
-              ..addAll(_createInfoRows(speaker, theme))
-              ..add(SizedBox(height: 24.0)),
-          ),
-        );
-      },
+                _createBio(speaker, theme),
+              ]
+                ..addAll(_createInfoRows(speaker, theme))
+                ..add(SizedBox(height: 24.0)),
+            ),
+          );
+        },
+      ),
     );
   }
 }

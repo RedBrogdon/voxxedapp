@@ -68,21 +68,21 @@ abstract class Speaker
   @override
   int compareTo(dynamic other) {
     if (!identical(this, other) && other is Speaker) {
-      if (this.lastName == other.lastName) {
-        if (this.firstName == null && other.firstName == null) {
+      if (lastName == other.lastName) {
+        if (firstName == null && other.firstName == null) {
           return 0;
-        } else if (this.firstName == null) {
+        } else if (firstName == null) {
           return -1;
         } else {
-          return 1;
+          return firstName.compareTo(other.firstName);
         }
       } else {
-        if (this.lastName == null && other.lastName == null) {
+        if (lastName == null && other.lastName == null) {
           return 0;
-        } else if (this.lastName == null) {
+        } else if (lastName == null) {
           return -1;
         } else {
-          return 1;
+          return lastName.compareTo(other.lastName);
         }
       }
     }

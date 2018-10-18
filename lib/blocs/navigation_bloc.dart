@@ -21,16 +21,6 @@ import 'package:rebloc/rebloc.dart';
 typedef void NewRouteCallback(
     Route<dynamic> route, Route<dynamic> previousRoute);
 
-class StartObservingNavigationAction extends Action {}
-
-class StopObservingNavigationAction extends Action {}
-
-class DidPushNamedRouteAction extends Action {
-  final String routeName;
-
-  DidPushNamedRouteAction(this.routeName);
-}
-
 class PushNamedRouteAction extends Action {
   final String routeName;
 
@@ -53,62 +43,24 @@ class PopAndPushNamedRouteAction extends Action {
   PopAndPushNamedRouteAction(this.routeName);
 }
 
-// A NavigatorObserver designed to work with NavigationBloc.
-//
-// This observer accepts a callback in its constructor, which is invoked anytime
-// it receives a `didPush` event from the Navigator it observes.
-class _NavigationBlocObserver extends NavigatorObserver {
-  final NewRouteCallback onActiveRouteChanged;
-
-  _NavigationBlocObserver({this.onActiveRouteChanged});
-
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
-    if (onActiveRouteChanged != null) {
-      onActiveRouteChanged(route, previousRoute);
-    }
-  }
-
-  @override
-  void didReplace({Route<dynamic> newRoute, Route<dynamic> oldRoute}) {
-    if (onActiveRouteChanged != null) {
-      onActiveRouteChanged(newRoute, oldRoute);
-    }
-  }
-}
-
-/// A Bloc for observing and manipulating a [Navigator].
+/// A Bloc for manipulating a [Navigator].
 ///
-/// This class is capable of dispatching an [Action] when a [Navigator] widget
-/// pushes a new route, which can be useful for example, in automatically
-/// kicking off network requests absed on user navigation. It can also pop and
-/// push routes based on [Action]s it receives from the dispatch stream.
+/// This class will push and pop named [Route]s on a [Navigator] in response to
+/// incoming [Action]s. It interacts only with the middleware stream, and does
+/// not make any changes to app state.
 class NavigationBloc extends SimpleBloc<AppState> {
+  NavigationBloc(this.navigatorKey) : assert(navigatorKey != null);
+
+  // Minimum time the splash screen should be displayed.
   static const int _minimumSplashScreenTime = 2000;
 
+  // Delayed future responsible for transitioning away from the splash screen.
   Future<void> _leaveSplashScreen;
 
-  NavigationBloc() {
-    observer = _NavigationBlocObserver(onActiveRouteChanged: _onDidPush);
-  }
+  // Key to the [Navigator] widget this Bloc manages.
+  final GlobalKey<NavigatorState> navigatorKey;
 
-  /// NavigatorObserver that should be given the the Navigator observed by this
-  /// Bloc.
-  _NavigationBlocObserver observer;
-
-  // Dispatcher that can be used to dispatch actions to the Store for which this
-  // Bloc acts as middleware. This is set to a valid dispatch function when a
-  // StartObservingNavigationAction is received, and reset to null when a
-  // StopObservingNavigationAction is received.
-  DispatchFunction _dispatcher;
-
-  void _onDidPush(Route<dynamic> route, Route<dynamic> previousRoute) {
-    if (_dispatcher != null && route?.settings?.name != null) {
-      _dispatcher(DidPushNamedRouteAction(route.settings.name));
-    }
-  }
-
-  Action _handleLeaveSplashScreen(
+  void _handleLeaveSplashScreen(
       AppState state, LeaveSplashScreenAction action) {
     if (_leaveSplashScreen == null) {
       final timeSplashHasBeenUp =
@@ -121,29 +73,23 @@ class NavigationBloc extends SimpleBloc<AppState> {
       final destination = '/conference/${state.selectedConferenceId}';
 
       _leaveSplashScreen = Future.delayed(Duration(milliseconds: remainingTime),
-          () => observer.navigator?.pushReplacementNamed(destination));
+          () => navigatorKey.currentState?.pushReplacementNamed(destination));
     }
-
-    return action;
   }
 
   @override
   FutureOr<Action> middleware(
       DispatchFunction dispatcher, AppState state, Action action) {
-    if (action is StartObservingNavigationAction) {
-      _dispatcher = dispatcher;
-    } else if (action is StopObservingNavigationAction) {
-      _dispatcher = null;
-    } else if (action is PopRouteAction) {
-      observer.navigator?.pop();
+    if (action is PopRouteAction) {
+      navigatorKey.currentState?.pop();
     } else if (action is PushNamedRouteAction) {
-      observer.navigator?.pushNamed(action.routeName);
+      navigatorKey.currentState?.pushNamed(action.routeName);
     } else if (action is PushNamedReplacementRouteAction) {
-      observer.navigator?.pushReplacementNamed(action.routeName);
+      navigatorKey.currentState?.pushReplacementNamed(action.routeName);
     } else if (action is PopAndPushNamedRouteAction) {
-      observer.navigator?.popAndPushNamed(action.routeName);
+      navigatorKey.currentState?.popAndPushNamed(action.routeName);
     } else if (action is LeaveSplashScreenAction) {
-      return _handleLeaveSplashScreen(state, action);
+      _handleLeaveSplashScreen(state, action);
     }
 
     return action;

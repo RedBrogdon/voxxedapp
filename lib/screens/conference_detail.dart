@@ -16,6 +16,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
@@ -379,76 +380,79 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
       body = SpeakerPanel(widget.conferenceId);
     }
 
-    return ViewModelSubscriber<AppState, ConferenceDetailScreenViewModel>(
-      converter: (state) =>
-          ConferenceDetailScreenViewModel(state, widget.conferenceId),
-      builder: (context, dispatcher, viewModel) {
-        if (viewModel.name == null) {
-          // No name means conferenceId doesn't match a real conference.
-          return InvalidNavigationNotice(
-            'Conference not found',
-            'Conference record could not be found or is no longer valid.\n\n'
-                'Use the menu to select another.',
-          );
-        }
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshConferenceAction(widget.conferenceId),
+      child: ViewModelSubscriber<AppState, ConferenceDetailScreenViewModel>(
+        converter: (state) =>
+            ConferenceDetailScreenViewModel(state, widget.conferenceId),
+        builder: (context, dispatcher, viewModel) {
+          if (viewModel.name == null) {
+            // No name means conferenceId doesn't match a real conference.
+            return InvalidNavigationNotice(
+              'Conference not found',
+              'Conference record could not be found or is no longer valid.\n\n'
+                  'Use the menu to select another.',
+            );
+          }
 
-        final scaffold = Scaffold(
-          appBar: AppBar(
-            title: ViewModelSubscriber<AppState, String>(
-              converter: (state) => state.conferences[widget.conferenceId].name,
-              builder: (context, dispatcher, name) => Text(name),
+          final scaffold = Scaffold(
+            appBar: AppBar(
+              title: ViewModelSubscriber<AppState, String>(
+                converter: (state) => state.conferences[widget.conferenceId].name,
+                builder: (context, dispatcher, name) => Text(name),
+              ),
+              bottom: (viewModel.scheduleDays.length > 1 && navBarSelection == 1)
+                  ? TabBar(
+                      tabs: viewModel.scheduleDays
+                          .map<Widget>((s) => Tab(text: strutils.capitalize(s)))
+                          .toList(),
+                    )
+                  : null,
             ),
-            bottom: (viewModel.scheduleDays.length > 1 && navBarSelection == 1)
-                ? TabBar(
-                    tabs: viewModel.scheduleDays
-                        .map<Widget>((s) => Tab(text: strutils.capitalize(s)))
-                        .toList(),
-                  )
-                : null,
-          ),
-          drawer: MainDrawer(),
-          body: body,
-          bottomNavigationBar: DispatchSubscriber<AppState>(
-            builder: (context, dispatcher) {
-              return BottomNavigationBar(
-                onTap: (index) {
-                  if (index == 1) {
-                    dispatcher(RefreshSchedulesAction(widget.conferenceId));
-                  } else if (index == 2) {
-                    dispatcher(RefreshSpeakersForConferenceAction(
-                        widget.conferenceId));
-                  }
-                  setState(() => navBarSelection = index);
-                },
-                currentIndex: navBarSelection,
-                items: [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.info),
-                    title: Text('Info'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.schedule),
-                    title: Text('Schedule'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    title: Text('Speakers'),
-                  ),
-                ],
-              );
-            },
-          ),
-        );
+            drawer: MainDrawer(),
+            body: body,
+            bottomNavigationBar: DispatchSubscriber<AppState>(
+              builder: (context, dispatcher) {
+                return BottomNavigationBar(
+                  onTap: (index) {
+                    if (index == 1) {
+                      dispatcher(RefreshSchedulesAction(widget.conferenceId));
+                    } else if (index == 2) {
+                      dispatcher(RefreshSpeakersForConferenceAction(
+                          widget.conferenceId));
+                    }
+                    setState(() => navBarSelection = index);
+                  },
+                  currentIndex: navBarSelection,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.info),
+                      title: Text('Info'),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.schedule),
+                      title: Text('Schedule'),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      title: Text('Speakers'),
+                    ),
+                  ],
+                );
+              },
+            ),
+          );
 
-        if (navBarSelection != 1) {
-          return scaffold;
-        }
+          if (navBarSelection != 1) {
+            return scaffold;
+          }
 
-        return DefaultTabController(
-          length: 3,
-          child: scaffold,
-        );
-      },
+          return DefaultTabController(
+            length: 3,
+            child: scaffold,
+          );
+        },
+      ),
     );
   }
 }

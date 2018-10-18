@@ -104,8 +104,24 @@ class SpeakerBloc extends SimpleBloc<AppState> {
   AppState _refreshedSpeakersForConference(
       AppState state, RefreshedSpeakersForConferenceAction action) {
     if (state.speakers.containsKey(action.conferenceId)) {
-      return state.rebuild((b) => b
-        ..speakers[action.conferenceId] = BuiltList<Speaker>(action.speakers));
+      return state.rebuild(
+        (cb) => cb
+          ..speakers[action.conferenceId] = action.speakers.rebuild((b) {
+            for (int i = 0; i < action.speakers.length; i++) {
+              final oldSpeaker = state.speakers[action.conferenceId]
+                  .firstWhere((s) => s.uuid == b[i].uuid, orElse: () => null);
+              if (oldSpeaker != null) {
+                b[i] = b[i].rebuild((sb) => sb
+                  ..bio = oldSpeaker.bio
+                  ..lang = oldSpeaker.lang
+                  ..blog = oldSpeaker.blog);
+              }
+            }
+          }),
+      );
+
+//      return state.rebuild((b) => b
+//        ..speakers[action.conferenceId] = BuiltList<Speaker>(action.speakers));
     }
 
     return state;
@@ -114,14 +130,20 @@ class SpeakerBloc extends SimpleBloc<AppState> {
   AppState _refreshedSpeakerForConference(
       AppState state, RefreshedSpeakerForConferenceAction action) {
     if (state.speakers.containsKey(action.conferenceId)) {
+      final oldSpeaker = state.speakers[action.conferenceId]
+          .firstWhere((s) => s.uuid == action.speaker.uuid, orElse: () => null);
       return state.rebuild(
         (b) => b
           ..speakers[action.conferenceId] =
-              b.speakers[action.conferenceId].rebuild(
-            (sb) => sb
-              ..removeWhere((s) => s.uuid == action.speaker.uuid)
-              ..add(action.speaker),
-          ),
+              b.speakers[action.conferenceId].rebuild((sb) {
+            if (oldSpeaker != null) {
+              int index =
+                  state.speakers[action.conferenceId].indexOf(oldSpeaker);
+              sb[index] = action.speaker;
+            } else {
+              sb.add(action.speaker);
+            }
+          }),
       );
     }
 

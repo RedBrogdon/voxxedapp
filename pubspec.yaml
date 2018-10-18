@@ -11,10 +11,10 @@ dependencies:
   built_collection: '>=2.0.0 <4.0.0'
   built_value: ^6.1.2
   cached_network_image: ^0.4.1
-  logging: ^0.11.3+1
   flutter_local_notifications: ^0.3.8
+  logging: ^0.11.3+1
   path_provider: ^0.4.1
-  rebloc: ^0.0.7
+  rebloc: ^0.1.0
   url_launcher: ^3.0.3
 
 dev_dependencies:

@@ -19,7 +19,6 @@ import 'package:rebloc/rebloc.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
-import 'package:voxxedapp/blocs/data_refresher_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
 import 'package:voxxedapp/blocs/navigation_bloc.dart';
@@ -41,7 +40,7 @@ Future main() async {
   ]);
 
   // This is created separately so we can refer to it later in [build].
-  final navBloc = NavigationBloc();
+  final navigatorKey = GlobalKey<NavigatorState>();
 
   // Holds and manages application state for the app.
   final store = Store<AppState>(
@@ -52,9 +51,8 @@ Future main() async {
         [SaveAppStateAction],
         duration: Duration(seconds: 10),
       ),
+      NavigationBloc(navigatorKey),
       AppStateBloc(),
-      navBloc,
-      DataRefresherBloc(),
       ConferenceBloc(),
       SpeakerBloc(),
       ScheduleBloc(),
@@ -62,22 +60,20 @@ Future main() async {
     ],
   );
 
-  store.dispatcher(StartObservingNavigationAction());
-
   // This will attempt to load a previously-saved app state from disk. A
   // request to the server for the list of conferences will automatically
   // follow. If both fail, the app can't run, and will halt on the splash
   // screen with a warning message.
   store.dispatcher(LoadAppStateAction());
 
-  runApp(new VoxxedDayApp(store, navBloc));
+  runApp(new VoxxedDayApp(store, navigatorKey));
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  VoxxedDayApp(this.store, this.navBloc);
+  VoxxedDayApp(this.store, this.navigatorKey);
 
   final Store<AppState> store;
-  final NavigationBloc navBloc;
+  final GlobalKey<NavigatorState> navigatorKey;
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
     var path = settings.name.split('/');
@@ -155,7 +151,7 @@ class VoxxedDayApp extends StatelessWidget {
           fontFamily: 'Lato',
         ),
         onGenerateRoute: _onGenerateRoute,
-        navigatorObservers: [navBloc.observer],
+        navigatorKey: navigatorKey,
       ),
     );
   }
