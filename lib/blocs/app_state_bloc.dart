@@ -146,6 +146,7 @@ class AppStateBloc extends SimpleBloc<AppState> {
 
     if (action is AppStateLoadedAction) {
       return action.state.rebuild((b) => b
+        // Maintain previous launchTime, since it's not serialized.
         ..launchTime = state.launchTime
         ..readyToGo = true
         ..willNeverBeReadyToGo = false);

@@ -22,7 +22,6 @@ import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
-import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/util/string_utils.dart' as strutils;
 import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
@@ -38,39 +37,42 @@ class SpeakerPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelSubscriber<AppState, List<Speaker>>(
-      converter: (state) {
-        return state.speakers.containsKey(conferenceId)
-            ? (state.speakers[conferenceId].toList()..sort())
-            : <Speaker>[];
-      },
-      builder: (context, dispatcher, model) {
-        final theme = Theme.of(context);
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshSpeakersForConferenceAction(conferenceId),
+      child: ViewModelSubscriber<AppState, List<Speaker>>(
+        converter: (state) {
+          return state.speakers.containsKey(conferenceId)
+              ? (state.speakers[conferenceId].toList()..sort())
+              : <Speaker>[];
+        },
+        builder: (context, dispatcher, model) {
+          final theme = Theme.of(context);
 
-        if (model == null || model.length == 0) {
-          return Center(
-            child: Text(
-              'Speaker list not yet finalized.',
-              style:
-                  theme.textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
-            ),
+          if (model == null || model.length == 0) {
+            return Center(
+              child: Text(
+                'Speaker list not yet finalized.',
+                style: theme.textTheme.subhead
+                    .copyWith(fontStyle: FontStyle.italic),
+              ),
+            );
+          }
+
+          var children = <Widget>[];
+
+          var count = 0;
+
+          for (final speaker in model) {
+            children.add(SpeakerItem(speaker, conferenceId,
+                alternateColor: count % 2 == 0));
+            count++;
+          }
+
+          return ListView(
+            children: children,
           );
-        }
-
-        var children = <Widget>[];
-
-        var count = 0;
-
-        for (final speaker in model) {
-          children.add(SpeakerItem(speaker, conferenceId,
-              alternateColor: count % 2 == 0));
-          count++;
-        }
-
-        return ListView(
-          children: children,
-        );
-      },
+        },
+      ),
     );
   }
 }
@@ -207,71 +209,33 @@ class ConferenceInfoPanel extends StatelessWidget {
   }
 }
 
-class ScheduleSlotViewModel {
+class ScheduleViewModel {
   final int conferenceId;
-  final speakers = <Speaker>[];
-  ScheduleSlot slot;
-  bool isFavorite;
+  final BuiltList<Speaker> speakers;
+  final BuiltList<Schedule> schedules;
+  final BuiltMap<String, int> sessionNotifications;
 
-  ScheduleSlotViewModel(
-      AppState state, this.conferenceId, String day, String id) {
-    // Find a slot for the given conference with a Talk Id that matches id.
-    final slot = state.schedules[conferenceId]
-        ?.firstWhere((sch) => sch.day == day, orElse: () => null)
-        ?.slots
-        ?.firstWhere((s) => s.talk?.id == id, orElse: () => null);
-
-    if (slot == null) {
-      throw ArgumentError(
-          'ScheduleSlotViewModel couldn\'t locate slot $id for conference $conferenceId.');
-    }
-
-    if (slot.talk != null) {
-      isFavorite = state.sessionNotifications.containsKey(slot.talk.id);
-    } else {
-      isFavorite = false;
-    }
-
-    for (final uuid in slot.talk.speakerUuids) {
-      final speaker = state.speakers[conferenceId]
-          ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
-      if (speaker != null) {
-        speakers.add(speaker);
-      }
-    }
-  }
+  ScheduleViewModel(AppState state, this.conferenceId)
+      : schedules = state.schedules[conferenceId],
+        speakers = state.speakers[conferenceId],
+        sessionNotifications = state.sessionNotifications;
 
   @override
-  int get hashCode {
-    int hash = slot.hashCode ^ conferenceId.hashCode;
-    for (final speaker in speakers) {
-      hash ^= speaker.hashCode;
-    }
-    return hash;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScheduleViewModel &&
+          runtimeType == other.runtimeType &&
+          conferenceId == other.conferenceId &&
+          speakers == other.speakers &&
+          schedules == other.schedules &&
+          sessionNotifications == other.sessionNotifications;
 
   @override
-  bool operator ==(other) {
-    if (identical(this, other)) return true;
-
-    if (other is ScheduleSlotViewModel) {
-      if (conferenceId != other.conferenceId ||
-          slot != slot ||
-          speakers?.length != other.speakers?.length) {
-        return false;
-      }
-
-      if (speakers != null && speakers.length > 0) {
-        for (int i = 0; i < speakers.length; i++) {
-          if (speakers[i] != other.speakers[i]) return false;
-        }
-      }
-
-      return true;
-    }
-
-    return false;
-  }
+  int get hashCode =>
+      conferenceId.hashCode ^
+      speakers.hashCode ^
+      schedules.hashCode ^
+      sessionNotifications.hashCode;
 }
 
 class SchedulePanel extends StatelessWidget {
@@ -279,67 +243,86 @@ class SchedulePanel extends StatelessWidget {
 
   final int conferenceId;
 
-  List<Widget> _buildScheduleWidgets(Schedule sched, ThemeData theme) {
+  List<Widget> _buildScheduleWidgets(
+      ScheduleViewModel model, String day, ThemeData theme) {
+    final sch = model.schedules.firstWhere((s) => s.day == day);
+
     final widgets = <Widget>[];
 
     widgets.add(SizedBox(height: 16.0));
 
-    for (final slot in sched.slots
-        .where((s) => s.talk != null || s.scheduleBreak != null)) {
-      widgets.add(ViewModelSubscriber<AppState, ScheduleSlotViewModel>(
-        converter: (state) => ScheduleSlotViewModel(state, conferenceId,
-            slot.day, slot.talk?.id ?? slot.scheduleBreak.id),
-        builder: (context, dispatcher, viewModel) {
-          return ScheduleSlotItem(slot, conferenceId, viewModel.speakers,
-              isFavorite: viewModel.isFavorite);
-        },
-      ));
+    for (final slot
+        in sch.slots.where((s) => s.talk != null || s.scheduleBreak != null)) {
+      bool isFavorite = model.sessionNotifications.containsKey(slot.talk?.id);
+      final speakers = <Speaker>[];
+
+      for (final uuid in slot.talk.speakerUuids) {
+        final speaker = model.speakers
+            ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
+        if (speaker != null) {
+          speakers.add(speaker);
+        }
+      }
+
+      widgets.add(
+        ScheduleSlotItem(
+          slot,
+          conferenceId,
+          speakers,
+          isFavorite: isFavorite,
+        ),
+      );
     }
+
+    widgets.add(SizedBox(height: 16.0));
 
     return widgets;
   }
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelSubscriber<AppState, BuiltList<Schedule>>(
-      converter: (state) => state.schedules[conferenceId],
-      builder: (context, dispatcher, schedules) {
-        final theme = Theme.of(context);
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshSchedulesAction(conferenceId),
+      child: ViewModelSubscriber<AppState, ScheduleViewModel>(
+        converter: (state) => ScheduleViewModel(state, conferenceId),
+        builder: (context, dispatcher, model) {
+          final theme = Theme.of(context);
 
-        if (schedules == null || schedules.isEmpty) {
-          return Center(
-            child: Text(
-              'Schedule not yet finalized',
-              style:
-                  theme.textTheme.subhead.copyWith(fontStyle: FontStyle.italic),
-            ),
-          );
-        }
-
-        final children = <Widget>[];
-
-        for (final sched in schedules) {
-          if (sched.slots == null || sched.slots.length == 0) {
-            children.add(Center(
+          if (model.schedules == null || model.schedules.isEmpty) {
+            return Center(
               child: Text(
-                '${strutils.capitalize(sched.day)} schedule not yet finalized.',
+                'Schedule not yet finalized',
                 style: theme.textTheme.subhead
                     .copyWith(fontStyle: FontStyle.italic),
               ),
-            ));
-          } else {
-            children.add(
-              ListView(
-                children: _buildScheduleWidgets(sched, theme),
-              ),
             );
           }
-        }
 
-        return TabBarView(
-          children: children,
-        );
-      },
+          final children = <Widget>[];
+
+          for (final sch in model.schedules) {
+            if (sch.slots == null || sch.slots.isEmpty) {
+              children.add(Center(
+                child: Text(
+                  '${strutils.capitalize(sch.day)} schedule not yet finalized.',
+                  style: theme.textTheme.subhead
+                      .copyWith(fontStyle: FontStyle.italic),
+                ),
+              ));
+            } else {
+              children.add(
+                ListView(
+                  children: _buildScheduleWidgets(model, sch.day, theme),
+                ),
+              );
+            }
+          }
+
+          return TabBarView(
+            children: children,
+          );
+        },
+      ),
     );
   }
 }
@@ -417,12 +400,6 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
               builder: (context, dispatcher) {
                 return BottomNavigationBar(
                   onTap: (index) {
-                    if (index == 1) {
-                      dispatcher(RefreshSchedulesAction(widget.conferenceId));
-                    } else if (index == 2) {
-                      dispatcher(RefreshSpeakersForConferenceAction(
-                          widget.conferenceId));
-                    }
                     setState(() => navBarSelection = index);
                   },
                   currentIndex: navBarSelection,
