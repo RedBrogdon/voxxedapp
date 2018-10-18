@@ -25,7 +25,7 @@ class SpeakerItem extends StatelessWidget {
   const SpeakerItem(
     this.speaker,
     this.conferenceId, {
-    this.alternateColor,
+    this.alternateColor = false,
   });
 
   String get dest => '/conference/$conferenceId/speaker/${speaker.uuid}';

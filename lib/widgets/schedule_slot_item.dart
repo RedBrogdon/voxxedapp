@@ -91,14 +91,11 @@ class TalkItem extends StatelessWidget {
                       speakerText.length > 0
                           ? speakerText.toString()
                           : 'Speaker not yet confirmed',
-                      style: textTheme.body1.copyWith(
-                          fontStyle: speakerText.length > 0
-                              ? FontStyle.normal
-                              : FontStyle.italic),
+                      style:
+                          textTheme.body1.copyWith(fontStyle: FontStyle.italic),
                     ),
                     SizedBox(height: 4.0),
-                    Text('In ${slot.roomName} from ${slot.fromTime} to '
-                        '${slot.toTime}'),
+                    Text(slot.roomName),
                   ],
                 ),
               ),

@@ -12,8 +12,8 @@ X Cold boot JSON
 X Notifications for favorite talks
 X Debounce App State saves.
 X Navigate to talk details when notification tapped (running or not).
+X Refactor display of conference sessions
 
-- Refactor display of conference sessions
 - Refactor networking, and add LinearProgressIndicator into the views
 - Verify how to show accepted but not scheduled talks
 - Verify how to show empty schedule sessions

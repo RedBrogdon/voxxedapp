@@ -60,16 +60,16 @@ class SpeakerPanel extends StatelessWidget {
 
           var children = <Widget>[];
 
-          var count = 0;
-
           for (final speaker in model) {
-            children.add(SpeakerItem(speaker, conferenceId,
-                alternateColor: count % 2 == 0));
-            count++;
+            children.add(SpeakerItem(
+              speaker,
+              conferenceId,
+            ));
           }
 
           return ListView(
-            children: children,
+            children:
+                model.map<Widget>((s) => SpeakerItem(s, conferenceId)).toList(),
           );
         },
       ),
@@ -246,10 +246,8 @@ class SchedulePanel extends StatelessWidget {
   List<Widget> _buildScheduleWidgets(
       ScheduleViewModel model, String day, ThemeData theme) {
     final sch = model.schedules.firstWhere((s) => s.day == day);
-
     final widgets = <Widget>[];
-
-    widgets.add(SizedBox(height: 16.0));
+    String lastTimeStr = '';
 
     for (final slot
         in sch.slots.where((s) => s.talk != null || s.scheduleBreak != null)) {
@@ -262,6 +260,20 @@ class SchedulePanel extends StatelessWidget {
         if (speaker != null) {
           speakers.add(speaker);
         }
+      }
+
+      String timeStr = '${slot.fromTime} to ${slot.toTime}';
+
+      if (timeStr != lastTimeStr) {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top:24.0, left: 8.0),
+          child: Text(
+            timeStr,
+            style: theme.textTheme.headline,
+          ),
+        ));
+
+        lastTimeStr = timeStr;
       }
 
       widgets.add(
