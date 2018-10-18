@@ -398,10 +398,12 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
           final scaffold = Scaffold(
             appBar: AppBar(
               title: ViewModelSubscriber<AppState, String>(
-                converter: (state) => state.conferences[widget.conferenceId].name,
+                converter: (state) =>
+                    state.conferences[widget.conferenceId].name,
                 builder: (context, dispatcher, name) => Text(name),
               ),
-              bottom: (viewModel.scheduleDays.length > 1 && navBarSelection == 1)
+              bottom: (viewModel.scheduleDays.length > 1 &&
+                      navBarSelection == 1)
                   ? TabBar(
                       tabs: viewModel.scheduleDays
                           .map<Widget>((s) => Tab(text: strutils.capitalize(s)))

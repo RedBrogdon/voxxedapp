@@ -125,7 +125,8 @@ class ConferenceListScreen extends StatelessWidget {
         child: ViewModelSubscriber<AppState, ConferenceListViewModel>(
           converter: (state) => ConferenceListViewModel(state),
           builder: (context, dispatcher, viewModel) {
-            List<Conference> conferences = viewModel.conferences.values.toList();
+            List<Conference> conferences =
+                viewModel.conferences.values.toList();
             return ListView.builder(
               itemCount: conferences.length,
               itemBuilder: (context, i) {
