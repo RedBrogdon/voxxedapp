@@ -94,7 +94,7 @@ class AppStateBloc extends SimpleBloc<AppState> {
     }
 
     if (action is LoadAppStateFailedAction) {
-      // If loading cached app state from disk has failed (e.g. this is the
+      // If loading a cached app state from disk has failed (e.g. this is the
       // first run, or an app update has rendered previous state unusable), try
       // loading app state from the cold boot json file.
       action.afterward(LoadColdAppStateAction());

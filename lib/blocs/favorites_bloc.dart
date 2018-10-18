@@ -70,6 +70,12 @@ class FavoritesBloc extends SimpleBloc<AppState> {
         DateTime.fromMillisecondsSinceEpoch(slot.fromTimeMillis, isUtc: true)
             .subtract(Duration(minutes: 10));
 
+    assert(() {
+      // Asserts only fire when debugging, so this is a simple way to change the
+      // notification time to a more testing-friendly ten seconds in the future.
+      notificationTime = DateTime.now().add(Duration(seconds: 10));
+    }());
+
     // Payload for the notification is the route to which the app should
     // navigate when the user taps on the notification.
     String payload = '/conference/$conferenceId/talk/${slot.talk.id}';
@@ -78,7 +84,7 @@ class FavoritesBloc extends SimpleBloc<AppState> {
       id,
       'Session starting',
       '${slot.talk.title} begins in ten minutes in ${slot.roomName}.',
-      DateTime.now().add(Duration(seconds: 10)), //notificationTime,
+      notificationTime,
       _notificationDetails,
       payload: payload,
     );
