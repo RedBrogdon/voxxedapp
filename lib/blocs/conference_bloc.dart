@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/data/web_client.dart';
 import 'package:voxxedapp/models/app_state.dart';
@@ -67,7 +69,6 @@ class ConferenceBloc extends SimpleBloc<AppState> {
       final id = (state.selectedConferenceId != 0)
           ? state.selectedConferenceId
           : conferences.first.id;
-      action.afterward(RefreshConferenceAction(id));
       dispatcher(action);
     } on WebClientException catch (e) {
       logException('_refreshConferences', e.message);
@@ -219,4 +220,16 @@ class ConferenceBloc extends SimpleBloc<AppState> {
 
     return state;
   }
+
+  @override
+  FutureOr<Action> afterware(DispatchFunction dispatcher, AppState state,
+      Action action) {
+    if (action is RefreshedConferencesAction) {
+      dispatcher(RefreshConferenceAction(state.selectedConferenceId));
+    }
+
+    return action;
+  }
+
+
 }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/data/web_client.dart';
@@ -119,9 +121,6 @@ class SpeakerBloc extends SimpleBloc<AppState> {
             }
           }),
       );
-
-//      return state.rebuild((b) => b
-//        ..speakers[action.conferenceId] = BuiltList<Speaker>(action.speakers));
     }
 
     return state;
@@ -152,11 +151,6 @@ class SpeakerBloc extends SimpleBloc<AppState> {
 
   @override
   Action middleware(dispatcher, state, action) {
-    if (action is RefreshedConferenceAction) {
-      return action
-        ..afterward(RefreshSpeakersForConferenceAction(action.conference.id));
-    }
-
     if (action is RefreshSpeakersForConferenceAction) {
       _refreshSpeakersForConference(dispatcher, state, action);
     }
@@ -177,5 +171,15 @@ class SpeakerBloc extends SimpleBloc<AppState> {
     }
 
     return state;
+  }
+
+  @override
+  FutureOr<Action> afterware(
+      DispatchFunction dispatcher, AppState state, Action action) {
+    if (action is RefreshedConferenceAction) {
+      dispatcher(RefreshSpeakersForConferenceAction(action.conference.id));
+    }
+
+    return action;
   }
 }

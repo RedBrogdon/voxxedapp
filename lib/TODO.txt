@@ -27,3 +27,5 @@ X Refactor display of conference sessions
 
 TESTS
 - With garbage app state cache
+
+BUG when conference disappears - navigation screen doesn't have drawer.

@@ -93,40 +93,6 @@ class AppStateBloc extends SimpleBloc<AppState> {
       _beginLoadingColdAppState(dispatcher);
     }
 
-    if (action is LoadAppStateFailedAction) {
-      // If loading a cached app state from disk has failed (e.g. this is the
-      // first run, or an app update has rendered previous state unusable), try
-      // loading app state from the cold boot json file.
-      action.afterward(LoadColdAppStateAction());
-    }
-
-    if (action is AppStateLoadedAction ||
-        action is ColdAppStateLoadedAction ||
-        action is ColdAppStateFailedToLoadAction) {
-      // Once the loading of app state from cache or asset has completed or
-      // errored out, attempt to refresh data for all conferences from network.
-      action.afterward(RefreshConferencesAction());
-    }
-
-    if (action is AppStateLoadedAction ||
-        action is ColdAppStateLoadedAction ||
-        action is RefreshedConferencesAction) {
-      // Any of these three indicate that an app state has been loaded and the
-      // splash screen, if open, should be closed.
-      action.afterward(LeaveSplashScreenAction());
-    }
-
-    if (action is RefreshedConferenceAction ||
-        action is RefreshedConferencesAction ||
-        action is RefreshedSpeakersForConferenceAction ||
-        action is RefreshedSpeakerForConferenceAction ||
-        action is RefreshedSchedulesAction ||
-        action is RefreshedScheduleSlotsAction ||
-        action is ToggleFavoriteAction) {
-      // New data is arriving, so app state should be saved afterward.
-      action.afterward(SaveAppStateAction());
-    }
-
     return action;
   }
 
@@ -158,4 +124,46 @@ class AppStateBloc extends SimpleBloc<AppState> {
 
     return state;
   }
+
+  @override
+  FutureOr<Action> afterware(DispatchFunction dispatcher, AppState state,
+      Action action) {
+    if (action is LoadAppStateFailedAction) {
+      // If loading a cached app state from disk has failed (e.g. this is the
+      // first run, or an app update has rendered previous state unusable), try
+      // loading app state from the cold boot json file.
+      dispatcher(LoadColdAppStateAction());
+    }
+
+    if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is ColdAppStateFailedToLoadAction) {
+      // Once the loading of app state from cache or asset has completed or
+      // errored out, attempt to refresh data for all conferences from network.
+      dispatcher(RefreshConferencesAction());
+    }
+
+    if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is RefreshedConferencesAction) {
+      // Any of these three indicate that an app state has been loaded and the
+      // splash screen, if open, should be closed.
+      dispatcher(LeaveSplashScreenAction());
+    }
+
+    if (action is RefreshedConferenceAction ||
+        action is RefreshedConferencesAction ||
+        action is RefreshedSpeakersForConferenceAction ||
+        action is RefreshedSpeakerForConferenceAction ||
+        action is RefreshedSchedulesAction ||
+        action is RefreshedScheduleSlotsAction ||
+        action is ToggleFavoriteAction) {
+      // New data is arriving, so app state should be saved afterward.
+      dispatcher(SaveAppStateAction());
+    }
+
+    return action;
+  }
+
+
 }

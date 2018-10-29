@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/data/web_client.dart';
@@ -153,23 +155,12 @@ class ScheduleBloc extends SimpleBloc<AppState> {
 
   @override
   Action middleware(dispatcher, state, action) {
-    if (action is RefreshedConferenceAction) {
-      return action..afterward(RefreshSchedulesAction(action.conference.id));
-    }
-
     if (action is RefreshSchedulesAction) {
       _refreshSchedules(dispatcher, state, action);
     }
 
     if (action is RefreshScheduleSlotsAction) {
       _refreshScheduleSlots(dispatcher, state, action);
-    }
-
-    if (action is RefreshedSchedulesAction) {
-      for (final schedule in action.schedules) {
-        action.afterward(
-            RefreshScheduleSlotsAction(action.conferenceId, schedule.day));
-      }
     }
 
     return action;
@@ -186,5 +177,22 @@ class ScheduleBloc extends SimpleBloc<AppState> {
     }
 
     return state;
+  }
+
+  @override
+  FutureOr<Action> afterware(
+      DispatchFunction dispatcher, AppState state, Action action) {
+    if (action is RefreshedConferenceAction) {
+      dispatcher(RefreshSchedulesAction(action.conference.id));
+    }
+
+    if (action is RefreshedSchedulesAction) {
+      for (final schedule in action.schedules) {
+        dispatcher(
+            RefreshScheduleSlotsAction(action.conferenceId, schedule.day));
+      }
+    }
+
+    return action;
   }
 }

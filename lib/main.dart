@@ -49,7 +49,7 @@ Future main() async {
       LoggerBloc(),
       DebouncerBloc<AppState>(
         [SaveAppStateAction],
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 5),
       ),
       NavigationBloc(navigatorKey),
       AppStateBloc(),

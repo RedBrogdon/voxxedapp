@@ -16,9 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class InvalidNavigationNotice extends StatelessWidget {
-  const InvalidNavigationNotice(this.title, this.message, {Key key})
-      : super(key: key);
+  const InvalidNavigationNotice(
+    this.title,
+    this.message, {
+    this.showDrawer = false,
+    Key key,
+  }) : super(key: key);
 
+  final bool showDrawer;
   final String title;
   final String message;
 
