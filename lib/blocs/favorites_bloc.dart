@@ -74,6 +74,7 @@ class FavoritesBloc extends SimpleBloc<AppState> {
       // Asserts only fire when debugging, so this is a simple way to change the
       // notification time to a more testing-friendly ten seconds in the future.
       notificationTime = DateTime.now().add(Duration(seconds: 10));
+      return true;
     }());
 
     // Payload for the notification is the route to which the app should
