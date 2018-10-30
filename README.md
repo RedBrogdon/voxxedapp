@@ -1,8 +1,8 @@
 # voxxedapp
 
-Displays details about upcoming Voxxed Days
+This app has moved! It's now being maintained in the Devoxx GitHub account:
 
-## Getting Started
+[https://github.com/devoxx/voxxedapp](https://github.com/devoxx/voxxedapp)
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+If you would like to become a contributor or need to file an issue, please let
+us know there.
