@@ -404,6 +404,7 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
         setState(() => _navBarSelection = index);
       },
       currentIndex: _navBarSelection,
+      type: BottomNavigationBarType.fixed,
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.info),
