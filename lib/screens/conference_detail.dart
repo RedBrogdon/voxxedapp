@@ -387,6 +387,7 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
               'Conference not found',
               'Conference record could not be found or is no longer valid.\n\n'
                   'Use the menu to select another.',
+              showDrawer: true,
             );
           }
 

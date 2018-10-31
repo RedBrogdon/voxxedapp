@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:voxxedapp/widgets/main_drawer.dart';
 
 class InvalidNavigationNotice extends StatelessWidget {
   const InvalidNavigationNotice(
@@ -33,6 +34,7 @@ class InvalidNavigationNotice extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
       ),
+      drawer: showDrawer ? MainDrawer() : null,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
