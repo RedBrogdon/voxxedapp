@@ -30,6 +30,25 @@ import 'package:voxxedapp/widgets/schedule_slot_item.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
 import 'package:voxxedapp/widgets/track_item.dart';
 
+class NoDataNotice extends StatelessWidget {
+  const NoDataNotice(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        message,
+        style: Theme.of(context)
+            .textTheme
+            .subhead
+            .copyWith(fontStyle: FontStyle.italic),
+      ),
+    );
+  }
+}
+
 class SpeakerPanel extends StatelessWidget {
   const SpeakerPanel(this.conferenceId);
 
@@ -45,31 +64,15 @@ class SpeakerPanel extends StatelessWidget {
               ? (state.speakers[conferenceId].toList()..sort())
               : <Speaker>[];
         },
-        builder: (context, dispatcher, model) {
-          final theme = Theme.of(context);
-
-          if (model == null || model.length == 0) {
-            return Center(
-              child: Text(
-                'Speaker list not yet finalized.',
-                style: theme.textTheme.subhead
-                    .copyWith(fontStyle: FontStyle.italic),
-              ),
-            );
-          }
-
-          var children = <Widget>[];
-
-          for (final speaker in model) {
-            children.add(SpeakerItem(
-              speaker,
-              conferenceId,
-            ));
+        builder: (context, dispatcher, speakerList) {
+          if (speakerList == null || speakerList.length == 0) {
+            return NoDataNotice('Speaker list not yet finalized.');
           }
 
           return ListView(
-            children:
-                model.map<Widget>((s) => SpeakerItem(s, conferenceId)).toList(),
+            children: speakerList
+                .map<Widget>((s) => SpeakerItem(s, conferenceId))
+                .toList(),
           );
         },
       ),
@@ -245,12 +248,22 @@ class SchedulePanel extends StatelessWidget {
 
   List<Widget> _buildScheduleWidgets(
       ScheduleViewModel model, String day, ThemeData theme) {
-    final sch = model.schedules.firstWhere((s) => s.day == day);
-    final widgets = <Widget>[];
+    // Locate correct schedule for the day.
+    final sched = model.schedules.firstWhere((s) => s.day == day);
+
+    // Occasionally the API will return empty slots, though this isn't supposed
+    // to ever happen.
+    final slots =
+        sched.slots.where((s) => s.talk != null || s.scheduleBreak != null);
+
+    // In order to group the slots by time range, the most recent range is
+    // stored. Only when it changes from one slot to the next while iterating
+    // the list will a new Text be created to show it.
     String lastTimeStr = '';
 
-    for (final slot
-        in sch.slots.where((s) => s.talk != null || s.scheduleBreak != null)) {
+    final widgets = <Widget>[];
+
+    for (final slot in slots) {
       bool isFavorite = model.sessionNotifications.containsKey(slot.talk?.id);
       final speakers = <Speaker>[];
 
@@ -301,26 +314,17 @@ class SchedulePanel extends StatelessWidget {
           final theme = Theme.of(context);
 
           if (model.schedules == null || model.schedules.isEmpty) {
-            return Center(
-              child: Text(
-                'Schedule not yet finalized',
-                style: theme.textTheme.subhead
-                    .copyWith(fontStyle: FontStyle.italic),
-              ),
-            );
+            return NoDataNotice('Schedule not yet finalized');
           }
 
           final children = <Widget>[];
 
           for (final sch in model.schedules) {
             if (sch.slots == null || sch.slots.isEmpty) {
-              children.add(Center(
-                child: Text(
-                  '${strutils.capitalize(sch.day)} schedule not yet finalized.',
-                  style: theme.textTheme.subhead
-                      .copyWith(fontStyle: FontStyle.italic),
-                ),
-              ));
+              children.add(
+                NoDataNotice('${strutils.capitalize(sch.day)} '
+                    'schedule not yet finalized.'),
+              );
             } else {
               children.add(
                 ListView(
@@ -341,11 +345,11 @@ class SchedulePanel extends StatelessWidget {
 
 class ConferenceDetailScreenViewModel {
   final String name;
-  final List<String> scheduleDays;
+  final List<String> days;
 
   ConferenceDetailScreenViewModel(AppState state, int conferenceId)
       : name = state.conferences[conferenceId]?.name,
-        scheduleDays =
+        days =
             state.schedules[conferenceId]?.map<String>((s) => s.day)?.toList();
 }
 
@@ -433,7 +437,7 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
           final scaffold = Scaffold(
             appBar: AppBar(
               title: Text(viewModel.name),
-              bottom: _buildAppBarBottom(viewModel.scheduleDays),
+              bottom: _buildAppBarBottom(viewModel.days),
             ),
             drawer: MainDrawer(),
             body: _buildBody(),
@@ -443,9 +447,9 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
           // If the schedule pane is being presented with more than one day, the
           // Scaffold needs to be wrapped in a DefaultTabController for the
           // TabView and TabBar to use.
-          if (viewModel.scheduleDays.length > 1 && _navBarSelection == 1) {
+          if (viewModel.days.length > 1 && _navBarSelection == 1) {
             return DefaultTabController(
-              length: viewModel.scheduleDays.length,
+              length: viewModel.days.length,
               child: scaffold,
             );
           }
