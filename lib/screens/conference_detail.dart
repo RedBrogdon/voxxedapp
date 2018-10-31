@@ -266,7 +266,7 @@ class SchedulePanel extends StatelessWidget {
 
       if (timeStr != lastTimeStr) {
         widgets.add(Padding(
-          padding: const EdgeInsets.only(top:24.0, left: 8.0),
+          padding: const EdgeInsets.only(top: 24.0, left: 8.0),
           child: Text(
             timeStr,
             style: theme.textTheme.headline,
@@ -361,20 +361,64 @@ class ConferenceDetailScreen extends StatefulWidget {
 }
 
 class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
-  int navBarSelection = 0;
+  int _navBarSelection = 0;
+
+  Widget _buildBody() {
+    if (_navBarSelection == 0) {
+      return ConferenceInfoPanel(widget.conferenceId);
+    } else if (_navBarSelection == 1) {
+      return SchedulePanel(widget.conferenceId);
+    } else {
+      return SpeakerPanel(widget.conferenceId);
+    }
+  }
+
+  Widget _buildInvalidNavigationNotice() {
+    return InvalidNavigationNotice(
+      'Conference not found',
+      'Conference record could not be found or is no longer valid.\n\n'
+          'Use the menu to select another.',
+      showDrawer: true,
+    );
+  }
+
+  Widget _buildAppBarBottom(List<String> days) {
+    if (days.length <= 1 || _navBarSelection != 1) {
+      // Either the user isn't on the schedule tab or there aren't multiple
+      // days in the schedule, so no TabBar is needed.
+      return null;
+    }
+
+    return TabBar(
+      tabs: days.map<Widget>((s) => Tab(text: strutils.capitalize(s))).toList(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      onTap: (index) {
+        setState(() => _navBarSelection = index);
+      },
+      currentIndex: _navBarSelection,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.info),
+          title: Text('Info'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.schedule),
+          title: Text('Schedule'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          title: Text('Speakers'),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-
-    if (navBarSelection == 0) {
-      body = ConferenceInfoPanel(widget.conferenceId);
-    } else if (navBarSelection == 1) {
-      body = SchedulePanel(widget.conferenceId);
-    } else {
-      body = SpeakerPanel(widget.conferenceId);
-    }
-
     return FirstBuildDispatcher<AppState>(
       action: RefreshConferenceAction(widget.conferenceId),
       child: ViewModelSubscriber<AppState, ConferenceDetailScreenViewModel>(
@@ -383,66 +427,31 @@ class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
         builder: (context, dispatcher, viewModel) {
           if (viewModel.name == null) {
             // No name means conferenceId doesn't match a real conference.
-            return InvalidNavigationNotice(
-              'Conference not found',
-              'Conference record could not be found or is no longer valid.\n\n'
-                  'Use the menu to select another.',
-              showDrawer: true,
-            );
+            return _buildInvalidNavigationNotice();
           }
 
           final scaffold = Scaffold(
             appBar: AppBar(
-              title: ViewModelSubscriber<AppState, String>(
-                converter: (state) =>
-                    state.conferences[widget.conferenceId].name,
-                builder: (context, dispatcher, name) => Text(name),
-              ),
-              bottom: (viewModel.scheduleDays.length > 1 &&
-                      navBarSelection == 1)
-                  ? TabBar(
-                      tabs: viewModel.scheduleDays
-                          .map<Widget>((s) => Tab(text: strutils.capitalize(s)))
-                          .toList(),
-                    )
-                  : null,
+              title: Text(viewModel.name),
+              bottom: _buildAppBarBottom(viewModel.scheduleDays),
             ),
             drawer: MainDrawer(),
-            body: body,
-            bottomNavigationBar: DispatchSubscriber<AppState>(
-              builder: (context, dispatcher) {
-                return BottomNavigationBar(
-                  onTap: (index) {
-                    setState(() => navBarSelection = index);
-                  },
-                  currentIndex: navBarSelection,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.info),
-                      title: Text('Info'),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.schedule),
-                      title: Text('Schedule'),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person),
-                      title: Text('Speakers'),
-                    ),
-                  ],
-                );
-              },
-            ),
+            body: _buildBody(),
+            bottomNavigationBar: _buildBottomNavigationBar(),
           );
 
-          if (navBarSelection != 1) {
-            return scaffold;
+          // If the schedule pane is being presented with more than one day, the
+          // Scaffold needs to be wrapped in a DefaultTabController for the
+          // TabView and TabBar to use.
+          if (viewModel.scheduleDays.length > 1 && _navBarSelection == 1) {
+            return DefaultTabController(
+              length: viewModel.scheduleDays.length,
+              child: scaffold,
+            );
           }
 
-          return DefaultTabController(
-            length: 3,
-            child: scaffold,
-          );
+          // Otherwise the Scaffold is good to go on its own.
+          return scaffold;
         },
       ),
     );
