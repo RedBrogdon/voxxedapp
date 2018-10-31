@@ -31,7 +31,7 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
 
   BuiltMap<int, BuiltList<Schedule>> get schedules;
 
-  // If a session is present as a key in this map, it is "favorited."
+  // If a talkId is present as a key in this map, it is "favorited."
   BuiltMap<String, int> get sessionNotifications;
 
   int get lastNotificationId;
@@ -63,7 +63,7 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
       .._willNeverBeReadyToGo = false);
   }
 
-  ScheduleSlot getSlotByTalkId(String talkId) {
+  ScheduleSlot getSlot(String talkId) {
     for (final scheduleList in schedules.values) {
       for (final schedule in scheduleList) {
         final slot = schedule.slots
@@ -89,5 +89,10 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
     }
 
     return null;
+  }
+
+  Speaker getSpeaker(int conferenceId, String uuid) {
+    return speakers[conferenceId]
+        ?.firstWhere((s) => s.uuid == uuid, orElse: () => null,);
   }
 }

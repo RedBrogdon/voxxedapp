@@ -11,6 +11,7 @@ dependencies:
   built_collection: '>=2.0.0 <4.0.0'
   built_value: ^6.1.2
   cached_network_image: ^0.4.1
+  collection: ^1.14.11
   flutter_local_notifications: ^0.3.8
   logging: ^0.11.3+1
   path_provider: ^0.4.1

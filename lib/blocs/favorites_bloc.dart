@@ -103,7 +103,7 @@ class FavoritesBloc extends SimpleBloc<AppState> {
 
     if (action is SetAllNotificationsAction) {
       for (final talkId in state.sessionNotifications.keys) {
-        final slot = state.getSlotByTalkId(talkId);
+        final slot = state.getSlot(talkId);
         final conferenceId = state.getConferenceIdForTalkId(talkId);
         if (slot != null && conferenceId != null) {
           _scheduleNotification(
@@ -123,7 +123,7 @@ class FavoritesBloc extends SimpleBloc<AppState> {
         return state
             .rebuild((b) => b.sessionNotifications.remove(action.talkId));
       } else {
-        final slot = state.getSlotByTalkId(action.talkId);
+        final slot = state.getSlot(action.talkId);
         if (slot != null) {
           final notificationId = state.lastNotificationId + 1;
           _scheduleNotification(notificationId, action.conferenceId, slot);
