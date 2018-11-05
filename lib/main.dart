@@ -145,7 +145,7 @@ class VoxxedDayApp extends StatelessWidget {
     return StoreProvider(
       store: store,
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Voxxed Days',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           fontFamily: 'Lato',
