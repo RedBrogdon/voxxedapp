@@ -317,16 +317,16 @@ class SchedulePanel extends StatelessWidget {
             return NoDataNotice('Schedule not yet finalized');
           }
 
-          final children = <Widget>[];
+          final scheduleLists = <Widget>[];
 
           for (final sch in model.schedules) {
             if (sch.slots == null || sch.slots.isEmpty) {
-              children.add(
+              scheduleLists.add(
                 NoDataNotice('${strutils.capitalize(sch.day)} '
                     'schedule not yet finalized.'),
               );
             } else {
-              children.add(
+              scheduleLists.add(
                 ListView(
                   children: _buildScheduleWidgets(model, sch.day, theme),
                 ),
@@ -334,9 +334,17 @@ class SchedulePanel extends StatelessWidget {
             }
           }
 
-          return TabBarView(
-            children: children,
-          );
+          // If there is more than day's schedule for the conference, the AppBar
+          // that will contain this widget will have a TabBar and controller set
+          // up, so the lists should be returned in a TabVarView. Otherwise,
+          // there will just be one list, which can be returned on its own.
+          if (scheduleLists.length > 1) {
+            return TabBarView(
+              children: scheduleLists,
+            );
+          } else {
+            return scheduleLists[0];
+          }
         },
       ),
     );

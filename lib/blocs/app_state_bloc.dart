@@ -88,6 +88,8 @@ class AppStateBloc extends SimpleBloc<AppState> {
         AppState newState = state.rebuild((b) {
           for (final id in staleConferenceIds) {
             b.conferences.remove(id);
+            b.speakers.remove(id);
+            b.schedules.remove(id);
           }
         });
 
