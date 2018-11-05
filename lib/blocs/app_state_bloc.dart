@@ -68,7 +68,37 @@ class AppStateBloc extends SimpleBloc<AppState> {
   void _beginLoadingColdAppState(DispatchFunction dispatcher) {
     localStorage.loadAppStateFromAsset().then((state) {
       if (state != null) {
-        dispatcher(ColdAppStateLoadedAction(state));
+        // Remove any conferences listed in the hardcoded JSON that have already
+        // taken place.
+        final today = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        final staleConferenceIds = <int>[];
+        for (final conferenceId in state.conferences.keys) {
+          String endDateStr = state.conferences[conferenceId].endDate;
+          try {
+            final endDate = DateTime.parse(endDateStr);
+            if (today.isAfter(endDate)) {
+              staleConferenceIds.add(conferenceId);
+            }
+          } on FormatException catch (e) {
+            // just skip it and go on to the next one.
+          }
+        }
+
+        AppState newState = state.rebuild((b) {
+          for (final id in staleConferenceIds) {
+            b.conferences.remove(id);
+          }
+        });
+
+        // If the currently selected conference is no longer valid, replace it
+        // with the first remaining conference in the list.
+        if (!newState.conferences.containsKey(newState.selectedConferenceId)) {
+          newState = newState.rebuild(
+              (b) => b.selectedConferenceId = newState.conferences.keys.first);
+        }
+
+        dispatcher(ColdAppStateLoadedAction(newState));
       } else {
         dispatcher(ColdAppStateFailedToLoadAction());
       }
@@ -126,8 +156,8 @@ class AppStateBloc extends SimpleBloc<AppState> {
   }
 
   @override
-  FutureOr<Action> afterware(DispatchFunction dispatcher, AppState state,
-      Action action) {
+  FutureOr<Action> afterware(
+      DispatchFunction dispatcher, AppState state, Action action) {
     if (action is LoadAppStateFailedAction) {
       // If loading a cached app state from disk has failed (e.g. this is the
       // first run, or an app update has rendered previous state unusable), try
@@ -164,6 +194,4 @@ class AppStateBloc extends SimpleBloc<AppState> {
 
     return action;
   }
-
-
 }
