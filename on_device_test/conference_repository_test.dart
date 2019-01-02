@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:test/test.dart';
+import 'package:test_api/test_api.dart';
 
 // This file is meant to be run from the command line like this:
 //
@@ -20,6 +20,7 @@ import 'package:test/test.dart';
 //
 // This is necessary because the tests here require access to a working form of
 // local storage, which is only available on a device or emulator.
+
 void main() {
   group('Conference repository integration tests', () {
     test('This test always passes.', () async {});

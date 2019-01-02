@@ -26,9 +26,6 @@ dev_dependencies:
   built_value_generator: ^6.1.2
   flutter_launcher_icons: "^0.6.1"
 
-dependency_overrides:
-  analyzer: 0.33.0
-
 flutter:
   uses-material-design: true
 

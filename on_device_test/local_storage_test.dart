@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:test/test.dart';
+import 'package:test_api/test_api.dart';
 
 // This file is meant to be run from the command line like this:
 //
