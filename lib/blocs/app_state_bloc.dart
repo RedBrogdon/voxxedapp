@@ -15,9 +15,9 @@
 import 'dart:async';
 
 import 'package:rebloc/rebloc.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
+import 'package:voxxedapp/blocs/navigation_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
 import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/data/app_state_local_storage.dart';
@@ -36,36 +36,24 @@ class AppStateLoadedAction extends Action {
   AppStateLoadedAction(this.state);
 }
 
-class SaveAppStateDebouncerBloc implements Bloc<AppState> {
-  SaveAppStateDebouncerBloc(this.duration);
+class LoadColdAppStateAction extends Action {}
 
-  final Duration duration;
+class ColdAppStateLoadedAction extends Action {
+  final AppState state;
 
-  @override
-  Stream<MiddlewareContext<AppState>> applyMiddleware(
-      Stream<MiddlewareContext<AppState>> input) {
-    return MergeStream<MiddlewareContext<AppState>>([
-      input.where((c) => !(c.action is SaveAppStateAction)),
-      Observable(input.where((c) => c.action is SaveAppStateAction))
-          .debounce(duration),
-    ]);
-  }
-
-  @override
-  Stream<Accumulator<AppState>> applyReducer(
-      Stream<Accumulator<AppState>> input) {
-    return input;
-  }
+  ColdAppStateLoadedAction(this.state);
 }
+
+class ColdAppStateFailedToLoadAction extends Action {}
 
 /// Manages the loading and caching of conference records.
 class AppStateBloc extends SimpleBloc<AppState> {
-  final AppStateLocalStorage localStorage;
-
   AppStateBloc({this.localStorage = const AppStateLocalStorage()});
 
+  final AppStateLocalStorage localStorage;
+
   void _beginLoadingAppState(DispatchFunction dispatcher) {
-    localStorage.loadAppState().then((state) {
+    localStorage.loadAppStateFromCache().then((state) {
       if (state != null) {
         dispatcher(AppStateLoadedAction(state));
       } else {
@@ -77,25 +65,64 @@ class AppStateBloc extends SimpleBloc<AppState> {
     });
   }
 
+  void _beginLoadingColdAppState(DispatchFunction dispatcher) {
+    localStorage.loadAppStateFromAsset().then((state) {
+      if (state != null) {
+        // Remove any conferences listed in the hardcoded JSON that have already
+        // taken place.
+        final today = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        final staleConferenceIds = <int>[];
+        for (final conferenceId in state.conferences.keys) {
+          String endDateStr = state.conferences[conferenceId].endDate;
+          try {
+            final endDate = DateTime.parse(endDateStr);
+            if (today.isAfter(endDate)) {
+              staleConferenceIds.add(conferenceId);
+            }
+          } on FormatException catch (e) {
+            // just skip it and go on to the next one.
+          }
+        }
+
+        AppState newState = state.rebuild((b) {
+          for (final id in staleConferenceIds) {
+            b.conferences.remove(id);
+            b.speakers.remove(id);
+            b.schedules.remove(id);
+          }
+        });
+
+        // If the currently selected conference is no longer valid, replace it
+        // with the first remaining conference in the list.
+        if (!newState.conferences.containsKey(newState.selectedConferenceId)) {
+          newState = newState.rebuild(
+              (b) => b.selectedConferenceId = newState.conferences.keys.first);
+        }
+
+        dispatcher(ColdAppStateLoadedAction(newState));
+      } else {
+        dispatcher(ColdAppStateFailedToLoadAction());
+      }
+    }).catchError((e, s) {
+      log.severe('Failed to load cold boot state asset: $e');
+      dispatcher(ColdAppStateFailedToLoadAction());
+    });
+  }
+
   @override
   FutureOr<Action> middleware(
       DispatchFunction dispatcher, AppState state, Action action) {
     if (action is SaveAppStateAction) {
-      localStorage.saveAppState(state);
-    } else if (action is LoadAppStateAction) {
+      localStorage.saveAppStateToCache(state);
+    }
+
+    if (action is LoadAppStateAction) {
       _beginLoadingAppState(dispatcher);
-    } else if (action is LoadAppStateFailedAction ||
-        action is AppStateLoadedAction) {
-      dispatcher(RefreshConferencesAction());
-    } else if (action is RefreshedConferenceAction ||
-        action is RefreshedConferencesAction ||
-        action is RefreshedSpeakersForConferenceAction ||
-        action is RefreshedSpeakerForConferenceAction ||
-        action is RefreshedSchedulesAction ||
-        action is RefreshedScheduleSlotsAction ||
-        action is ToggleFavoriteAction) {
-      // New data is arriving, so app state should be saved afterward.
-      action.afterward(SaveAppStateAction());
+    }
+
+    if (action is LoadColdAppStateAction) {
+      _beginLoadingColdAppState(dispatcher);
     }
 
     return action;
@@ -117,10 +144,56 @@ class AppStateBloc extends SimpleBloc<AppState> {
 
     if (action is AppStateLoadedAction) {
       return action.state.rebuild((b) => b
+        // Maintain previous launchTime, since it's not serialized.
+        ..launchTime = state.launchTime
         ..readyToGo = true
         ..willNeverBeReadyToGo = false);
     }
 
+    if (action is ColdAppStateLoadedAction) {
+      return action.state.rebuild((b) => b..launchTime = state.launchTime);
+    }
+
     return state;
+  }
+
+  @override
+  FutureOr<Action> afterware(
+      DispatchFunction dispatcher, AppState state, Action action) {
+    if (action is LoadAppStateFailedAction) {
+      // If loading a cached app state from disk has failed (e.g. this is the
+      // first run, or an app update has rendered previous state unusable), try
+      // loading app state from the cold boot json file.
+      dispatcher(LoadColdAppStateAction());
+    }
+
+    if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is ColdAppStateFailedToLoadAction) {
+      // Once the loading of app state from cache or asset has completed or
+      // errored out, attempt to refresh data for all conferences from network.
+      dispatcher(RefreshConferencesAction());
+    }
+
+    if (action is AppStateLoadedAction ||
+        action is ColdAppStateLoadedAction ||
+        action is RefreshedConferencesAction) {
+      // Any of these three indicate that an app state has been loaded and the
+      // splash screen, if open, should be closed.
+      dispatcher(LeaveSplashScreenAction());
+    }
+
+    if (action is RefreshedConferenceAction ||
+        action is RefreshedConferencesAction ||
+        action is RefreshedSpeakersForConferenceAction ||
+        action is RefreshedSpeakerForConferenceAction ||
+        action is RefreshedSchedulesAction ||
+        action is RefreshedScheduleSlotsAction ||
+        action is ToggleFavoriteAction) {
+      // New data is arriving, so app state should be saved afterward.
+      dispatcher(SaveAppStateAction());
+    }
+
+    return action;
   }
 }

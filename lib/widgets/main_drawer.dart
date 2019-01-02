@@ -62,9 +62,12 @@ class MainDrawer extends StatelessWidget {
             title: Text('Select a conference'),
             onTap: () async {
               // Show the conference list to get a selection, then navigate to
-              // it.
+              // whatever conference they select (a null id indicates the user
+              // backed out without selecting one).
               int id = await Navigator.of(context).pushNamed('/conferences');
-              Navigator.of(context).pushReplacementNamed('/conference/$id');
+              if (id != null) {
+                Navigator.of(context).pushReplacementNamed('/conference/$id');
+              }
             },
           ),
           ListTile(

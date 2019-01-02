@@ -147,6 +147,8 @@ class _$AppState extends AppState {
   final bool readyToGo;
   @override
   final bool willNeverBeReadyToGo;
+  @override
+  final int launchTime;
 
   factory _$AppState([void updates(AppStateBuilder b)]) =>
       (new AppStateBuilder()..update(updates)).build();
@@ -159,7 +161,8 @@ class _$AppState extends AppState {
       this.lastNotificationId,
       this.selectedConferenceId,
       this.readyToGo,
-      this.willNeverBeReadyToGo})
+      this.willNeverBeReadyToGo,
+      this.launchTime})
       : super._() {
     if (conferences == null) {
       throw new BuiltValueNullFieldError('AppState', 'conferences');
@@ -205,7 +208,8 @@ class _$AppState extends AppState {
         lastNotificationId == other.lastNotificationId &&
         selectedConferenceId == other.selectedConferenceId &&
         readyToGo == other.readyToGo &&
-        willNeverBeReadyToGo == other.willNeverBeReadyToGo;
+        willNeverBeReadyToGo == other.willNeverBeReadyToGo &&
+        launchTime == other.launchTime;
   }
 
   @override
@@ -216,14 +220,16 @@ class _$AppState extends AppState {
                 $jc(
                     $jc(
                         $jc(
-                            $jc($jc(0, conferences.hashCode),
-                                speakers.hashCode),
-                            schedules.hashCode),
-                        sessionNotifications.hashCode),
-                    lastNotificationId.hashCode),
-                selectedConferenceId.hashCode),
-            readyToGo.hashCode),
-        willNeverBeReadyToGo.hashCode));
+                            $jc(
+                                $jc($jc(0, conferences.hashCode),
+                                    speakers.hashCode),
+                                schedules.hashCode),
+                            sessionNotifications.hashCode),
+                        lastNotificationId.hashCode),
+                    selectedConferenceId.hashCode),
+                readyToGo.hashCode),
+            willNeverBeReadyToGo.hashCode),
+        launchTime.hashCode));
   }
 
   @override
@@ -236,7 +242,8 @@ class _$AppState extends AppState {
           ..add('lastNotificationId', lastNotificationId)
           ..add('selectedConferenceId', selectedConferenceId)
           ..add('readyToGo', readyToGo)
-          ..add('willNeverBeReadyToGo', willNeverBeReadyToGo))
+          ..add('willNeverBeReadyToGo', willNeverBeReadyToGo)
+          ..add('launchTime', launchTime))
         .toString();
   }
 }
@@ -287,6 +294,10 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
   set willNeverBeReadyToGo(bool willNeverBeReadyToGo) =>
       _$this._willNeverBeReadyToGo = willNeverBeReadyToGo;
 
+  int _launchTime;
+  int get launchTime => _$this._launchTime;
+  set launchTime(int launchTime) => _$this._launchTime = launchTime;
+
   AppStateBuilder();
 
   AppStateBuilder get _$this {
@@ -299,6 +310,7 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
       _selectedConferenceId = _$v.selectedConferenceId;
       _readyToGo = _$v.readyToGo;
       _willNeverBeReadyToGo = _$v.willNeverBeReadyToGo;
+      _launchTime = _$v.launchTime;
       _$v = null;
     }
     return this;
@@ -330,7 +342,8 @@ class AppStateBuilder implements Builder<AppState, AppStateBuilder> {
               lastNotificationId: lastNotificationId,
               selectedConferenceId: selectedConferenceId,
               readyToGo: readyToGo,
-              willNeverBeReadyToGo: willNeverBeReadyToGo);
+              willNeverBeReadyToGo: willNeverBeReadyToGo,
+              launchTime: launchTime);
     } catch (_) {
       String _$failedField;
       try {

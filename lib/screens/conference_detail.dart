@@ -16,17 +16,38 @@ import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/blocs/conference_bloc.dart';
 import 'package:voxxedapp/blocs/schedule_bloc.dart';
+import 'package:voxxedapp/blocs/speaker_bloc.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
-import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/util/string_utils.dart' as strutils;
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 import 'package:voxxedapp/widgets/main_drawer.dart';
 import 'package:voxxedapp/widgets/schedule_slot_item.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
 import 'package:voxxedapp/widgets/track_item.dart';
+
+class NoDataNotice extends StatelessWidget {
+  const NoDataNotice(this.message);
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        message,
+        style: Theme.of(context)
+            .textTheme
+            .subhead
+            .copyWith(fontStyle: FontStyle.italic),
+      ),
+    );
+  }
+}
 
 class SpeakerPanel extends StatelessWidget {
   const SpeakerPanel(this.conferenceId);
@@ -35,46 +56,26 @@ class SpeakerPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelSubscriber<AppState, List<Speaker>>(
-      converter: (state) {
-        return state.speakers.containsKey(conferenceId)
-            ? (state.speakers[conferenceId].toList()..sort())
-            : <Speaker>[];
-      },
-      builder: (context, dispatcher, model) {
-        final theme = Theme.of(context);
-
-        var children = <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text('Speakers', style: theme.textTheme.subhead),
-          ),
-        ];
-
-        if (model == null || model.length == 0) {
-          children.add(
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'Not yet determined.',
-                style:
-                    theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
-              ),
-            ),
-          );
-        } else {
-          var count = 0;
-          for (final speaker in model) {
-            children.add(SpeakerItem(speaker, conferenceId,
-                alternateColor: count % 2 == 0));
-            count++;
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshSpeakersForConferenceAction(conferenceId),
+      child: ViewModelSubscriber<AppState, List<Speaker>>(
+        converter: (state) {
+          return state.speakers.containsKey(conferenceId)
+              ? (state.speakers[conferenceId].toList()..sort())
+              : <Speaker>[];
+        },
+        builder: (context, dispatcher, speakerList) {
+          if (speakerList == null || speakerList.length == 0) {
+            return NoDataNotice('Speaker list not yet finalized.');
           }
-        }
 
-        return ListView(
-          children: children,
-        );
-      },
+          return ListView(
+            children: speakerList
+                .map<Widget>((s) => SpeakerItem(s, conferenceId))
+                .toList(),
+          );
+        },
+      ),
     );
   }
 }
@@ -176,7 +177,7 @@ class ConferenceInfoPanel extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            'Not yet determined.',
+            'Not yet finalized.',
             style: theme.textTheme.body1.copyWith(fontStyle: FontStyle.italic),
           ),
         ),
@@ -211,71 +212,33 @@ class ConferenceInfoPanel extends StatelessWidget {
   }
 }
 
-class ScheduleSlotViewModel {
+class ScheduleViewModel {
   final int conferenceId;
-  final speakers = <Speaker>[];
-  ScheduleSlot slot;
-  bool isFavorite;
+  final BuiltList<Speaker> speakers;
+  final BuiltList<Schedule> schedules;
+  final BuiltMap<String, int> sessionNotifications;
 
-  ScheduleSlotViewModel(
-      AppState state, this.conferenceId, String day, String id) {
-    // Find a slot for the given conference with a Talk Id that matches id.
-    final slot = state.schedules[conferenceId]
-        ?.firstWhere((sch) => sch.day == day, orElse: () => null)
-        ?.slots
-        ?.firstWhere((s) => s.talk?.id == id, orElse: () => null);
-
-    if (slot == null) {
-      throw ArgumentError(
-          'ScheduleSlotViewModel couldn\'t locate slot $id for conference $conferenceId.');
-    }
-
-    if (slot.talk != null) {
-      isFavorite = state.sessionNotifications.containsKey(slot.talk.id);
-    } else {
-      isFavorite = false;
-    }
-
-    for (final uuid in slot.talk.speakerUuids) {
-      final speaker = state.speakers[conferenceId]
-          ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
-      if (speaker != null) {
-        speakers.add(speaker);
-      }
-    }
-  }
+  ScheduleViewModel(AppState state, this.conferenceId)
+      : schedules = state.schedules[conferenceId],
+        speakers = state.speakers[conferenceId],
+        sessionNotifications = state.sessionNotifications;
 
   @override
-  int get hashCode {
-    int hash = slot.hashCode ^ conferenceId.hashCode;
-    for (final speaker in speakers) {
-      hash ^= speaker.hashCode;
-    }
-    return hash;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScheduleViewModel &&
+          runtimeType == other.runtimeType &&
+          conferenceId == other.conferenceId &&
+          speakers == other.speakers &&
+          schedules == other.schedules &&
+          sessionNotifications == other.sessionNotifications;
 
   @override
-  bool operator ==(other) {
-    if (identical(this, other)) return true;
-
-    if (other is ScheduleSlotViewModel) {
-      if (conferenceId != other.conferenceId ||
-          slot != slot ||
-          speakers?.length != other.speakers?.length) {
-        return false;
-      }
-
-      if (speakers != null && speakers.length > 0) {
-        for (int i = 0; i < speakers.length; i++) {
-          if (speakers[i] != other.speakers[i]) return false;
-        }
-      }
-
-      return true;
-    }
-
-    return false;
-  }
+  int get hashCode =>
+      conferenceId.hashCode ^
+      speakers.hashCode ^
+      schedules.hashCode ^
+      sessionNotifications.hashCode;
 }
 
 class SchedulePanel extends StatelessWidget {
@@ -283,53 +246,119 @@ class SchedulePanel extends StatelessWidget {
 
   final int conferenceId;
 
-  List<Widget> _buildScheduleWidgets(Schedule sched, ThemeData theme) {
+  List<Widget> _buildScheduleWidgets(
+      ScheduleViewModel model, String day, ThemeData theme) {
+    // Locate correct schedule for the day.
+    final sched = model.schedules.firstWhere((s) => s.day == day);
+
+    // Occasionally the API will return empty slots, though this isn't supposed
+    // to ever happen.
+    final slots =
+        sched.slots.where((s) => s.talk != null || s.scheduleBreak != null);
+
+    // In order to group the slots by time range, the most recent range is
+    // stored. Only when it changes from one slot to the next while iterating
+    // the list will a new Text be created to show it.
+    String lastTimeStr = '';
+
     final widgets = <Widget>[];
 
-    widgets.add(
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          strutils.capitalize(sched.day),
-          style: theme.textTheme.headline,
-        ),
-      ),
-    );
+    for (final slot in slots) {
+      bool isFavorite = model.sessionNotifications.containsKey(slot.talk?.id);
+      final speakers = <Speaker>[];
 
-    for (final slot in sched.slots) {
-      widgets.add(ViewModelSubscriber<AppState, ScheduleSlotViewModel>(
-        converter: (state) => ScheduleSlotViewModel(state, conferenceId,
-            slot.day, slot.talk?.id ?? slot.scheduleBreak.id),
-        builder: (context, dispatcher, viewModel) {
-          return ScheduleSlotItem(slot, conferenceId, viewModel.speakers,
-              isFavorite: viewModel.isFavorite);
-        },
-      ));
+      for (final uuid in slot.talk.speakerUuids) {
+        final speaker = model.speakers
+            ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
+        if (speaker != null) {
+          speakers.add(speaker);
+        }
+      }
+
+      String timeStr = '${slot.fromTime} to ${slot.toTime}';
+
+      if (timeStr != lastTimeStr) {
+        widgets.add(Padding(
+          padding: const EdgeInsets.only(top: 24.0, left: 8.0),
+          child: Text(
+            timeStr,
+            style: theme.textTheme.headline,
+          ),
+        ));
+
+        lastTimeStr = timeStr;
+      }
+
+      widgets.add(
+        ScheduleSlotItem(
+          slot,
+          conferenceId,
+          speakers,
+          isFavorite: isFavorite,
+        ),
+      );
     }
+
+    widgets.add(SizedBox(height: 16.0));
 
     return widgets;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshSchedulesAction(conferenceId),
+      child: ViewModelSubscriber<AppState, ScheduleViewModel>(
+        converter: (state) => ScheduleViewModel(state, conferenceId),
+        builder: (context, dispatcher, model) {
+          final theme = Theme.of(context);
 
-    return ViewModelSubscriber<AppState, BuiltList<Schedule>>(
-      converter: (state) => state.schedules[conferenceId],
-      builder: (context, dispatcher, schedules) {
-        final children = <Widget>[];
+          if (model.schedules == null || model.schedules.isEmpty) {
+            return NoDataNotice('Schedule not yet finalized');
+          }
 
-        for (Schedule sched in schedules) {
-          children.addAll(_buildScheduleWidgets(sched, theme));
-          children.add(SizedBox(height: 16.0));
-        }
+          final scheduleLists = <Widget>[];
 
-        return ListView(
-          children: children,
-        );
-      },
+          for (final sch in model.schedules) {
+            if (sch.slots == null || sch.slots.isEmpty) {
+              scheduleLists.add(
+                NoDataNotice('${strutils.capitalize(sch.day)} '
+                    'schedule not yet finalized.'),
+              );
+            } else {
+              scheduleLists.add(
+                ListView(
+                  children: _buildScheduleWidgets(model, sch.day, theme),
+                ),
+              );
+            }
+          }
+
+          // If there is more than day's schedule for the conference, the AppBar
+          // that will contain this widget will have a TabBar and controller set
+          // up, so the lists should be returned in a TabVarView. Otherwise,
+          // there will just be one list, which can be returned on its own.
+          if (scheduleLists.length > 1) {
+            return TabBarView(
+              children: scheduleLists,
+            );
+          } else {
+            return scheduleLists[0];
+          }
+        },
+      ),
     );
   }
+}
+
+class ConferenceDetailScreenViewModel {
+  final String name;
+  final List<String> days;
+
+  ConferenceDetailScreenViewModel(AppState state, int conferenceId)
+      : name = state.conferences[conferenceId]?.name,
+        days =
+            state.schedules[conferenceId]?.map<String>((s) => s.day)?.toList();
 }
 
 class ConferenceDetailScreen extends StatefulWidget {
@@ -344,55 +373,98 @@ class ConferenceDetailScreen extends StatefulWidget {
 }
 
 class _ConferenceDetailScreenState extends State<ConferenceDetailScreen> {
-  int navBarSelection = 0;
+  int _navBarSelection = 0;
+
+  Widget _buildBody() {
+    if (_navBarSelection == 0) {
+      return ConferenceInfoPanel(widget.conferenceId);
+    } else if (_navBarSelection == 1) {
+      return SchedulePanel(widget.conferenceId);
+    } else {
+      return SpeakerPanel(widget.conferenceId);
+    }
+  }
+
+  Widget _buildInvalidNavigationNotice() {
+    return InvalidNavigationNotice(
+      'Conference not found',
+      'Conference record could not be found or is no longer valid.\n\n'
+          'Use the menu to select another.',
+      showDrawer: true,
+    );
+  }
+
+  Widget _buildAppBarBottom(List<String> days) {
+    if (days.length <= 1 || _navBarSelection != 1) {
+      // Either the user isn't on the schedule tab or there aren't multiple
+      // days in the schedule, so no TabBar is needed.
+      return null;
+    }
+
+    return TabBar(
+      tabs: days.map<Widget>((s) => Tab(text: strutils.capitalize(s))).toList(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      onTap: (index) {
+        setState(() => _navBarSelection = index);
+      },
+      currentIndex: _navBarSelection,
+      type: BottomNavigationBarType.fixed,
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.info),
+          title: Text('Info'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.schedule),
+          title: Text('Schedule'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          title: Text('Speakers'),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    Widget body;
-
-    if (navBarSelection == 0) {
-      body = ConferenceInfoPanel(widget.conferenceId);
-    } else if (navBarSelection == 1) {
-      body = SchedulePanel(widget.conferenceId);
-    } else {
-      body = SpeakerPanel(widget.conferenceId);
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: ViewModelSubscriber<AppState, String>(
-          converter: (state) => state.conferences[widget.conferenceId].name,
-          builder: (context, dispatcher, name) => Text(name),
-        ),
-      ),
-      drawer: MainDrawer(),
-      body: body,
-      bottomNavigationBar: ViewModelSubscriber<AppState, String>(
-        converter: (state) => state.conferences[widget.conferenceId].name,
+    return FirstBuildDispatcher<AppState>(
+      action: RefreshConferenceAction(widget.conferenceId),
+      child: ViewModelSubscriber<AppState, ConferenceDetailScreenViewModel>(
+        converter: (state) =>
+            ConferenceDetailScreenViewModel(state, widget.conferenceId),
         builder: (context, dispatcher, viewModel) {
-          return BottomNavigationBar(
-            onTap: (index) {
-              if (index == 1) {
-                dispatcher(RefreshSchedulesAction(widget.conferenceId));
-              }
-              setState(() => navBarSelection = index);
-            },
-            currentIndex: navBarSelection,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.info),
-                title: Text('Info'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.schedule),
-                title: Text('Schedule'),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                title: Text('Speakers'),
-              ),
-            ],
+          if (viewModel.name == null) {
+            // No name means conferenceId doesn't match a real conference.
+            return _buildInvalidNavigationNotice();
+          }
+
+          final scaffold = Scaffold(
+            appBar: AppBar(
+              title: Text(viewModel.name),
+              bottom: _buildAppBarBottom(viewModel.days),
+            ),
+            drawer: MainDrawer(),
+            body: _buildBody(),
+            bottomNavigationBar: _buildBottomNavigationBar(),
           );
+
+          // If the schedule pane is being presented with more than one day, the
+          // Scaffold needs to be wrapped in a DefaultTabController for the
+          // TabView and TabBar to use.
+          if (viewModel.days.length > 1 && _navBarSelection == 1) {
+            return DefaultTabController(
+              length: viewModel.days.length,
+              child: scaffold,
+            );
+          }
+
+          // Otherwise the Scaffold is good to go on its own.
+          return scaffold;
         },
       ),
     );

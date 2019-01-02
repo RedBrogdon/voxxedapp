@@ -21,6 +21,7 @@ import 'package:voxxedapp/models/schedule_slot.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:voxxedapp/models/track.dart';
 import 'package:voxxedapp/util/string_utils.dart' as strutils;
+import 'package:voxxedapp/widgets/invalid_navigation_notice.dart';
 import 'package:voxxedapp/widgets/speaker_item.dart';
 import 'package:voxxedapp/widgets/track_item.dart';
 
@@ -28,6 +29,7 @@ class TalkDetailViewModel {
   ScheduleSlot slot;
   final speakers = <Speaker>[];
   Track track;
+  bool isFavorite;
 
   // Use the provided arguments to locate the correct schedule slot in [state],
   // or throw an error if it cannot be located.
@@ -38,32 +40,56 @@ class TalkDetailViewModel {
         ?.slots
         ?.firstWhere((s) => s.talk?.id == talkId, orElse: () => null);
 
-    if (slot == null) {
-      throw ArgumentError('Couldn\'t find ScheduleSlot for $talkId at '
-          'conference $conferenceId');
-    }
+    if (slot != null) {
+      track = state.conferences[conferenceId].tracks
+          .firstWhere((t) => t.name == slot.talk.track, orElse: () => null);
 
-    track = state.conferences[conferenceId].tracks
-        .firstWhere((t) => t.name == slot.talk.track, orElse: () => null);
-
-    for (final uuid in slot.talk.speakerUuids) {
-      final speaker = state.speakers[conferenceId]
-          ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
-      if (speaker != null) {
-        speakers.add(speaker);
+      for (final uuid in slot.talk.speakerUuids) {
+        final speaker = state.speakers[conferenceId]
+            ?.firstWhere((s) => s.uuid == uuid, orElse: () => null);
+        if (speaker != null) {
+          speakers.add(speaker);
+        }
       }
+
+      isFavorite = state.sessionNotifications.containsKey(talkId);
     }
   }
 
   @override
   int get hashCode {
-    return slot.hashCode;
+    int hash = slot.hashCode ^ track.hashCode ^ isFavorite.hashCode;
+
+    if (speakers != null) {
+      for (final speaker in speakers) {
+        hash = hash ^ speaker.hashCode;
+      }
+    }
+
+    return hash;
   }
 
   @override
   bool operator ==(other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
     if (other is TalkDetailViewModel) {
-      return slot == other.slot;
+      if (slot != other.slot ||
+          track != other.track ||
+          isFavorite != other.isFavorite ||
+          speakers?.length != other.speakers?.length) {
+        return false;
+      }
+
+      if (speakers != null && speakers.length > 0) {
+        for (int i = 0; i < speakers.length; i++) {
+          if (speakers[i] != other.speakers[i]) {
+            return false;
+          }
+        }
+      }
     }
 
     return false;
@@ -86,6 +112,17 @@ class TalkDetailScreen extends StatelessWidget {
     }
   }
 
+  String _createTimeString(TalkDetailViewModel model) {
+    if (model.slot.day == null ||
+        model.slot.fromTime == null ||
+        model.slot.toTime == null) {
+      return '';
+    }
+
+    return '${strutils.capitalize(model.slot.day)}, ${model.slot.fromTime}'
+        ' to ${model.slot.toTime}';
+  }
+
   List<Widget> _createInfoRows(TalkDetailViewModel model, TextTheme theme) {
     final widgets = <Widget>[];
 
@@ -99,43 +136,35 @@ class TalkDetailScreen extends StatelessWidget {
       ),
     ]);
 
-    String roomStr = model.slot.roomName ?? '';
-    String timeStr = '';
-
-    if (model.slot.day != null &&
-        model.slot.fromTime != null &&
-        model.slot.toTime != null) {
-      timeStr = '${strutils.capitalize(model.slot.day)}, ${model.slot.fromTime}'
-          ' to ${model.slot.toTime}';
-    }
-
-    widgets.add(Row(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Expanded(
-          child: Padding(
+    widgets.add(
+      Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                _createTimeString(model),
+                style: theme.subhead.copyWith(
+                  color: Colors.deepOrange,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              timeStr,
+              model.slot.roomName ?? '',
               style: theme.subhead.copyWith(
                 color: Colors.deepOrange,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            roomStr,
-            style: theme.subhead.copyWith(
-              color: Colors.deepOrange,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ));
+        ],
+      ),
+    );
 
     widgets.addAll([
       Padding(
@@ -154,13 +183,15 @@ class TalkDetailScreen extends StatelessWidget {
       ),
     ]);
 
-    widgets.add(Padding(
-      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
-      child: Text(
-        model.slot.talk.summary,
-        style: theme.body1,
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+        child: Text(
+          model.slot.talk.summary,
+          style: theme.body1,
+        ),
       ),
-    ));
+    );
 
     if (model.track != null) {
       widgets.addAll([
@@ -177,23 +208,27 @@ class TalkDetailScreen extends StatelessWidget {
     }
 
     if (model.speakers.length > 0) {
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
-        child: Text(
-          model.speakers.length > 1 ? 'Speakers' : 'Speaker',
-          style: theme.subhead.copyWith(fontWeight: FontWeight.bold),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
+          child: Text(
+            model.speakers.length > 1 ? 'Speakers' : 'Speaker',
+            style: theme.subhead.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
-      ));
+      );
     }
 
     int rowCount = 0;
 
     for (final speaker in model.speakers) {
-      widgets.add(SpeakerItem(
-        speaker,
-        conferenceId,
-        alternateColor: rowCount % 2 == 0,
-      ));
+      widgets.add(
+        SpeakerItem(
+          speaker,
+          conferenceId,
+          alternateColor: rowCount % 2 == 0,
+        ),
+      );
     }
 
     widgets.add(SizedBox(height: 16.0));
@@ -203,40 +238,49 @@ class TalkDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).textTheme;
+    final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Talk details'),
-      ),
-      body: ViewModelSubscriber<AppState, TalkDetailViewModel>(
-        converter: (state) => TalkDetailViewModel(state, conferenceId, talkId),
-        builder: (context, dispatcher, model) {
-          return ListView(
-            children: _createInfoRows(model, theme),
+    return ViewModelSubscriber<AppState, TalkDetailViewModel>(
+      converter: (state) => TalkDetailViewModel(state, conferenceId, talkId),
+      builder: (context, dispatcher, model) {
+        if (model.slot == null) {
+          // Talk was not found.
+          return InvalidNavigationNotice(
+            'Talk not found',
+            'The selected conference session could not be found. '
+                'or is no longer valid',
           );
-        },
-      ),
-      floatingActionButton: ViewModelSubscriber<AppState, bool>(
-        converter: (state) => state.sessionNotifications.containsKey(talkId),
-        builder: (context, dispatcher, isFavorite) {
-          return FloatingActionButton(
-            backgroundColor: Colors.deepOrange,
-            onPressed: () {
-              Scaffold.of(context).showSnackBar(
-                SnackBar(
-                  duration: Duration(seconds: 2),
-                  content: Text(isFavorite
-                      ? 'Removing this talk from your list of favorites.'
-                      : 'Adding this talk to your list of favorites.'),
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Talk details'),
+          ),
+          body: ListView(
+            children: _createInfoRows(model, textTheme),
+          ),
+          floatingActionButton: Builder(
+            // Needed to get a context w/ Scaffold.
+            builder: (context) => FloatingActionButton(
+                  backgroundColor: Colors.deepOrange,
+                  onPressed: () {
+                    Scaffold.of(context).showSnackBar(
+                      SnackBar(
+                        duration: Duration(seconds: 2),
+                        content: Text(model.isFavorite
+                            ? 'Removing this talk from your list of favorites.'
+                            : 'Adding this talk to your list of favorites.'),
+                      ),
+                    );
+                    dispatcher(ToggleFavoriteAction(conferenceId, talkId));
+                  },
+                  child: Icon(model.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border),
                 ),
-              );
-              dispatcher(ToggleFavoriteAction(talkId));
-            },
-            child: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -16,16 +16,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/serializers.dart';
 
 class AppStateLocalStorage {
   static const String filename = 'app_state';
+  static const jsonAssetPath = 'assets/json/cold_boot.json';
 
   const AppStateLocalStorage();
 
-  Future<AppState> loadAppState() async {
+  Future<AppState> loadAppStateFromAsset() async {
+    final jsonStr = await rootBundle.loadString(jsonAssetPath);
+    return serializers.deserializeWith(
+        AppState.serializer, json.decode(jsonStr));
+  }
+
+  Future<AppState> loadAppStateFromCache() async {
     final file = await _getAppStateDataFile();
 
     if (await file.exists()) {
@@ -37,7 +45,7 @@ class AppStateLocalStorage {
     return null;
   }
 
-  Future<File> saveAppState(AppState state) async {
+  Future<File> saveAppStateToCache(AppState state) async {
     final file = await _getAppStateDataFile();
 
     return file.writeAsString(

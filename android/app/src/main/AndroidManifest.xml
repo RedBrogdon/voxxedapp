@@ -14,7 +14,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="voxxedapp"
+        android:label="Voxxed Days"
         android:icon="@mipmap/ic_launcher">
 
         <!-- These two elements are required for flutter-local_notifications -->

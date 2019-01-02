@@ -19,8 +19,6 @@ import 'package:rebloc/rebloc.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:voxxedapp/blocs/app_state_bloc.dart';
 import 'package:voxxedapp/blocs/conference_bloc.dart';
-import 'package:voxxedapp/blocs/data_refresher_bloc.dart';
-import 'package:voxxedapp/blocs/debouncer_bloc.dart';
 import 'package:voxxedapp/blocs/favorites_bloc.dart';
 import 'package:voxxedapp/blocs/logger_bloc.dart';
 import 'package:voxxedapp/blocs/navigation_bloc.dart';
@@ -41,48 +39,41 @@ Future main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(new VoxxedDayApp());
+  // This is created separately so we can refer to it later in [build].
+  final navigatorKey = GlobalKey<NavigatorState>();
+
+  // Holds and manages application state for the app.
+  final store = Store<AppState>(
+    initialState: AppState.initialState(),
+    blocs: [
+      LoggerBloc(),
+      DebouncerBloc<AppState>(
+        [SaveAppStateAction],
+        duration: Duration(seconds: 5),
+      ),
+      NavigationBloc(navigatorKey),
+      AppStateBloc(),
+      ConferenceBloc(),
+      SpeakerBloc(),
+      ScheduleBloc(),
+      FavoritesBloc(),
+    ],
+  );
+
+  // This will attempt to load a previously-saved app state from disk. A
+  // request to the server for the list of conferences will automatically
+  // follow. If both fail, the app can't run, and will halt on the splash
+  // screen with a warning message.
+  store.dispatcher(LoadAppStateAction());
+
+  runApp(new VoxxedDayApp(store, navigatorKey));
 }
 
 class VoxxedDayApp extends StatelessWidget {
-  // By tagging the Navigator created By [MaterialApp] with a GlobalKey and
-  // providing it to the NavigationBloc, we give NavigationBloc a way to get
-  // access to the Navigator it's intended to manipulate.
-  final navigatorKey = GlobalKey<NavigatorState>();
+  VoxxedDayApp(this.store, this.navigatorKey);
 
-  // This is created separately so we can refer to it later in [build].
-  NavigationBloc navBloc;
-
-  // Holds and manages application state for the app.
-  Store<AppState> store;
-
-  VoxxedDayApp() {
-    navBloc = NavigationBloc(navigatorKey);
-    store = Store<AppState>(
-      initialState: AppState.initialState(),
-      blocs: [
-        LoggerBloc(),
-        DebouncerBloc(
-          [SaveAppStateAction],
-          duration: Duration(seconds: 10),
-        ),
-        AppStateBloc(),
-        navBloc,
-        DataRefresherBloc(),
-        ConferenceBloc(),
-        SpeakerBloc(),
-        ScheduleBloc(),
-        FavoritesBloc(),
-      ],
-    );
-
-    // This will attempt to load a previously-saved app state from disk. A
-    // request to the server for the list of conferences will automatically
-    // follow. If both fail, the app can't run, and will halt on the splash
-    // screen with a warning message.
-    store.dispatcher(StartObservingNavigationAction());
-    store.dispatcher(LoadAppStateAction());
-  }
+  final Store<AppState> store;
+  final GlobalKey<NavigatorState> navigatorKey;
 
   MaterialPageRoute _onGenerateRoute(RouteSettings settings) {
     var path = settings.name.split('/');
@@ -154,13 +145,13 @@ class VoxxedDayApp extends StatelessWidget {
     return StoreProvider(
       store: store,
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Voxxed Days',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          fontFamily: 'Lato',
         ),
         onGenerateRoute: _onGenerateRoute,
         navigatorKey: navigatorKey,
-        navigatorObservers: [navBloc.observer],
       ),
     );
   }

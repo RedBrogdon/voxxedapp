@@ -17,7 +17,7 @@ import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 class AboutScreen extends StatelessWidget {
-  static const String gitHubUrl = 'https://github.com/redbrogdon/voxxedapp';
+  static const String gitHubUrl = 'https://github.com/devoxx/voxxedapp';
   static const String flutterUrl = 'https://flutter.io';
 
   @override
@@ -42,7 +42,8 @@ class AboutScreen extends StatelessWidget {
               Text(
                 'This open source app was created by the Voxxed Days team in '
                     'partnership with the Flutter community. If you like it, '
-                    'you can join the team of contributors who keep it running',
+                    'you can join the team of contributors who keep it '
+                    'running.',
                 style: textTheme.subhead,
               ),
               SizedBox(height: 16.0),

@@ -10,12 +10,12 @@ dependencies:
 
   built_collection: '>=2.0.0 <4.0.0'
   built_value: ^6.1.2
-  cached_network_image: ^0.4.1
-  logging: ^0.11.3+1
+  cached_network_image: ^0.5.0+1
+  collection: ^1.14.11
   flutter_local_notifications: ^0.3.8
+  logging: ^0.11.3+1
   path_provider: ^0.4.1
-  rebloc: ^0.0.5
-  rxdart: ^0.18.1
+  rebloc: ^0.2.0
   url_launcher: ^3.0.3
 
 dev_dependencies:
@@ -29,9 +29,24 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/json/cold_boot.json
+
+  fonts:
+  - family: Lato
+    fonts:
+    - asset: assets/font/Lato-Regular.ttf
+    - asset: assets/font/Lato-Italic.ttf
+      style: italic
+    - asset: assets/font/Lato-Bold.ttf
+      weight: 700
+    - asset: assets/font/Lato-BoldItalic.ttf
+      weight: 700
+      style: italic
+
 # This is the config for flutter_launcher_icons, which
 # generates iOS and Android launcher icons from a source image.
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/launcher_icon.png"
+  image_path: "assets/icon/launcher_icon.jpg"

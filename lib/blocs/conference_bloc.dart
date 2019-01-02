@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:built_collection/built_collection.dart';
-import 'package:voxxedapp/data/conference_repository.dart';
+import 'package:voxxedapp/data/web_client.dart';
 import 'package:voxxedapp/models/app_state.dart';
 import 'package:voxxedapp/models/conference.dart';
 import 'package:voxxedapp/models/schedule.dart';
 import 'package:voxxedapp/models/speaker.dart';
 import 'package:rebloc/rebloc.dart';
+import 'package:voxxedapp/util/logger.dart';
+
+class SelectConferenceAction extends Action {
+  final int selectedConferenceId;
+
+  SelectConferenceAction(this.selectedConferenceId);
+}
 
 /// Refresh the entire conference list (partial data for each conference):
 class RefreshConferencesAction extends Action {}
 
 class RefreshedConferencesAction extends Action {
-  final List<Conference> conferences;
+  final BuiltList<Conference> conferences;
 
   RefreshedConferencesAction(this.conferences);
 }
@@ -48,35 +57,38 @@ class RefreshConferenceFailedAction extends Action {}
 
 /// Manages the loading and caching of conference records.
 class ConferenceBloc extends SimpleBloc<AppState> {
-  final ConferenceRepository repository;
+  final WebClient webClient;
 
-  ConferenceBloc({this.repository = const ConferenceRepository()});
+  ConferenceBloc({this.webClient = const WebClient()});
 
-  Action _refreshConferences(DispatchFunction dispatcher, AppState state,
-      RefreshConferencesAction action) {
-    repository.loadConferenceList().then((newList) {
-      final action = RefreshedConferencesAction(newList.toList());
+  Future<void> _refreshConferences(DispatchFunction dispatcher, AppState state,
+      RefreshConferencesAction action) async {
+    try {
+      final conferences = await webClient.fetchConferences();
+      final action = RefreshedConferencesAction(conferences);
       final id = (state.selectedConferenceId != 0)
           ? state.selectedConferenceId
-          : newList.first.id;
-      action.afterward(RefreshConferenceAction(id));
+          : conferences.first.id;
       dispatcher(action);
-    }).catchError((e, s) {
+    } on WebClientException catch (e) {
+      logException('_refreshConferences', e.message);
       dispatcher(RefreshConferencesFailedAction());
-    });
-
-    return action;
+    }
   }
 
-  Action _refreshConference(DispatchFunction dispatcher, AppState state,
-      RefreshConferenceAction action) {
-    repository.loadConference(action.id).then((conference) {
-      dispatcher(RefreshedConferenceAction(conference));
-    }).catchError((e, s) {
+  Future<void> _refreshConference(DispatchFunction dispatcher, AppState state,
+      RefreshConferenceAction action) async {
+    try {
+      final conference = await webClient.fetchConference(action.id);
+      if (conference != null) {
+        dispatcher(RefreshedConferenceAction(conference));
+      } else {
+        dispatcher(RefreshConferenceFailedAction());
+      }
+    } on WebClientException catch (e) {
+      logException('_refreshConference', e.message);
       dispatcher(RefreshConferenceFailedAction());
-    });
-
-    return action;
+    }
   }
 
   AppState _refreshedConferences(
@@ -87,10 +99,10 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     // Conferences currently in the app state that shouldn't be.
     final staleIds = oldIds.where((id) => !newIds.contains(id));
 
-    // Conferences that are new, and aren't in the app state.
+    // Conferences that are new and aren't in the app state.
     final newConfs = action.conferences.where((c) => !oldIds.contains(c.id));
 
-    // Conferences that are already in the app state, and should be updated with
+    // Conferences that are already in the app state and should be updated with
     // any new data that was just loaded.
     final oldConfs = action.conferences.where((c) => oldIds.contains(c.id));
 
@@ -170,12 +182,23 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     });
   }
 
+  AppState _selectConference(AppState state, SelectConferenceAction action) {
+    if (state.conferences.containsKey(action.selectedConferenceId)) {
+      return state.rebuild(
+          (b) => b..selectedConferenceId = action.selectedConferenceId);
+    }
+
+    return state;
+  }
+
   @override
   Action middleware(dispatcher, state, action) {
     if (action is RefreshConferencesAction) {
-      return _refreshConferences(dispatcher, state, action);
-    } else if (action is RefreshConferenceAction) {
-      return _refreshConference(dispatcher, state, action);
+      _refreshConferences(dispatcher, state, action);
+    }
+
+    if (action is RefreshConferenceAction) {
+      _refreshConference(dispatcher, state, action);
     }
 
     return action;
@@ -185,10 +208,28 @@ class ConferenceBloc extends SimpleBloc<AppState> {
   AppState reducer(state, action) {
     if (action is RefreshedConferencesAction) {
       return _refreshedConferences(state, action);
-    } else if (action is RefreshedConferenceAction) {
+    }
+
+    if (action is RefreshedConferenceAction) {
       return _refreshedConference(state, action);
+    }
+
+    if (action is SelectConferenceAction) {
+      return _selectConference(state, action);
     }
 
     return state;
   }
+
+  @override
+  FutureOr<Action> afterware(DispatchFunction dispatcher, AppState state,
+      Action action) {
+    if (action is RefreshedConferencesAction) {
+      dispatcher(RefreshConferenceAction(state.selectedConferenceId));
+    }
+
+    return action;
+  }
+
+
 }
