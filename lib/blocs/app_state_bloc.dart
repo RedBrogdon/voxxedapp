@@ -81,7 +81,8 @@ class AppStateBloc extends SimpleBloc<AppState> {
               staleConferenceIds.add(conferenceId);
             }
           } on FormatException catch (e) {
-            // just skip it and go on to the next one.
+            log.warning('Failed to parse end date "$endDateStr" for Conference'
+                ' $conferenceId: $e');
           }
         }
 
