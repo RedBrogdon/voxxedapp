@@ -222,14 +222,12 @@ class ConferenceBloc extends SimpleBloc<AppState> {
   }
 
   @override
-  FutureOr<Action> afterware(DispatchFunction dispatcher, AppState state,
-      Action action) {
+  FutureOr<Action> afterware(
+      DispatchFunction dispatcher, AppState state, Action action) {
     if (action is RefreshedConferencesAction) {
       dispatcher(RefreshConferenceAction(state.selectedConferenceId));
     }
 
     return action;
   }
-
-
 }

@@ -92,7 +92,9 @@ abstract class AppState implements Built<AppState, AppStateBuilder> {
   }
 
   Speaker getSpeaker(int conferenceId, String uuid) {
-    return speakers[conferenceId]
-        ?.firstWhere((s) => s.uuid == uuid, orElse: () => null,);
+    return speakers[conferenceId]?.firstWhere(
+      (s) => s.uuid == uuid,
+      orElse: () => null,
+    );
   }
 }
