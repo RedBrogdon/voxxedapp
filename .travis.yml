@@ -17,6 +17,8 @@ matrix:
   allow_failures:
     - env: FLUTTER_VERSION=dev
 before_script:
+  - mkdir voxxedapp
+  - mv *!(voxxedapp|.travis.yml|travis_script.sh) voxxedapp
   - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION
   - ./flutter/bin/flutter doctor
   - chmod +x travis_script.sh
