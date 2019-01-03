@@ -2,8 +2,15 @@ set -e
 
 echo "== Testing voxxedapp on Flutter's $FLUTTER_VERSION channel =="
 
-# Run the analyzer to find any static analysis issues.
+# Run the analyzer to find any static analysis issues in lib/*.
+pushd lib
 flutter/bin/flutter analyze
+popd
+
+# Same thing for the test folder.
+pushd test
+flutter/bin/flutter analyze
+popd
 
 # Run the formatter on all the dart files to make sure everything's linted.
 find lib test -name "*.dart" | xargs flutter/bin/flutter format -n

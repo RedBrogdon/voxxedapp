@@ -66,9 +66,6 @@ class ConferenceBloc extends SimpleBloc<AppState> {
     try {
       final conferences = await webClient.fetchConferences();
       final action = RefreshedConferencesAction(conferences);
-      final id = (state.selectedConferenceId != 0)
-          ? state.selectedConferenceId
-          : conferences.first.id;
       dispatcher(action);
     } on WebClientException catch (e) {
       logException('_refreshConferences', e.message);
