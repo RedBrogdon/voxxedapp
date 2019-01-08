@@ -1,6 +1,6 @@
 # voxxedapp - a Voxxed Days schedule app made with Flutter
 
-![screenshot](https://user-images.githubusercontent.com/969662/46552202-d2a8f700-c88e-11e8-9229-4218d7598c09.gif)
+[![Build Status](https://travis-ci.org/devoxx/voxxedapp.svg?branch=master)](https://travis-ci.org/devoxx/voxxedapp)
 
 ## What is voxxedapp?
 
@@ -12,6 +12,8 @@ for both iOS and Android from a single codebase.
 
 The app is currently in an open beta, but will be arriving in the App
 and Play stores within a few weeks.
+
+![screenshot](https://user-images.githubusercontent.com/969662/46552202-d2a8f700-c88e-11e8-9229-4218d7598c09.gif)
 
 ## Building the project
 

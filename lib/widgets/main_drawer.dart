@@ -19,7 +19,13 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 class MainDrawer extends StatelessWidget {
   const MainDrawer();
 
-  static const issuesUrl = 'https://github.com/redbrogdon/voxxedapp/issues';
+  // Due to the way GitHub's issue templates work, I don't believe it's possible
+  // to point someone directly at the correct template. So these are identical
+  // for now. If I learn of a better solution, they'll be updated.
+  static const issuesUrl =
+      'https://github.com/devoxx/voxxedapp/issues/new/choose';
+  static const newFeatureUrl =
+      'https://github.com/devoxx/voxxedapp/issues/new/choose';
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +89,15 @@ class MainDrawer extends StatelessWidget {
             onTap: () async {
               if (await launcher.canLaunch(issuesUrl)) {
                 await launcher.launch(issuesUrl);
+              }
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.add_comment),
+            title: Text('Request a feature for this app'),
+            onTap: () async {
+              if (await launcher.canLaunch(newFeatureUrl)) {
+                await launcher.launch(newFeatureUrl);
               }
             },
           ),
