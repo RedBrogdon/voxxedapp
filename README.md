@@ -1,6 +1,6 @@
 # voxxedapp - a Voxxed Days schedule app made with Flutter
 
-[![Build Status](https://travis-ci.org/RedBrogdon/voxxedapp.svg?branch=master)](https://travis-ci.org/RedBrogdon/voxxedapp)
+[![Build Status](https://travis-ci.org/devoxx/voxxedapp.svg?branch=master)](https://travis-ci.org/devoxx/voxxedapp)
 
 ## What is voxxedapp?
 
